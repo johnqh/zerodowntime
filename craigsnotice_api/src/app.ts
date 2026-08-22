@@ -7,9 +7,13 @@ import {
 import { createWatchesRouter } from "./routes/watches";
 import {
   createAlertsRouter,
+  createAlertStreamRouter,
   createUsersRouter,
-  promoteQueryToken,
 } from "./routes/alerts";
+import {
+  createStreamTicketStore,
+  type StreamTicketStore,
+} from "./services/streamTickets";
 import { createFeedbackRouter } from "./routes/feedback";
 import { createDebugRouter } from "./routes/debug";
 import { createHooksRouter, type HealHandler } from "./routes/hooks";
@@ -28,6 +32,8 @@ export interface AppDeps {
   injector?: FailureInjector;
   debugToken?: string | null;
   onHeal?: HealHandler;
+  webhookSecret?: string | null;
+  tickets?: StreamTicketStore;
 }
 
 export const createApp = (deps: AppDeps): Hono => {
@@ -35,9 +41,17 @@ export const createApp = (deps: AppDeps): Hono => {
   app.route("/health", health);
   app.route("/", health);
 
-  // Unauthenticated: SigNoz posts here with its own alert payload.
-  if (deps.onHeal) {
-    app.route("/api/v1/hooks", createHooksRouter(deps.onHeal));
+  // Mounted only with a shared secret: this endpoint triggers a real,
+  // billable Bright Data heal, and the demo runbook exposes it via a tunnel.
+  if (deps.onHeal && deps.webhookSecret) {
+    app.route(
+      "/api/v1/hooks",
+      createHooksRouter(deps.onHeal, deps.webhookSecret)
+    );
+  } else if (deps.onHeal) {
+    console.warn(
+      "[craigsnotice] SIGNOZ_WEBHOOK_SECRET unset — /api/v1/hooks not mounted"
+    );
   }
 
   if (deps.injector) {
@@ -58,11 +72,14 @@ export const createApp = (deps: AppDeps): Hono => {
       createWatchesRouter(deps.db, deps.port, deps.cycleDeps)
     );
 
-    // EventSource cannot send headers; promote ?token= before auth runs.
-    app.use("/api/v1/alerts/stream", promoteQueryToken);
+    // The stream authenticates with a single-use ticket, not a bearer token,
+    // so it is mounted before the auth middleware and outside its scope.
+    const tickets = deps.tickets ?? createStreamTicketStore();
+    app.route("/api/v1/alerts/stream", createAlertStreamRouter(hub, tickets));
+
     app.use("/api/v1/alerts", auth);
     app.use("/api/v1/alerts/*", auth);
-    app.route("/api/v1/alerts", createAlertsRouter(deps.db, hub));
+    app.route("/api/v1/alerts", createAlertsRouter(deps.db, tickets));
 
     if (deps.port) {
       app.route("/api/v1/alerts", createFeedbackRouter(deps.db, deps.port));

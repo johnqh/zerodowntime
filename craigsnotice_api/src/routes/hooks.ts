@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { successResponse } from "@craigsnotice/types";
+import { createHash, timingSafeEqual } from "node:crypto";
+import { successResponse, errorResponse } from "@craigsnotice/types";
 import type { DegradedInfo, HealResult } from "../services/selfheal";
 
 const signozAlertSchema = z.object({
@@ -25,8 +26,36 @@ export type HealHandler = (info: DegradedInfo) => Promise<HealResult>;
  * here, and the API runs a real Bright Data heal. Observability does not just
  * watch the pipeline, it repairs it.
  */
-export const createHooksRouter = (onHeal: HealHandler): Hono => {
+/** Length-independent, constant-time string comparison. */
+const secretsMatch = (a: string, b: string): boolean => {
+  const ha = createHash("sha256").update(a).digest();
+  const hb = createHash("sha256").update(b).digest();
+  return timingSafeEqual(ha, hb);
+};
+
+/**
+ * The heal this triggers costs money and mutates a live scraper, so the
+ * endpoint requires a shared secret. `createApp` refuses to mount it when
+ * SIGNOZ_WEBHOOK_SECRET is unset rather than exposing it unauthenticated —
+ * which matters because the demo runbook puts this behind a public tunnel.
+ */
+export const createHooksRouter = (
+  onHeal: HealHandler,
+  webhookSecret: string
+): Hono => {
   const router = new Hono();
+
+  if (!webhookSecret) {
+    throw new Error("refusing to mount /hooks without a webhook secret");
+  }
+
+  router.use("*", async (c, next) => {
+    const provided = c.req.header("x-signoz-token");
+    if (!provided || !secretsMatch(provided, webhookSecret)) {
+      return c.json(errorResponse("forbidden"), 401);
+    }
+    await next();
+  });
 
   router.post(
     "/signoz/heal",

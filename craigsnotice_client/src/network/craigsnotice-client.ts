@@ -96,6 +96,17 @@ export class CraigsnoticeClient {
     });
   };
 
+  /**
+   * EventSource cannot set headers, so the stream authenticates with an
+   * opaque single-use ticket obtained here over an authenticated request.
+   */
+  streamTicket = (token: string): Promise<{ ticket: string; expiresIn: number }> =>
+    this.call<{ ticket: string; expiresIn: number }>(
+      token,
+      "/api/v1/alerts/stream/ticket",
+      { method: "POST" }
+    );
+
   registerFcmToken = async (
     token: string,
     fcmToken: string

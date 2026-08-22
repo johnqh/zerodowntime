@@ -120,6 +120,7 @@ const app = createApp({
   injector,
   debugToken: config.debugToken,
   onHeal,
+  webhookSecret: process.env.SIGNOZ_WEBHOOK_SECRET ?? null,
 });
 
 /**

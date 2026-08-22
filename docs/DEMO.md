@@ -18,6 +18,11 @@ filtered to `scraper.selfheal`, and the Port catalog.
 Set the watch interval long (`WATCH_DEFAULT_INTERVAL_SEC=86400`) so nothing
 fires unprompted mid-demo. **Run now** is the trigger.
 
+If you tunnel the API so SigNoz Cloud can reach the heal webhook, set
+`SIGNOZ_WEBHOOK_SECRET` and configure SigNoz to send it as `x-signoz-token`.
+Without it the `/api/v1/hooks` route is not mounted — deliberately, since it
+triggers a billable heal.
+
 Sanity check, ~90 seconds before you present:
 
 ```bash

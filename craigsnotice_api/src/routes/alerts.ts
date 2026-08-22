@@ -12,6 +12,7 @@ import {
   watches,
 } from "../db/schema";
 import type { SseHub } from "../services/notify/dispatcher";
+import type { StreamTicketStore } from "../services/streamTickets";
 
 export interface AlertView {
   id: string;
@@ -26,7 +27,10 @@ export interface AlertView {
   userFeedback: "good" | "bad" | null;
 }
 
-export const createAlertsRouter = (db: Db, hub: SseHub): Hono => {
+export const createAlertsRouter = (
+  db: Db,
+  tickets: StreamTicketStore
+): Hono => {
   const router = new Hono();
 
   router.get("/", async (c) => {
@@ -69,8 +73,36 @@ export const createAlertsRouter = (db: Db, hub: SseHub): Hono => {
     return c.json(successResponse(view));
   });
 
-  router.get("/stream", (c) => {
-    return new Response(hub.subscribe(c.get("userId")), {
+  /** Authenticated: exchange a real bearer token for a single-use ticket. */
+  router.post("/stream/ticket", (c) =>
+    c.json(successResponse(tickets.issue(c.get("userId"))))
+  );
+
+  return router;
+};
+
+/**
+ * Unauthenticated route: the ticket IS the credential. It is opaque,
+ * single-use, expires in 30s and is bound to one user, so putting it in the
+ * query string does not leak anything reusable — unlike the Firebase ID token
+ * this used to accept there.
+ */
+export const createAlertStreamRouter = (
+  hub: SseHub,
+  tickets: StreamTicketStore
+): Hono => {
+  const router = new Hono();
+
+  router.get("/", (c) => {
+    const ticket = new URL(c.req.raw.url).searchParams.get("ticket");
+    if (!ticket) return c.json(errorResponse("missing stream ticket"), 401);
+
+    const userId = tickets.consume(ticket);
+    if (!userId) {
+      return c.json(errorResponse("invalid or expired stream ticket"), 401);
+    }
+
+    return new Response(hub.subscribe(userId), {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
@@ -80,22 +112,6 @@ export const createAlertsRouter = (db: Db, hub: SseHub): Hono => {
   });
 
   return router;
-};
-
-/**
- * EventSource cannot set an Authorization header, so /alerts/stream accepts
- * ?token=. This promotes it into the header before auth runs; every other
- * route keeps requiring a real header.
- */
-export const promoteQueryToken = async (
-  c: { req: { raw: Request; header: (n: string) => string | undefined } },
-  next: () => Promise<void>
-): Promise<void> => {
-  if (!c.req.header("Authorization")) {
-    const token = new URL(c.req.raw.url).searchParams.get("token");
-    if (token) c.req.raw.headers.set("Authorization", `Bearer ${token}`);
-  }
-  await next();
 };
 
 export const createUsersRouter = (db: Db): Hono => {

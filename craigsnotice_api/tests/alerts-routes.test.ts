@@ -110,17 +110,64 @@ describe("alerts routes", () => {
     expect((await app().request("/api/v1/alerts")).status).toBe(401);
   });
 
-  it("accepts a query token on the SSE stream", async () => {
+  it("opens the SSE stream with a single-use ticket", async () => {
     await seedAlert("a@x.dev", "uid-a");
+    const a = app();
 
-    const res = await app().request("/api/v1/alerts/stream?token=user-a");
+    const issued = await (
+      await a.request("/api/v1/alerts/stream/ticket", {
+        method: "POST",
+        headers: authed("user-a"),
+      })
+    ).json();
+    expect(issued.data.ticket).toBeTruthy();
+
+    const res = await a.request(
+      `/api/v1/alerts/stream?ticket=${issued.data.ticket}`
+    );
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toBe("text/event-stream");
     await res.body?.cancel();
   });
 
-  it("rejects the SSE stream with no token at all", async () => {
+  it("refuses to reuse a ticket", async () => {
+    await seedAlert("a@x.dev", "uid-a");
+    const a = app();
+
+    const issued = await (
+      await a.request("/api/v1/alerts/stream/ticket", {
+        method: "POST",
+        headers: authed("user-a"),
+      })
+    ).json();
+
+    const first = await a.request(
+      `/api/v1/alerts/stream?ticket=${issued.data.ticket}`
+    );
+    await first.body?.cancel();
+
+    const second = await a.request(
+      `/api/v1/alerts/stream?ticket=${issued.data.ticket}`
+    );
+    expect(second.status).toBe(401);
+  });
+
+  it("no longer accepts a bearer token in the query string", async () => {
+    // The Firebase ID token is reusable for an hour; it must never appear in
+    // a URL, where it lands in access logs and browser history.
+    const res = await app().request("/api/v1/alerts/stream?token=user-a");
+    expect(res.status).toBe(401);
+  });
+
+  it("rejects the SSE stream with no ticket at all", async () => {
     expect((await app().request("/api/v1/alerts/stream")).status).toBe(401);
+  });
+
+  it("requires auth to mint a ticket", async () => {
+    const res = await app().request("/api/v1/alerts/stream/ticket", {
+      method: "POST",
+    });
+    expect(res.status).toBe(401);
   });
 
   it("registers an FCM token without duplicating it", async () => {

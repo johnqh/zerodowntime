@@ -5,10 +5,15 @@ import { createHooksRouter } from "../src/routes/hooks";
 import type { DegradedInfo } from "../src/services/selfheal";
 import { scraperConfigs } from "../src/db/schema";
 
-const post = (app: Hono, body: unknown) =>
+const SECRET = "s3cret-webhook-token";
+
+const post = (app: Hono, body: unknown, secret: string | null = SECRET) =>
   app.request("/signoz/heal", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(secret === null ? {} : { "x-signoz-token": secret }),
+    },
     body: JSON.stringify(body),
   });
 
@@ -25,7 +30,7 @@ describe("POST /hooks/signoz/heal", () => {
     }))
   ) => {
     const app = new Hono();
-    app.route("/", createHooksRouter(onHeal));
+    app.route("/", createHooksRouter(onHeal, SECRET));
     return { app, onHeal };
   };
 
@@ -68,6 +73,34 @@ describe("POST /hooks/signoz/heal", () => {
 
     expect(res.status).toBe(200);
     expect(onHeal).not.toHaveBeenCalled();
+  });
+
+  it("rejects a request with no shared secret", async () => {
+    const { app, onHeal } = build();
+    const res = await post(
+      app,
+      { alerts: [{ status: "firing", labels: { scraper_config_id: "x" } }] },
+      null
+    );
+
+    expect(res.status).toBe(401);
+    expect(onHeal).not.toHaveBeenCalled();
+  });
+
+  it("rejects a request with the wrong shared secret", async () => {
+    const { app, onHeal } = build();
+    const res = await post(
+      app,
+      { alerts: [{ status: "firing", labels: { scraper_config_id: "x" } }] },
+      "not-the-secret"
+    );
+
+    expect(res.status).toBe(401);
+    expect(onHeal).not.toHaveBeenCalled();
+  });
+
+  it("refuses to construct without a secret rather than mounting open", () => {
+    expect(() => createHooksRouter(vi.fn(), "")).toThrow(/webhook secret/);
   });
 
   it("returns 400 for a body that is not a SigNoz alert payload", async () => {

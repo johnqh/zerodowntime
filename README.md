@@ -71,6 +71,11 @@ OpenTelemetry traces, metrics and logs, exported over OTLP.
   `POST /api/v1/hooks/signoz/heal`, which runs a real heal. Observability
   doesn't just watch the pipeline — it repairs it.
 
+  That endpoint triggers a billable heal against a live scraper, so it
+  requires a shared secret in `x-signoz-token` (constant-time compared) and
+  the route is **not mounted at all** unless `SIGNOZ_WEBHOOK_SECRET` is set.
+  Set it before exposing the API through a tunnel.
+
 ---
 
 ## About the staged break
@@ -164,6 +169,15 @@ cd craigsnotice_app && bun run dev     # :5173
 Without `FIREBASE_PROJECT_ID` the API accepts any bearer token so the pipeline
 can be exercised before Firebase is provisioned. It refuses to do this when
 `NODE_ENV=production`.
+
+### A note on the SSE stream
+
+`EventSource` cannot set an `Authorization` header. Rather than put the
+Firebase ID token in the query string — where a reusable, hour-long credential
+would land in access logs, proxy logs and browser history — the client
+exchanges it at `POST /api/v1/alerts/stream/ticket` for an opaque ticket that
+is single-use, expires in 30 seconds, and is bound to one user. Only that
+ticket appears in the URL.
 
 ## Tests
 

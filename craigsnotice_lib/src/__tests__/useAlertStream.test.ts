@@ -45,24 +45,45 @@ class FakeEventSource {
 
 const Impl = FakeEventSource as unknown as typeof EventSource;
 
+const okTicket = async (): Promise<string> => "tkt-abc";
+
 describe("useAlertStream", () => {
   it("does not connect without a token", () => {
     FakeEventSource.last = null;
-    renderHook(() => useAlertStream("http://x", "", Impl));
+    renderHook(() => useAlertStream("http://x", "", Impl, okTicket));
     expect(FakeEventSource.last).toBeNull();
   });
 
-  it("passes the token as a query param because EventSource cannot set headers", () => {
-    renderHook(() => useAlertStream("http://x", "tok", Impl));
+  it("connects with a single-use ticket, never the bearer token", async () => {
+    FakeEventSource.last = null;
+    renderHook(() => useAlertStream("http://x", "tok", Impl, okTicket));
+
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
     expect(FakeEventSource.last!.url).toBe(
-      "http://x/api/v1/alerts/stream?token=tok"
+      "http://x/api/v1/alerts/stream?ticket=tkt-abc"
     );
+    expect(FakeEventSource.last!.url).not.toContain("tok");
+  });
+
+  it("does not connect when the ticket exchange fails", async () => {
+    FakeEventSource.last = null;
+    const failing = async (): Promise<string> => {
+      throw new Error("401");
+    };
+    const { result } = renderHook(() =>
+      useAlertStream("http://x", "tok", Impl, failing)
+    );
+
+    await new Promise((r) => setTimeout(r, 10));
+    expect(FakeEventSource.last).toBeNull();
+    expect(result.current.connected).toBe(false);
   });
 
   it("prepends an incoming alert and marks the stream connected", async () => {
     const { result } = renderHook(() =>
-      useAlertStream("http://x", "tok", Impl)
+      useAlertStream("http://x", "tok", Impl, okTicket)
     );
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
 
     act(() => {
       FakeEventSource.last!.onopen?.();
@@ -76,8 +97,9 @@ describe("useAlertStream", () => {
 
   it("ignores a duplicate alert id", async () => {
     const { result } = renderHook(() =>
-      useAlertStream("http://x", "tok", Impl)
+      useAlertStream("http://x", "tok", Impl, okTicket)
     );
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
 
     act(() => {
       FakeEventSource.last!.emit("deal-alert", alert);
@@ -89,8 +111,9 @@ describe("useAlertStream", () => {
 
   it("drops a malformed frame without throwing", async () => {
     const { result } = renderHook(() =>
-      useAlertStream("http://x", "tok", Impl)
+      useAlertStream("http://x", "tok", Impl, okTicket)
     );
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
 
     act(() => {
       FakeEventSource.last!.emit("deal-alert", "{not json");
@@ -99,10 +122,12 @@ describe("useAlertStream", () => {
     expect(result.current.alerts).toHaveLength(0);
   });
 
-  it("closes the source on unmount", () => {
+  it("closes the source on unmount", async () => {
     const { unmount } = renderHook(() =>
-      useAlertStream("http://x", "tok", Impl)
+      useAlertStream("http://x", "tok", Impl, okTicket)
     );
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
+
     const source = FakeEventSource.last!;
     unmount();
     expect(source.closed).toBe(true);
