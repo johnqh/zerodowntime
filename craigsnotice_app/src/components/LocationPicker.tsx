@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SITES, type Site } from "@craigsnotice/types";
 import { useGeoSite } from "@craigsnotice/lib";
 import { Label, Text } from "@sudobility/components";
@@ -15,9 +15,17 @@ export interface LocationPickerProps {
  * "Use my location" resolves coordinates to the nearest site.
  */
 export const LocationPicker = ({ value, onChange }: LocationPickerProps) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(value?.name ?? "");
   const [open, setOpen] = useState(false);
   const geo = useGeoSite();
+  // Applies a resolved location once, so re-picking by hand is not overridden.
+  const appliedGeoRef = useRef<string | null>(null);
+
+  // Hydrate the field when a saved location arrives after first render.
+  useEffect(() => {
+    if (value && value.name !== query) setQuery(value.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value?.code]);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -27,13 +35,27 @@ export const LocationPicker = ({ value, onChange }: LocationPickerProps) => {
     ).slice(0, MAX_RESULTS);
   }, [query]);
 
-  const pick = (site: Site): void => {
-    onChange(site);
-    setQuery(site.name);
-    setOpen(false);
-  };
+  const pick = useCallback(
+    (site: Site): void => {
+      onChange(site);
+      setQuery(site.name);
+      setOpen(false);
+    },
+    [onChange]
+  );
 
-  if (geo.status === "resolved" && geo.site && !value) pick(geo.site);
+  /**
+   * Geolocation resolves asynchronously. This used to call pick() straight
+   * from the render body, which sets state on the parent mid-render — React
+   * discards that, so allowing location appeared to do nothing.
+   */
+  useEffect(() => {
+    if (geo.status !== "resolved" || !geo.site) return;
+    if (appliedGeoRef.current === geo.site.code) return;
+
+    appliedGeoRef.current = geo.site.code;
+    pick(geo.site);
+  }, [geo.status, geo.site, pick]);
 
   return (
     <div className="relative">

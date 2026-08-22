@@ -1,5 +1,6 @@
-import { useState } from "react";
-import type { CreateWatchInput, Site } from "@craigsnotice/types";
+import { useCallback, useMemo, useState } from "react";
+import { getSite, type CreateWatchInput, type Site } from "@craigsnotice/types";
+import { useWatchDraftStore } from "@craigsnotice/lib";
 import { Button, Label, Text } from "@sudobility/components";
 import { LocationPicker } from "./LocationPicker";
 import { CategoryPicker } from "./CategoryPicker";
@@ -10,11 +11,33 @@ export interface WatchFormProps {
 }
 
 export const WatchForm = ({ onSubmit, pending = false }: WatchFormProps) => {
-  const [site, setSite] = useState<Site | null>(null);
-  const [categoryCode, setCategoryCode] = useState("sss");
-  const [query, setQuery] = useState("");
-  const [targetPrice, setTargetPrice] = useState("");
+  /**
+   * The draft lives in a persisted store, so location, category, what you are
+   * looking for and the target price all survive a reload. Only the query is
+   * cleared after a successful create — the rest is almost always reused for
+   * the next watch.
+   */
+  const draft = useWatchDraftStore();
   const [error, setError] = useState<string | null>(null);
+
+  const site = useMemo(
+    () => (draft.siteCode ? (getSite(draft.siteCode) ?? null) : null),
+    [draft.siteCode]
+  );
+
+  const setSite = useCallback(
+    (next: Site | null) => draft.set("siteCode", next?.code ?? ""),
+    [draft]
+  );
+
+  const categoryCode = draft.categoryCode;
+  const query = draft.query;
+  const targetPrice = draft.targetPrice;
+
+  const setCategoryCode = (code: string): void =>
+    draft.set("categoryCode", code);
+  const setQuery = (q: string): void => draft.set("query", q);
+  const setTargetPrice = (p: string): void => draft.set("targetPrice", p);
 
   const submit = (): void => {
     if (!site) {
@@ -37,6 +60,10 @@ export const WatchForm = ({ onSubmit, pending = false }: WatchFormProps) => {
         ? { targetPrice: price }
         : {}),
     });
+
+    // Location and category are deliberately kept — the next watch is usually
+    // in the same place and section.
+    draft.set("query", "");
   };
 
   return (

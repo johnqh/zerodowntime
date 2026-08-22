@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { WatchForm } from "../components/WatchForm";
+import { useWatchDraftStore } from "@craigsnotice/lib";
 
 const pickSfBay = () => {
   fireEvent.change(screen.getByLabelText(/location/i), {
@@ -10,6 +11,12 @@ const pickSfBay = () => {
 };
 
 describe("WatchForm", () => {
+  beforeEach(() => {
+    // The draft is persisted on purpose, so it must be cleared between cases.
+    localStorage.clear();
+    useWatchDraftStore.getState().reset();
+  });
+
   it("submits location, category and query", () => {
     const onSubmit = vi.fn();
     render(<WatchForm onSubmit={onSubmit} />);
@@ -83,6 +90,36 @@ describe("WatchForm", () => {
 
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByText(/say what you are looking for/i)).toBeTruthy();
+  });
+
+  it("keeps the location and category after a successful submit", () => {
+    const onSubmit = vi.fn();
+    const { unmount } = render(<WatchForm onSubmit={onSubmit} />);
+
+    pickSfBay();
+    fireEvent.change(screen.getByLabelText(/category/i), {
+      target: { value: "sya" },
+    });
+    fireEvent.change(screen.getByLabelText(/looking for/i), {
+      target: { value: "Mac Studio" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /create watch/i }));
+    expect(onSubmit).toHaveBeenCalledOnce();
+
+    // Remount, as a page reload would.
+    unmount();
+    render(<WatchForm onSubmit={vi.fn()} />);
+
+    expect(
+      (screen.getByLabelText(/location/i) as HTMLInputElement).value
+    ).toContain("SF bay area");
+    expect((screen.getByLabelText(/category/i) as HTMLSelectElement).value).toBe(
+      "sya"
+    );
+    // The query is cleared; the next watch is usually a different item.
+    expect(
+      (screen.getByLabelText(/looking for/i) as HTMLInputElement).value
+    ).toBe("");
   });
 
   it("filters the location list as the user types", () => {
