@@ -9,26 +9,13 @@ import { getCategory, getSite } from "@craigsnotice/types";
 import { Button, EmptyState, Heading, Text } from "@sudobility/components";
 import { WatchForm } from "../components/WatchForm";
 import { DealImageStack } from "../components/DealImageStack";
+import { relativeTime } from "@craigsnotice/lib";
 import { useClientContext } from "../hooks/useClientContext";
-
-const relativeTime = (iso: string | null): string => {
-  if (!iso) return "queued";
-  const seconds = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 90) return "just now";
-  if (seconds < 3600) return `${Math.round(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.round(seconds / 3600)}h ago`;
-  return `${Math.round(seconds / 86400)}d ago`;
-};
 
 const WatchRow = ({ watch }: { watch: WatchView }) => {
   const ctx = useClientContext();
   const remove = useDeleteWatch(ctx);
   const navigate = useNavigate();
-
-  const everyLabel =
-    watch.intervalSec % 3600 === 0
-      ? `${watch.intervalSec / 3600}h`
-      : `${Math.round(watch.intervalSec / 60)}m`;
 
   const site = getSite(watch.siteCode);
   const category = getCategory(watch.categoryCode);
@@ -47,13 +34,12 @@ const WatchRow = ({ watch }: { watch: WatchView }) => {
         className="grid cursor-pointer grid-cols-[1fr_auto] items-start gap-4 px-2 py-5 transition-colors hover:bg-paper-deep"
       >
         <div className="min-w-0">
-          <div className="flex items-baseline gap-3">
-            <span className="text-xl font-bold tracking-title">
-              {watch.query}
-            </span>
-            <span className="eyebrow text-ink-faint">
-              {site?.name ?? watch.siteCode} · {category?.label ?? watch.categoryCode}
-            </span>
+          <div className="text-xl font-bold leading-tight tracking-title">
+            {watch.query}
+          </div>
+          <div className="eyebrow mt-1 text-ink-faint">
+            {site?.name ?? watch.siteCode} ·{" "}
+            {category?.label ?? watch.categoryCode}
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -65,20 +51,10 @@ const WatchRow = ({ watch }: { watch: WatchView }) => {
                     : "inline-block h-2 w-2 rounded-full bg-ink-faint"
                 }
               />
-              <span className="eyebrow">
-                {active ? `Watching every ${everyLabel}` : "Paused"}
-              </span>
-            </span>
-
-            <span className="eyebrow text-ink-faint">
-              Checked {relativeTime(watch.lastRunAt)}
-            </span>
-
-            {watch.runCount > 0 && (
               <span className="eyebrow text-ink-faint">
-                {watch.runCount} runs
+                Updated {relativeTime(watch.lastRunAt)}
               </span>
-            )}
+            </span>
 
             {watch.targetPrice !== null && (
               <span className="eyebrow text-ink-faint">
@@ -90,7 +66,6 @@ const WatchRow = ({ watch }: { watch: WatchView }) => {
 
         <div className="flex items-center gap-5">
           <DealImageStack images={watch.dealImages} total={watch.dealCount} />
-          <span className="eyebrow text-ink-faint">Results →</span>
           <Button
             type="button"
             onClick={(e) => {

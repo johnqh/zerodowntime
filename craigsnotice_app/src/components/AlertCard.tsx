@@ -1,6 +1,11 @@
 import type { AlertView } from "@craigsnotice/client";
 import type { FeedbackVerdict } from "@craigsnotice/types";
 import { Button, Text } from "@sudobility/components";
+import {
+  isNewDeal,
+  relativeTime,
+  foundAtLabel,
+} from "@craigsnotice/lib";
 import { DealImage } from "./DealImage";
 
 const money = new Intl.NumberFormat("en-US", {
@@ -12,12 +17,19 @@ const money = new Intl.NumberFormat("en-US", {
 export interface AlertCardProps {
   alert: AlertView;
   onFeedback(verdict: FeedbackVerdict): void;
+  /** Start of the watch's most recent run, so "New" can mean "this run". */
+  lastRunAt?: string | null;
 }
 
-export const AlertCard = ({ alert, onFeedback }: AlertCardProps) => {
+export const AlertCard = ({
+  alert,
+  onFeedback,
+  lastRunAt = null,
+}: AlertCardProps) => {
   const voted = alert.userFeedback !== null;
   const delta = Math.round(alert.priceVsMedian * 100);
   const deltaLabel = `${delta > 0 ? "+" : ""}${delta}%`;
+  const isNew = isNewDeal({ createdAt: alert.createdAt, lastRunAt });
 
   return (
     <article className="panel">
@@ -36,14 +48,21 @@ export const AlertCard = ({ alert, onFeedback }: AlertCardProps) => {
         </a>
 
         <div className="min-w-0">
-          <a
-            href={alert.url}
-            target="_blank"
-            rel="noreferrer"
-            className="block text-xl font-bold leading-snug tracking-title text-ink no-underline hover:text-accent"
-          >
-            {alert.title}
-          </a>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            {isNew && (
+              <span className="eyebrow bg-accent px-1.5 py-0.5 text-paper">
+                New
+              </span>
+            )}
+            <a
+              href={alert.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xl font-bold leading-snug tracking-title text-ink no-underline hover:text-accent"
+            >
+              {alert.title}
+            </a>
+          </div>
 
           <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
             <span className="figure text-3xl font-bold text-ink">
@@ -73,6 +92,11 @@ export const AlertCard = ({ alert, onFeedback }: AlertCardProps) => {
         <Text size="sm" className="block leading-relaxed text-ink-muted">
           {alert.reasoning}
         </Text>
+        <div className="mt-3">
+          <span className="eyebrow text-ink-faint">
+            Found {relativeTime(alert.createdAt)} · {foundAtLabel(alert.createdAt)}
+          </span>
+        </div>
       </div>
 
       {/* The listing itself. Explicit, not just a linked headline. */}

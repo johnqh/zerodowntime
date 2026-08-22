@@ -79,6 +79,40 @@ describe("AlertCard", () => {
     expect(link.getAttribute("target")).toBe("_blank");
   });
 
+  it("marks a deal found minutes ago as New", () => {
+    render(
+      <AlertCard
+        alert={{ ...alert, createdAt: new Date().toISOString() }}
+        onFeedback={vi.fn()}
+      />
+    );
+    expect(screen.getByText("New")).toBeTruthy();
+  });
+
+  it("does not mark an old deal as New", () => {
+    const old = new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString();
+    render(<AlertCard alert={{ ...alert, createdAt: old }} onFeedback={vi.fn()} />);
+    expect(screen.queryByText("New")).toBeNull();
+  });
+
+  it("marks an older deal as New when the most recent run surfaced it", () => {
+    const found = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString();
+    const runStart = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString();
+    render(
+      <AlertCard
+        alert={{ ...alert, createdAt: found }}
+        lastRunAt={runStart}
+        onFeedback={vi.fn()}
+      />
+    );
+    expect(screen.getByText("New")).toBeTruthy();
+  });
+
+  it("shows when the deal was found", () => {
+    render(<AlertCard alert={alert} onFeedback={vi.fn()} />);
+    expect(screen.getByText(/^Found /)).toBeTruthy();
+  });
+
   it("handles a listing with no price without rendering NaN", () => {
     render(<AlertCard alert={{ ...alert, price: null }} onFeedback={vi.fn()} />);
     expect(screen.queryByText(/NaN/)).toBeNull();

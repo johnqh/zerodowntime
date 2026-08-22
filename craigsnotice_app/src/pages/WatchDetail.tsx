@@ -4,6 +4,7 @@ import { useAlerts, useSendFeedback, useWatches } from "@craigsnotice/client";
 import { getCategory, getSite } from "@craigsnotice/types";
 import { EmptyState, Heading, Text } from "@sudobility/components";
 import { AlertCard } from "../components/AlertCard";
+import { relativeTime } from "@craigsnotice/lib";
 import { useClientContext } from "../hooks/useClientContext";
 
 /** The results view for one watch: every deal it has surfaced. */
@@ -61,17 +62,16 @@ export const WatchDetail = () => {
           {watch.query}
         </Heading>
 
-        <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
+        <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-5">
           {[
             ["Location", site?.name ?? watch.siteCode],
             ["Category", category?.label ?? watch.categoryCode],
-            ["Interval", `${Math.round(watch.intervalSec / 60)} min`],
             [
               "Target",
               watch.targetPrice !== null ? `$${watch.targetPrice}` : "—",
             ],
-            ["Runs", String(watch.runCount)],
             ["Status", watch.status],
+            ["Updated", relativeTime(watch.lastRunAt)],
             ["Deals found", String(mine.length)],
           ].map(([label, value]) => (
             <div key={label}>
@@ -114,6 +114,7 @@ export const WatchDetail = () => {
             <AlertCard
               key={a.id}
               alert={a}
+              lastRunAt={watch.lastRunAt}
               onFeedback={(verdict) =>
                 feedback.mutate({ alertId: a.id, verdict })
               }
