@@ -1,0 +1,25 @@
+{
+  "name": "zerodowntime",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "craigsnotice_types",
+    "craigsnotice_api",
+    "craigsnotice_client",
+    "craigsnotice_lib",
+    "craigsnotice_app"
+  ],
+  "scripts": {
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test:run",
+    "lint": "bun run --filter '*' lint",
+    "format": "prettier --write \"*/src/**/*.{ts,tsx,json}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0",
+    "typescript": "^5.9.0",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^2.0.0"
+  }
+}

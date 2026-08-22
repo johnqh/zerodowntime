@@ -1,0 +1,3688 @@
+[
+  {
+    "code": "abilene",
+    "name": "abilene, TX",
+    "state": "TX",
+    "lat": 32.448601,
+    "lng": -99.732803,
+    "subareas": []
+  },
+  {
+    "code": "akroncanton",
+    "name": "akron / canton",
+    "state": "OH",
+    "lat": 41.081402,
+    "lng": -81.519203,
+    "subareas": []
+  },
+  {
+    "code": "albany",
+    "name": "albany, NY",
+    "state": "NY",
+    "lat": 42.6525,
+    "lng": -73.756699,
+    "subareas": []
+  },
+  {
+    "code": "albanyga",
+    "name": "albany, GA",
+    "state": "GA",
+    "lat": 31.575026,
+    "lng": -84.159393,
+    "subareas": []
+  },
+  {
+    "code": "albuquerque",
+    "name": "albuquerque",
+    "state": "NM",
+    "lat": 35.0844,
+    "lng": -106.651001,
+    "subareas": []
+  },
+  {
+    "code": "allentown",
+    "name": "lehigh valley",
+    "state": "PA",
+    "lat": 40.599998,
+    "lng": -75.5,
+    "subareas": []
+  },
+  {
+    "code": "altoona",
+    "name": "altoona-johnstown",
+    "state": "PA",
+    "lat": 40.5186,
+    "lng": -78.394997,
+    "subareas": []
+  },
+  {
+    "code": "amarillo",
+    "name": "amarillo, TX",
+    "state": "TX",
+    "lat": 35.221901,
+    "lng": -101.831001,
+    "subareas": []
+  },
+  {
+    "code": "ames",
+    "name": "ames, IA",
+    "state": "IA",
+    "lat": 42.034698,
+    "lng": -93.619698,
+    "subareas": []
+  },
+  {
+    "code": "anchorage",
+    "name": "anchorage / mat-su",
+    "state": "AK",
+    "lat": 61.196201,
+    "lng": -149.886002,
+    "subareas": []
+  },
+  {
+    "code": "annapolis",
+    "name": "annapolis, MD",
+    "state": "MD",
+    "lat": 38.978298,
+    "lng": -76.4925,
+    "subareas": []
+  },
+  {
+    "code": "annarbor",
+    "name": "ann arbor, MI",
+    "state": "MI",
+    "lat": 42.270802,
+    "lng": -83.726402,
+    "subareas": []
+  },
+  {
+    "code": "appleton",
+    "name": "appleton-oshkosh-FDL",
+    "state": "WI",
+    "lat": 44.261902,
+    "lng": -88.415298,
+    "subareas": []
+  },
+  {
+    "code": "asheville",
+    "name": "asheville, NC",
+    "state": "NC",
+    "lat": 35.6008,
+    "lng": -82.554199,
+    "subareas": []
+  },
+  {
+    "code": "ashtabula",
+    "name": "ashtabula, OH",
+    "state": "OH",
+    "lat": 41.865101,
+    "lng": -80.789803,
+    "subareas": []
+  },
+  {
+    "code": "athensga",
+    "name": "athens, GA",
+    "state": "GA",
+    "lat": 33.9608,
+    "lng": -83.378098,
+    "subareas": []
+  },
+  {
+    "code": "athensohio",
+    "name": "athens, OH",
+    "state": "OH",
+    "lat": 39.329201,
+    "lng": -82.101402,
+    "subareas": []
+  },
+  {
+    "code": "atlanta",
+    "name": "atlanta, GA",
+    "state": "GA",
+    "lat": 33.748901,
+    "lng": -84.3881,
+    "subareas": [
+      {
+        "code": "atl",
+        "name": "city of atlanta"
+      },
+      {
+        "code": "nat",
+        "name": "otp north"
+      },
+      {
+        "code": "eat",
+        "name": "otp east"
+      },
+      {
+        "code": "sat",
+        "name": "otp south"
+      },
+      {
+        "code": "wat",
+        "name": "otp west"
+      }
+    ]
+  },
+  {
+    "code": "auburn",
+    "name": "auburn, AL",
+    "state": "AL",
+    "lat": 32.609699,
+    "lng": -85.480797,
+    "subareas": []
+  },
+  {
+    "code": "augusta",
+    "name": "augusta, GA",
+    "state": "GA",
+    "lat": 33.470798,
+    "lng": -81.974998,
+    "subareas": []
+  },
+  {
+    "code": "austin",
+    "name": "austin, TX",
+    "state": "TX",
+    "lat": 30.266899,
+    "lng": -97.742798,
+    "subareas": []
+  },
+  {
+    "code": "bakersfield",
+    "name": "bakersfield, CA",
+    "state": "CA",
+    "lat": 35.373299,
+    "lng": -119.017998,
+    "subareas": []
+  },
+  {
+    "code": "baltimore",
+    "name": "baltimore, MD",
+    "state": "MD",
+    "lat": 39.307999,
+    "lng": -76.616997,
+    "subareas": []
+  },
+  {
+    "code": "batonrouge",
+    "name": "baton rouge",
+    "state": "LA",
+    "lat": 30.458099,
+    "lng": -91.140198,
+    "subareas": []
+  },
+  {
+    "code": "battlecreek",
+    "name": "battle creek, MI",
+    "state": "MI",
+    "lat": 42.321201,
+    "lng": -85.179703,
+    "subareas": []
+  },
+  {
+    "code": "beaumont",
+    "name": "beaumont / port arthur",
+    "state": "TX",
+    "lat": 30.0762,
+    "lng": -94.112999,
+    "subareas": []
+  },
+  {
+    "code": "bellingham",
+    "name": "bellingham, WA",
+    "state": "WA",
+    "lat": 48.759701,
+    "lng": -122.487,
+    "subareas": []
+  },
+  {
+    "code": "bemidji",
+    "name": "bemidji, MN",
+    "state": "MN",
+    "lat": 47.473598,
+    "lng": -94.880302,
+    "subareas": []
+  },
+  {
+    "code": "bend",
+    "name": "bend, OR",
+    "state": "OR",
+    "lat": 44.0583,
+    "lng": -121.314003,
+    "subareas": []
+  },
+  {
+    "code": "bgky",
+    "name": "bowling green, KY",
+    "state": "KY",
+    "lat": 36.990299,
+    "lng": -86.443604,
+    "subareas": []
+  },
+  {
+    "code": "bham",
+    "name": "birmingham, AL",
+    "state": "AL",
+    "lat": 33.520599,
+    "lng": -86.802498,
+    "subareas": []
+  },
+  {
+    "code": "bigbend",
+    "name": "southwest TX",
+    "state": "TX",
+    "lat": 29.200123,
+    "lng": -103.293457,
+    "subareas": []
+  },
+  {
+    "code": "billings",
+    "name": "billings, MT",
+    "state": "MT",
+    "lat": 45.783298,
+    "lng": -108.500999,
+    "subareas": []
+  },
+  {
+    "code": "binghamton",
+    "name": "binghamton, NY",
+    "state": "NY",
+    "lat": 42.098598,
+    "lng": -75.918297,
+    "subareas": []
+  },
+  {
+    "code": "bismarck",
+    "name": "bismarck, ND",
+    "state": "ND",
+    "lat": 46.807579,
+    "lng": -100.777588,
+    "subareas": []
+  },
+  {
+    "code": "blacksburg",
+    "name": "new river valley",
+    "state": "VA",
+    "lat": 37.229401,
+    "lng": -80.4142,
+    "subareas": []
+  },
+  {
+    "code": "bloomington",
+    "name": "bloomington, IN",
+    "state": "IN",
+    "lat": 39.165298,
+    "lng": -86.526398,
+    "subareas": []
+  },
+  {
+    "code": "bn",
+    "name": "bloomington-normal",
+    "state": "IL",
+    "lat": 40.4842,
+    "lng": -88.993599,
+    "subareas": []
+  },
+  {
+    "code": "boise",
+    "name": "boise, ID",
+    "state": "ID",
+    "lat": 43.613602,
+    "lng": -116.202003,
+    "subareas": []
+  },
+  {
+    "code": "boone",
+    "name": "boone, NC",
+    "state": "NC",
+    "lat": 36.216702,
+    "lng": -81.674698,
+    "subareas": []
+  },
+  {
+    "code": "boston",
+    "name": "boston",
+    "state": "MA",
+    "lat": 42.358299,
+    "lng": -71.060303,
+    "subareas": [
+      {
+        "code": "gbs",
+        "name": "boston/cambridge/brookline"
+      },
+      {
+        "code": "nwb",
+        "name": "northwest/merrimack"
+      },
+      {
+        "code": "bmw",
+        "name": "metro west"
+      },
+      {
+        "code": "nos",
+        "name": "north shore"
+      },
+      {
+        "code": "sob",
+        "name": "south shore"
+      }
+    ]
+  },
+  {
+    "code": "boulder",
+    "name": "boulder, CO",
+    "state": "CO",
+    "lat": 40.014999,
+    "lng": -105.269997,
+    "subareas": []
+  },
+  {
+    "code": "bozeman",
+    "name": "bozeman, MT",
+    "state": "MT",
+    "lat": 45.679699,
+    "lng": -111.039001,
+    "subareas": []
+  },
+  {
+    "code": "brainerd",
+    "name": "brainerd, MN",
+    "state": "MN",
+    "lat": 46.354511,
+    "lng": -94.196777,
+    "subareas": []
+  },
+  {
+    "code": "brownsville",
+    "name": "brownsville, TX",
+    "state": "TX",
+    "lat": 25.9014,
+    "lng": -97.4972,
+    "subareas": []
+  },
+  {
+    "code": "brunswick",
+    "name": "brunswick, GA",
+    "state": "GA",
+    "lat": 31.1497,
+    "lng": -81.491699,
+    "subareas": []
+  },
+  {
+    "code": "buffalo",
+    "name": "buffalo, NY",
+    "state": "NY",
+    "lat": 42.886398,
+    "lng": -78.878601,
+    "subareas": []
+  },
+  {
+    "code": "butte",
+    "name": "butte, MT",
+    "state": "MT",
+    "lat": 46.004593,
+    "lng": -112.543945,
+    "subareas": []
+  },
+  {
+    "code": "capecod",
+    "name": "cape cod / islands",
+    "state": "MA",
+    "lat": 41.6889,
+    "lng": -70.296898,
+    "subareas": []
+  },
+  {
+    "code": "carbondale",
+    "name": "southern illinois",
+    "state": "IL",
+    "lat": 37.7272,
+    "lng": -89.216698,
+    "subareas": []
+  },
+  {
+    "code": "catskills",
+    "name": "catskills",
+    "state": "NY",
+    "lat": 42,
+    "lng": -74.383301,
+    "subareas": []
+  },
+  {
+    "code": "cedarrapids",
+    "name": "cedar rapids, IA",
+    "state": "IA",
+    "lat": 42.008301,
+    "lng": -91.643898,
+    "subareas": []
+  },
+  {
+    "code": "cenla",
+    "name": "central louisiana",
+    "state": "LA",
+    "lat": 31.297327,
+    "lng": -92.469177,
+    "subareas": []
+  },
+  {
+    "code": "centralmich",
+    "name": "central michigan",
+    "state": "MI",
+    "lat": 43.598,
+    "lng": -84.780998,
+    "subareas": []
+  },
+  {
+    "code": "cfl",
+    "name": "heartland florida",
+    "state": "FL",
+    "lat": 27.5392,
+    "lng": -81.509903,
+    "subareas": []
+  },
+  {
+    "code": "chambana",
+    "name": "champaign urbana",
+    "state": "IL",
+    "lat": 40.110001,
+    "lng": -88.25,
+    "subareas": []
+  },
+  {
+    "code": "chambersburg",
+    "name": "cumberland valley",
+    "state": "PA",
+    "lat": 39.9333,
+    "lng": -77.633301,
+    "subareas": []
+  },
+  {
+    "code": "charleston",
+    "name": "charleston, SC",
+    "state": "SC",
+    "lat": 32.776402,
+    "lng": -79.931099,
+    "subareas": []
+  },
+  {
+    "code": "charlestonwv",
+    "name": "charleston, WV",
+    "state": "WV",
+    "lat": 38.349701,
+    "lng": -81.632797,
+    "subareas": []
+  },
+  {
+    "code": "charlotte",
+    "name": "charlotte, NC",
+    "state": "NC",
+    "lat": 35.226898,
+    "lng": -80.8433,
+    "subareas": []
+  },
+  {
+    "code": "charlottesville",
+    "name": "charlottesville, VA",
+    "state": "VA",
+    "lat": 38.0345,
+    "lng": -78.486504,
+    "subareas": []
+  },
+  {
+    "code": "chattanooga",
+    "name": "chattanooga, TN",
+    "state": "TN",
+    "lat": 35.045601,
+    "lng": -85.3097,
+    "subareas": []
+  },
+  {
+    "code": "chautauqua",
+    "name": "chautauqua, NY",
+    "state": "NY",
+    "lat": 42.209702,
+    "lng": -79.466698,
+    "subareas": []
+  },
+  {
+    "code": "chicago",
+    "name": "chicago",
+    "state": "IL",
+    "lat": 41.849998,
+    "lng": -87.650002,
+    "subareas": [
+      {
+        "code": "chc",
+        "name": "city of chicago"
+      },
+      {
+        "code": "nch",
+        "name": "north chicagoland"
+      },
+      {
+        "code": "wcl",
+        "name": "west chicagoland"
+      },
+      {
+        "code": "sox",
+        "name": "south chicagoland"
+      },
+      {
+        "code": "nwi",
+        "name": "northwest indiana"
+      },
+      {
+        "code": "nwc",
+        "name": "northwest suburbs"
+      }
+    ]
+  },
+  {
+    "code": "chico",
+    "name": "chico, CA",
+    "state": "CA",
+    "lat": 39.7286,
+    "lng": -121.835999,
+    "subareas": []
+  },
+  {
+    "code": "chillicothe",
+    "name": "chillicothe, OH",
+    "state": "OH",
+    "lat": 39.333099,
+    "lng": -82.982399,
+    "subareas": []
+  },
+  {
+    "code": "cincinnati",
+    "name": "cincinnati, OH",
+    "state": "OH",
+    "lat": 39.1619,
+    "lng": -84.456902,
+    "subareas": []
+  },
+  {
+    "code": "clarksville",
+    "name": "clarksville, TN",
+    "state": "TN",
+    "lat": 36.529701,
+    "lng": -87.359398,
+    "subareas": []
+  },
+  {
+    "code": "cleveland",
+    "name": "cleveland, OH",
+    "state": "OH",
+    "lat": 41.499401,
+    "lng": -81.695602,
+    "subareas": []
+  },
+  {
+    "code": "clovis",
+    "name": "clovis / portales",
+    "state": "NM",
+    "lat": 34.40691,
+    "lng": -103.200073,
+    "subareas": []
+  },
+  {
+    "code": "cnj",
+    "name": "central NJ",
+    "state": "NJ",
+    "lat": 40.363098,
+    "lng": -74.6614,
+    "subareas": []
+  },
+  {
+    "code": "collegestation",
+    "name": "college station, TX",
+    "state": "TX",
+    "lat": 30.6278,
+    "lng": -96.334198,
+    "subareas": []
+  },
+  {
+    "code": "columbia",
+    "name": "columbia, SC",
+    "state": "SC",
+    "lat": 34.000599,
+    "lng": -81.035004,
+    "subareas": []
+  },
+  {
+    "code": "columbiamo",
+    "name": "columbia / jeff city",
+    "state": "MO",
+    "lat": 38.951698,
+    "lng": -92.3339,
+    "subareas": []
+  },
+  {
+    "code": "columbus",
+    "name": "columbus, OH",
+    "state": "OH",
+    "lat": 39.961102,
+    "lng": -82.998901,
+    "subareas": []
+  },
+  {
+    "code": "columbusga",
+    "name": "columbus, GA",
+    "state": "GA",
+    "lat": 32.4608,
+    "lng": -84.987801,
+    "subareas": []
+  },
+  {
+    "code": "cookeville",
+    "name": "cookeville, TN",
+    "state": "TN",
+    "lat": 36.1628,
+    "lng": -85.501602,
+    "subareas": []
+  },
+  {
+    "code": "corpuschristi",
+    "name": "corpus christi, TX",
+    "state": "TX",
+    "lat": 27.800301,
+    "lng": -97.396103,
+    "subareas": []
+  },
+  {
+    "code": "corvallis",
+    "name": "corvallis/albany",
+    "state": "OR",
+    "lat": 44.564701,
+    "lng": -123.261002,
+    "subareas": []
+  },
+  {
+    "code": "cosprings",
+    "name": "colorado springs",
+    "state": "CO",
+    "lat": 38.8339,
+    "lng": -104.820999,
+    "subareas": []
+  },
+  {
+    "code": "csd",
+    "name": "pierre / central SD",
+    "state": "SD",
+    "lat": 44.551334,
+    "lng": -100.579834,
+    "subareas": []
+  },
+  {
+    "code": "dallas",
+    "name": "dallas / fort worth",
+    "state": "TX",
+    "lat": 32.783298,
+    "lng": -96.800003,
+    "subareas": [
+      {
+        "code": "dal",
+        "name": "dallas"
+      },
+      {
+        "code": "ftw",
+        "name": "fort worth"
+      },
+      {
+        "code": "mdf",
+        "name": "mid cities"
+      },
+      {
+        "code": "ndf",
+        "name": "north DFW"
+      },
+      {
+        "code": "sdf",
+        "name": "south DFW"
+      }
+    ]
+  },
+  {
+    "code": "danville",
+    "name": "danville",
+    "state": "VA",
+    "lat": 36.5872,
+    "lng": -79.404404,
+    "subareas": []
+  },
+  {
+    "code": "dayton",
+    "name": "dayton / springfield",
+    "state": "OH",
+    "lat": 39.7589,
+    "lng": -84.191704,
+    "subareas": []
+  },
+  {
+    "code": "daytona",
+    "name": "daytona beach",
+    "state": "FL",
+    "lat": 29.2106,
+    "lng": -81.023102,
+    "subareas": []
+  },
+  {
+    "code": "decatur",
+    "name": "decatur, IL",
+    "state": "IL",
+    "lat": 39.840302,
+    "lng": -88.954697,
+    "subareas": []
+  },
+  {
+    "code": "delaware",
+    "name": "delaware",
+    "state": "DE",
+    "lat": 39.145699,
+    "lng": -75.483498,
+    "subareas": []
+  },
+  {
+    "code": "delrio",
+    "name": "del rio / eagle pass",
+    "state": "TX",
+    "lat": 29.372601,
+    "lng": -100.898438,
+    "subareas": []
+  },
+  {
+    "code": "denver",
+    "name": "denver, CO",
+    "state": "CO",
+    "lat": 39.739201,
+    "lng": -104.984001,
+    "subareas": []
+  },
+  {
+    "code": "desmoines",
+    "name": "des moines, IA",
+    "state": "IA",
+    "lat": 41.600601,
+    "lng": -93.608902,
+    "subareas": []
+  },
+  {
+    "code": "detroit",
+    "name": "detroit metro",
+    "state": "MI",
+    "lat": 42.331402,
+    "lng": -83.045799,
+    "subareas": [
+      {
+        "code": "mcb",
+        "name": "macomb county"
+      },
+      {
+        "code": "wyn",
+        "name": "wayne county"
+      },
+      {
+        "code": "okl",
+        "name": "oakland county"
+      }
+    ]
+  },
+  {
+    "code": "dothan",
+    "name": "dothan, AL",
+    "state": "AL",
+    "lat": 31.223101,
+    "lng": -85.390602,
+    "subareas": []
+  },
+  {
+    "code": "dubuque",
+    "name": "dubuque",
+    "state": "IA",
+    "lat": 42.500599,
+    "lng": -90.664398,
+    "subareas": []
+  },
+  {
+    "code": "duluth",
+    "name": "duluth / superior",
+    "state": "MN",
+    "lat": 46.783298,
+    "lng": -92.1064,
+    "subareas": []
+  },
+  {
+    "code": "eastco",
+    "name": "eastern CO",
+    "state": "CO",
+    "lat": 39.232254,
+    "lng": -102.832031,
+    "subareas": []
+  },
+  {
+    "code": "easternshore",
+    "name": "eastern shore",
+    "state": "MD",
+    "lat": 38.7701,
+    "lng": -76.072098,
+    "subareas": []
+  },
+  {
+    "code": "eastidaho",
+    "name": "east idaho",
+    "state": "ID",
+    "lat": 43.4529,
+    "lng": -112.782997,
+    "subareas": []
+  },
+  {
+    "code": "eastky",
+    "name": "eastern kentucky",
+    "state": "KY",
+    "lat": 37.516998,
+    "lng": -82.806,
+    "subareas": []
+  },
+  {
+    "code": "eastnc",
+    "name": "eastern NC",
+    "state": "NC",
+    "lat": 35.584999,
+    "lng": -77.372498,
+    "subareas": []
+  },
+  {
+    "code": "eastoregon",
+    "name": "east oregon",
+    "state": "OR",
+    "lat": 44.7565,
+    "lng": -117.853996,
+    "subareas": []
+  },
+  {
+    "code": "easttexas",
+    "name": "tyler / east TX",
+    "state": "TX",
+    "lat": 32.351101,
+    "lng": -95.300797,
+    "subareas": []
+  },
+  {
+    "code": "eauclaire",
+    "name": "eau claire, WI",
+    "state": "WI",
+    "lat": 44.811401,
+    "lng": -91.498299,
+    "subareas": []
+  },
+  {
+    "code": "elko",
+    "name": "elko, NV",
+    "state": "NV",
+    "lat": 40.832401,
+    "lng": -115.763,
+    "subareas": []
+  },
+  {
+    "code": "elmira",
+    "name": "elmira-corning",
+    "state": "NY",
+    "lat": 42.089699,
+    "lng": -76.808098,
+    "subareas": []
+  },
+  {
+    "code": "elpaso",
+    "name": "el paso, TX",
+    "state": "TX",
+    "lat": 31.7586,
+    "lng": -106.486,
+    "subareas": []
+  },
+  {
+    "code": "enid",
+    "name": "northwest OK",
+    "state": "OK",
+    "lat": 36.431702,
+    "lng": -97.895302,
+    "subareas": []
+  },
+  {
+    "code": "erie",
+    "name": "erie, PA",
+    "state": "PA",
+    "lat": 42.1292,
+    "lng": -80.085297,
+    "subareas": []
+  },
+  {
+    "code": "eugene",
+    "name": "eugene, OR",
+    "state": "OR",
+    "lat": 44.0522,
+    "lng": -123.085999,
+    "subareas": []
+  },
+  {
+    "code": "evansville",
+    "name": "evansville, IN",
+    "state": "IN",
+    "lat": 37.974701,
+    "lng": -87.555801,
+    "subareas": []
+  },
+  {
+    "code": "fairbanks",
+    "name": "fairbanks, AK",
+    "state": "AK",
+    "lat": 64.837799,
+    "lng": -147.716003,
+    "subareas": []
+  },
+  {
+    "code": "fargo",
+    "name": "fargo / moorhead",
+    "state": "ND",
+    "lat": 46.877201,
+    "lng": -96.789398,
+    "subareas": []
+  },
+  {
+    "code": "farmington",
+    "name": "farmington, NM",
+    "state": "NM",
+    "lat": 36.7281,
+    "lng": -108.218002,
+    "subareas": []
+  },
+  {
+    "code": "fayar",
+    "name": "fayetteville, AR",
+    "state": "AR",
+    "lat": 36.0625,
+    "lng": -94.157204,
+    "subareas": []
+  },
+  {
+    "code": "fayetteville",
+    "name": "fayetteville, NC",
+    "state": "NC",
+    "lat": 35.052502,
+    "lng": -78.878601,
+    "subareas": []
+  },
+  {
+    "code": "fingerlakes",
+    "name": "finger lakes, NY",
+    "state": "NY",
+    "lat": 42.516651,
+    "lng": -76.816406,
+    "subareas": []
+  },
+  {
+    "code": "flagstaff",
+    "name": "flagstaff / sedona",
+    "state": "AZ",
+    "lat": 35.198101,
+    "lng": -111.651001,
+    "subareas": []
+  },
+  {
+    "code": "flint",
+    "name": "flint, MI",
+    "state": "MI",
+    "lat": 43.012501,
+    "lng": -83.6875,
+    "subareas": []
+  },
+  {
+    "code": "florencesc",
+    "name": "florence, SC",
+    "state": "SC",
+    "lat": 34.195301,
+    "lng": -79.762802,
+    "subareas": []
+  },
+  {
+    "code": "fortcollins",
+    "name": "fort collins / north CO",
+    "state": "CO",
+    "lat": 40.5853,
+    "lng": -105.084,
+    "subareas": []
+  },
+  {
+    "code": "fortdodge",
+    "name": "fort dodge, IA",
+    "state": "IA",
+    "lat": 42.497501,
+    "lng": -94.167999,
+    "subareas": []
+  },
+  {
+    "code": "fortmyers",
+    "name": "ft myers / SW florida",
+    "state": "FL",
+    "lat": 26.629999,
+    "lng": -81.849998,
+    "subareas": [
+      {
+        "code": "lee",
+        "name": "lee county"
+      },
+      {
+        "code": "chl",
+        "name": "charlotte county"
+      },
+      {
+        "code": "col",
+        "name": "collier county"
+      }
+    ]
+  },
+  {
+    "code": "fortsmith",
+    "name": "fort smith, AR",
+    "state": "AR",
+    "lat": 35.385799,
+    "lng": -94.3983,
+    "subareas": []
+  },
+  {
+    "code": "fortwayne",
+    "name": "fort wayne, IN",
+    "state": "IN",
+    "lat": 41.1306,
+    "lng": -85.128899,
+    "subareas": []
+  },
+  {
+    "code": "frederick",
+    "name": "frederick, MD",
+    "state": "MD",
+    "lat": 39.414299,
+    "lng": -77.4105,
+    "subareas": []
+  },
+  {
+    "code": "fredericksburg",
+    "name": "fredericksburg, VA",
+    "state": "VA",
+    "lat": 38.3018,
+    "lng": -77.470802,
+    "subareas": []
+  },
+  {
+    "code": "fresno",
+    "name": "fresno / madera",
+    "state": "CA",
+    "lat": 36.747799,
+    "lng": -119.771004,
+    "subareas": []
+  },
+  {
+    "code": "gadsden",
+    "name": "gadsden-anniston",
+    "state": "AL",
+    "lat": 34.014198,
+    "lng": -86.006699,
+    "subareas": []
+  },
+  {
+    "code": "gainesville",
+    "name": "gainesville, FL",
+    "state": "FL",
+    "lat": 29.6514,
+    "lng": -82.324997,
+    "subareas": []
+  },
+  {
+    "code": "galveston",
+    "name": "galveston, TX",
+    "state": "TX",
+    "lat": 29.281099,
+    "lng": -94.825798,
+    "subareas": []
+  },
+  {
+    "code": "glensfalls",
+    "name": "glens falls, NY",
+    "state": "NY",
+    "lat": 43.309502,
+    "lng": -73.643997,
+    "subareas": []
+  },
+  {
+    "code": "goldcountry",
+    "name": "gold country",
+    "state": "CA",
+    "lat": 38.732498,
+    "lng": -120.801003,
+    "subareas": []
+  },
+  {
+    "code": "grandforks",
+    "name": "grand forks",
+    "state": "ND",
+    "lat": 47.925301,
+    "lng": -97.032898,
+    "subareas": []
+  },
+  {
+    "code": "grandisland",
+    "name": "grand island, NE",
+    "state": "NE",
+    "lat": 40.924999,
+    "lng": -98.341698,
+    "subareas": []
+  },
+  {
+    "code": "grandrapids",
+    "name": "grand rapids, MI",
+    "state": "MI",
+    "lat": 42.963299,
+    "lng": -85.668098,
+    "subareas": []
+  },
+  {
+    "code": "greatfalls",
+    "name": "great falls, MT",
+    "state": "MT",
+    "lat": 47.500198,
+    "lng": -111.301003,
+    "subareas": []
+  },
+  {
+    "code": "greenbay",
+    "name": "green bay, WI",
+    "state": "WI",
+    "lat": 44.519199,
+    "lng": -88.019699,
+    "subareas": []
+  },
+  {
+    "code": "greensboro",
+    "name": "greensboro, NC",
+    "state": "NC",
+    "lat": 36.072498,
+    "lng": -79.792198,
+    "subareas": []
+  },
+  {
+    "code": "greenville",
+    "name": "greenville / upstate",
+    "state": "SC",
+    "lat": 34.852501,
+    "lng": -82.394203,
+    "subareas": []
+  },
+  {
+    "code": "gulfport",
+    "name": "gulfport / biloxi",
+    "state": "MS",
+    "lat": 30.367201,
+    "lng": -89.092796,
+    "subareas": []
+  },
+  {
+    "code": "hanford",
+    "name": "hanford-corcoran",
+    "state": "CA",
+    "lat": 36.3274,
+    "lng": -119.646004,
+    "subareas": []
+  },
+  {
+    "code": "harrisburg",
+    "name": "harrisburg, PA",
+    "state": "PA",
+    "lat": 40.273602,
+    "lng": -76.884697,
+    "subareas": []
+  },
+  {
+    "code": "harrisonburg",
+    "name": "harrisonburg, VA",
+    "state": "VA",
+    "lat": 38.443298,
+    "lng": -78.872803,
+    "subareas": []
+  },
+  {
+    "code": "hartford",
+    "name": "hartford, CT",
+    "state": "CT",
+    "lat": 41.763599,
+    "lng": -72.6856,
+    "subareas": []
+  },
+  {
+    "code": "hattiesburg",
+    "name": "hattiesburg, MS",
+    "state": "MS",
+    "lat": 31.3269,
+    "lng": -89.290298,
+    "subareas": []
+  },
+  {
+    "code": "helena",
+    "name": "helena, MT",
+    "state": "MT",
+    "lat": 46.592842,
+    "lng": -112.022095,
+    "subareas": []
+  },
+  {
+    "code": "hickory",
+    "name": "hickory / lenoir",
+    "state": "NC",
+    "lat": 35.733101,
+    "lng": -81.3414,
+    "subareas": []
+  },
+  {
+    "code": "hiltonhead",
+    "name": "hilton head",
+    "state": "SC",
+    "lat": 32.1917,
+    "lng": -80.743301,
+    "subareas": []
+  },
+  {
+    "code": "holland",
+    "name": "holland, MI",
+    "state": "MI",
+    "lat": 42.787498,
+    "lng": -86.108902,
+    "subareas": []
+  },
+  {
+    "code": "honolulu",
+    "name": "hawaii",
+    "state": "HI",
+    "lat": 21.311399,
+    "lng": -157.796005,
+    "subareas": [
+      {
+        "code": "oah",
+        "name": "oahu"
+      },
+      {
+        "code": "big",
+        "name": "big island"
+      },
+      {
+        "code": "mau",
+        "name": "maui"
+      },
+      {
+        "code": "kau",
+        "name": "kauai"
+      },
+      {
+        "code": "mol",
+        "name": "molokai"
+      }
+    ]
+  },
+  {
+    "code": "houma",
+    "name": "houma, LA",
+    "state": "LA",
+    "lat": 29.5958,
+    "lng": -90.719498,
+    "subareas": []
+  },
+  {
+    "code": "houston",
+    "name": "houston, TX",
+    "state": "TX",
+    "lat": 29.7631,
+    "lng": -95.363098,
+    "subareas": []
+  },
+  {
+    "code": "hudsonvalley",
+    "name": "hudson valley, NY",
+    "state": "NY",
+    "lat": 41.576698,
+    "lng": -73.803398,
+    "subareas": []
+  },
+  {
+    "code": "humboldt",
+    "name": "humboldt county",
+    "state": "CA",
+    "lat": 40.747398,
+    "lng": -123.987999,
+    "subareas": []
+  },
+  {
+    "code": "huntington",
+    "name": "huntington-ashland",
+    "state": "WV",
+    "lat": 38.419201,
+    "lng": -82.445297,
+    "subareas": []
+  },
+  {
+    "code": "huntsville",
+    "name": "huntsville / decatur",
+    "state": "AL",
+    "lat": 34.730301,
+    "lng": -86.586098,
+    "subareas": []
+  },
+  {
+    "code": "imperial",
+    "name": "imperial county",
+    "state": "CA",
+    "lat": 32.9631,
+    "lng": -115.487999,
+    "subareas": []
+  },
+  {
+    "code": "indianapolis",
+    "name": "indianapolis",
+    "state": "IN",
+    "lat": 39.768299,
+    "lng": -86.158096,
+    "subareas": []
+  },
+  {
+    "code": "inlandempire",
+    "name": "inland empire, CA",
+    "state": "CA",
+    "lat": 34.052799,
+    "lng": -117.627998,
+    "subareas": []
+  },
+  {
+    "code": "iowacity",
+    "name": "iowa city, IA",
+    "state": "IA",
+    "lat": 41.661098,
+    "lng": -91.529999,
+    "subareas": []
+  },
+  {
+    "code": "ithaca",
+    "name": "ithaca, NY",
+    "state": "NY",
+    "lat": 42.440601,
+    "lng": -76.496902,
+    "subareas": []
+  },
+  {
+    "code": "jackson",
+    "name": "jackson, MS",
+    "state": "MS",
+    "lat": 32.298599,
+    "lng": -90.1847,
+    "subareas": []
+  },
+  {
+    "code": "jacksontn",
+    "name": "jackson, TN",
+    "state": "TN",
+    "lat": 35.614399,
+    "lng": -88.813904,
+    "subareas": []
+  },
+  {
+    "code": "jacksonville",
+    "name": "jacksonville, FL",
+    "state": "FL",
+    "lat": 30.3319,
+    "lng": -81.6558,
+    "subareas": []
+  },
+  {
+    "code": "janesville",
+    "name": "janesville, WI",
+    "state": "WI",
+    "lat": 42.6828,
+    "lng": -89.0186,
+    "subareas": []
+  },
+  {
+    "code": "jerseyshore",
+    "name": "jersey shore",
+    "state": "NJ",
+    "lat": 40.2225,
+    "lng": -74.012199,
+    "subareas": []
+  },
+  {
+    "code": "jonesboro",
+    "name": "jonesboro, AR",
+    "state": "AR",
+    "lat": 35.842201,
+    "lng": -90.704201,
+    "subareas": []
+  },
+  {
+    "code": "joplin",
+    "name": "joplin, MO",
+    "state": "MO",
+    "lat": 37.084202,
+    "lng": -94.5131,
+    "subareas": []
+  },
+  {
+    "code": "juneau",
+    "name": "southeast alaska",
+    "state": "AK",
+    "lat": 58.355629,
+    "lng": -134.571533,
+    "subareas": []
+  },
+  {
+    "code": "jxn",
+    "name": "jackson, MI",
+    "state": "MI",
+    "lat": 42.2458,
+    "lng": -84.401398,
+    "subareas": []
+  },
+  {
+    "code": "kalamazoo",
+    "name": "kalamazoo, MI",
+    "state": "MI",
+    "lat": 42.291698,
+    "lng": -85.587196,
+    "subareas": []
+  },
+  {
+    "code": "kalispell",
+    "name": "kalispell, MT",
+    "state": "MT",
+    "lat": 48.195801,
+    "lng": -114.313004,
+    "subareas": []
+  },
+  {
+    "code": "kansascity",
+    "name": "kansas city, MO",
+    "state": "MO",
+    "lat": 39.099701,
+    "lng": -94.5783,
+    "subareas": []
+  },
+  {
+    "code": "kenai",
+    "name": "kenai peninsula",
+    "state": "AK",
+    "lat": 60.554401,
+    "lng": -151.257996,
+    "subareas": []
+  },
+  {
+    "code": "keys",
+    "name": "florida keys",
+    "state": "FL",
+    "lat": 24.666901,
+    "lng": -81.544197,
+    "subareas": []
+  },
+  {
+    "code": "killeen",
+    "name": "killeen / temple / ft hood",
+    "state": "TX",
+    "lat": 31.116899,
+    "lng": -97.727501,
+    "subareas": []
+  },
+  {
+    "code": "kirksville",
+    "name": "kirksville, MO",
+    "state": "MO",
+    "lat": 40.194801,
+    "lng": -92.583298,
+    "subareas": []
+  },
+  {
+    "code": "klamath",
+    "name": "klamath falls, OR",
+    "state": "OR",
+    "lat": 42.224899,
+    "lng": -121.781998,
+    "subareas": []
+  },
+  {
+    "code": "knoxville",
+    "name": "knoxville, TN",
+    "state": "TN",
+    "lat": 35.960602,
+    "lng": -83.920799,
+    "subareas": []
+  },
+  {
+    "code": "kokomo",
+    "name": "kokomo, IN",
+    "state": "IN",
+    "lat": 40.486401,
+    "lng": -86.133598,
+    "subareas": []
+  },
+  {
+    "code": "kpr",
+    "name": "kennewick-pasco-richland",
+    "state": "WA",
+    "lat": 46.211399,
+    "lng": -119.136002,
+    "subareas": []
+  },
+  {
+    "code": "ksu",
+    "name": "manhattan, KS",
+    "state": "KS",
+    "lat": 39.183601,
+    "lng": -96.571404,
+    "subareas": []
+  },
+  {
+    "code": "lacrosse",
+    "name": "la crosse, WI",
+    "state": "WI",
+    "lat": 43.801399,
+    "lng": -91.239403,
+    "subareas": []
+  },
+  {
+    "code": "lafayette",
+    "name": "lafayette, LA",
+    "state": "LA",
+    "lat": 30.2139,
+    "lng": -92.029404,
+    "subareas": []
+  },
+  {
+    "code": "lakecharles",
+    "name": "lake charles, LA",
+    "state": "LA",
+    "lat": 30.214701,
+    "lng": -93.208603,
+    "subareas": []
+  },
+  {
+    "code": "lakecity",
+    "name": "north central FL",
+    "state": "FL",
+    "lat": 30.189199,
+    "lng": -82.639503,
+    "subareas": []
+  },
+  {
+    "code": "lakeland",
+    "name": "lakeland, FL",
+    "state": "FL",
+    "lat": 28.0392,
+    "lng": -81.949997,
+    "subareas": []
+  },
+  {
+    "code": "lancaster",
+    "name": "lancaster, PA",
+    "state": "PA",
+    "lat": 40.0378,
+    "lng": -76.305801,
+    "subareas": []
+  },
+  {
+    "code": "lansing",
+    "name": "lansing, MI",
+    "state": "MI",
+    "lat": 42.732498,
+    "lng": -84.555603,
+    "subareas": []
+  },
+  {
+    "code": "laredo",
+    "name": "laredo, TX",
+    "state": "TX",
+    "lat": 27.5061,
+    "lng": -99.507202,
+    "subareas": []
+  },
+  {
+    "code": "lasalle",
+    "name": "la salle co",
+    "state": "IL",
+    "lat": 41.337639,
+    "lng": -89.082642,
+    "subareas": []
+  },
+  {
+    "code": "lascruces",
+    "name": "las cruces, NM",
+    "state": "NM",
+    "lat": 32.319698,
+    "lng": -106.764999,
+    "subareas": []
+  },
+  {
+    "code": "lasvegas",
+    "name": "las vegas",
+    "state": "NV",
+    "lat": 36.174999,
+    "lng": -115.136002,
+    "subareas": []
+  },
+  {
+    "code": "lawrence",
+    "name": "lawrence, KS",
+    "state": "KS",
+    "lat": 38.971699,
+    "lng": -95.235001,
+    "subareas": []
+  },
+  {
+    "code": "lawton",
+    "name": "lawton, OK",
+    "state": "OK",
+    "lat": 34.608601,
+    "lng": -98.389999,
+    "subareas": []
+  },
+  {
+    "code": "lewiston",
+    "name": "lewiston / clarkston",
+    "state": "ID",
+    "lat": 46.392399,
+    "lng": -116.992996,
+    "subareas": []
+  },
+  {
+    "code": "lexington",
+    "name": "lexington, KY",
+    "state": "KY",
+    "lat": 37.988701,
+    "lng": -84.477699,
+    "subareas": []
+  },
+  {
+    "code": "limaohio",
+    "name": "lima / findlay",
+    "state": "OH",
+    "lat": 40.7425,
+    "lng": -84.105301,
+    "subareas": []
+  },
+  {
+    "code": "lincoln",
+    "name": "lincoln, NE",
+    "state": "NE",
+    "lat": 40.799999,
+    "lng": -96.666702,
+    "subareas": []
+  },
+  {
+    "code": "littlerock",
+    "name": "little rock",
+    "state": "AR",
+    "lat": 34.746399,
+    "lng": -92.289398,
+    "subareas": []
+  },
+  {
+    "code": "logan",
+    "name": "logan, UT",
+    "state": "UT",
+    "lat": 41.7356,
+    "lng": -111.834,
+    "subareas": []
+  },
+  {
+    "code": "longisland",
+    "name": "long island, NY",
+    "state": "NY",
+    "lat": 40.822102,
+    "lng": -73.149696,
+    "subareas": []
+  },
+  {
+    "code": "losangeles",
+    "name": "los angeles",
+    "state": "CA",
+    "lat": 34.0522,
+    "lng": -118.242996,
+    "subareas": [
+      {
+        "code": "wst",
+        "name": "westside-southbay-310"
+      },
+      {
+        "code": "sfv",
+        "name": "san fernando valley"
+      },
+      {
+        "code": "lac",
+        "name": "central LA 213/323"
+      },
+      {
+        "code": "sgv",
+        "name": "san gabriel valley"
+      },
+      {
+        "code": "lgb",
+        "name": "long beach / 562"
+      },
+      {
+        "code": "ant",
+        "name": "antelope valley"
+      }
+    ]
+  },
+  {
+    "code": "louisville",
+    "name": "louisville, KY",
+    "state": "KY",
+    "lat": 38.2542,
+    "lng": -85.759399,
+    "subareas": []
+  },
+  {
+    "code": "loz",
+    "name": "lake of the ozarks",
+    "state": "MO",
+    "lat": 38.202499,
+    "lng": -92.626297,
+    "subareas": []
+  },
+  {
+    "code": "lubbock",
+    "name": "lubbock, TX",
+    "state": "TX",
+    "lat": 33.577801,
+    "lng": -101.855003,
+    "subareas": []
+  },
+  {
+    "code": "lynchburg",
+    "name": "lynchburg, VA",
+    "state": "VA",
+    "lat": 37.403702,
+    "lng": -79.170197,
+    "subareas": []
+  },
+  {
+    "code": "macon",
+    "name": "macon / warner robins",
+    "state": "GA",
+    "lat": 32.840599,
+    "lng": -83.6325,
+    "subareas": []
+  },
+  {
+    "code": "madison",
+    "name": "madison, WI",
+    "state": "WI",
+    "lat": 43.073101,
+    "lng": -89.4011,
+    "subareas": []
+  },
+  {
+    "code": "maine",
+    "name": "maine",
+    "state": "ME",
+    "lat": 44.693199,
+    "lng": -69.334602,
+    "subareas": []
+  },
+  {
+    "code": "mankato",
+    "name": "mankato, MN",
+    "state": "MN",
+    "lat": 44.163601,
+    "lng": -93.999199,
+    "subareas": []
+  },
+  {
+    "code": "mansfield",
+    "name": "mansfield, OH",
+    "state": "OH",
+    "lat": 40.758301,
+    "lng": -82.515602,
+    "subareas": []
+  },
+  {
+    "code": "marshall",
+    "name": "southwest MN",
+    "state": "MN",
+    "lat": 44.447201,
+    "lng": -95.787804,
+    "subareas": []
+  },
+  {
+    "code": "martinsburg",
+    "name": "eastern panhandle",
+    "state": "WV",
+    "lat": 39.4561,
+    "lng": -77.964203,
+    "subareas": []
+  },
+  {
+    "code": "masoncity",
+    "name": "mason city, IA",
+    "state": "IA",
+    "lat": 43.153599,
+    "lng": -93.200996,
+    "subareas": []
+  },
+  {
+    "code": "mattoon",
+    "name": "mattoon-charleston",
+    "state": "IL",
+    "lat": 39.483101,
+    "lng": -88.372803,
+    "subareas": []
+  },
+  {
+    "code": "mcallen",
+    "name": "mcallen / edinburg",
+    "state": "TX",
+    "lat": 26.2031,
+    "lng": -98.229698,
+    "subareas": []
+  },
+  {
+    "code": "meadville",
+    "name": "meadville, PA",
+    "state": "PA",
+    "lat": 41.641399,
+    "lng": -80.151497,
+    "subareas": []
+  },
+  {
+    "code": "medford",
+    "name": "medford-ashland",
+    "state": "OR",
+    "lat": 42.326698,
+    "lng": -122.874001,
+    "subareas": []
+  },
+  {
+    "code": "memphis",
+    "name": "memphis, TN",
+    "state": "TN",
+    "lat": 35.149399,
+    "lng": -90.048897,
+    "subareas": []
+  },
+  {
+    "code": "mendocino",
+    "name": "mendocino county",
+    "state": "CA",
+    "lat": 39.363098,
+    "lng": -123.43,
+    "subareas": []
+  },
+  {
+    "code": "merced",
+    "name": "merced, CA",
+    "state": "CA",
+    "lat": 37.3022,
+    "lng": -120.482002,
+    "subareas": []
+  },
+  {
+    "code": "meridian",
+    "name": "meridian, MS",
+    "state": "MS",
+    "lat": 32.3643,
+    "lng": -88.703697,
+    "subareas": []
+  },
+  {
+    "code": "miami",
+    "name": "south florida",
+    "state": "FL",
+    "lat": 25.773899,
+    "lng": -80.193901,
+    "subareas": [
+      {
+        "code": "mdc",
+        "name": "miami / dade county"
+      },
+      {
+        "code": "brw",
+        "name": "broward county"
+      },
+      {
+        "code": "pbc",
+        "name": "palm beach county"
+      }
+    ]
+  },
+  {
+    "code": "milwaukee",
+    "name": "milwaukee, WI",
+    "state": "WI",
+    "lat": 43.038898,
+    "lng": -87.906403,
+    "subareas": []
+  },
+  {
+    "code": "minneapolis",
+    "name": "minneapolis / st paul",
+    "state": "MN",
+    "lat": 44.98,
+    "lng": -93.263603,
+    "subareas": [
+      {
+        "code": "hnp",
+        "name": "hennepin county"
+      },
+      {
+        "code": "ram",
+        "name": "ramsey county"
+      },
+      {
+        "code": "ank",
+        "name": "anoka/chisago/isanti"
+      },
+      {
+        "code": "wsh",
+        "name": "washington co / WI"
+      },
+      {
+        "code": "dak",
+        "name": "dakota / scott"
+      },
+      {
+        "code": "csw",
+        "name": "carver/sherburne/wright"
+      }
+    ]
+  },
+  {
+    "code": "missoula",
+    "name": "missoula, MT",
+    "state": "MT",
+    "lat": 46.872101,
+    "lng": -113.994003,
+    "subareas": []
+  },
+  {
+    "code": "mobile",
+    "name": "mobile, AL",
+    "state": "AL",
+    "lat": 30.694201,
+    "lng": -88.043098,
+    "subareas": []
+  },
+  {
+    "code": "modesto",
+    "name": "modesto, CA",
+    "state": "CA",
+    "lat": 37.639198,
+    "lng": -120.996002,
+    "subareas": []
+  },
+  {
+    "code": "mohave",
+    "name": "mohave county",
+    "state": "AZ",
+    "lat": 35.285999,
+    "lng": -114.083,
+    "subareas": []
+  },
+  {
+    "code": "monroe",
+    "name": "monroe, LA",
+    "state": "LA",
+    "lat": 32.5103,
+    "lng": -92.095001,
+    "subareas": []
+  },
+  {
+    "code": "monroemi",
+    "name": "monroe, MI",
+    "state": "MI",
+    "lat": 41.916,
+    "lng": -83.397697,
+    "subareas": []
+  },
+  {
+    "code": "montana",
+    "name": "eastern montana",
+    "state": "MT",
+    "lat": 47.1,
+    "lng": -104.7,
+    "subareas": []
+  },
+  {
+    "code": "monterey",
+    "name": "monterey bay",
+    "state": "CA",
+    "lat": 36.6003,
+    "lng": -121.893997,
+    "subareas": []
+  },
+  {
+    "code": "montgomery",
+    "name": "montgomery, AL",
+    "state": "AL",
+    "lat": 32.366699,
+    "lng": -86.300003,
+    "subareas": []
+  },
+  {
+    "code": "morgantown",
+    "name": "morgantown, WV",
+    "state": "WV",
+    "lat": 39.629398,
+    "lng": -79.9561,
+    "subareas": []
+  },
+  {
+    "code": "moseslake",
+    "name": "moses lake, WA",
+    "state": "WA",
+    "lat": 47.1301,
+    "lng": -119.278,
+    "subareas": []
+  },
+  {
+    "code": "muncie",
+    "name": "muncie / anderson",
+    "state": "IN",
+    "lat": 40.193298,
+    "lng": -85.386398,
+    "subareas": []
+  },
+  {
+    "code": "muskegon",
+    "name": "muskegon, MI",
+    "state": "MI",
+    "lat": 43.2342,
+    "lng": -86.248299,
+    "subareas": []
+  },
+  {
+    "code": "myrtlebeach",
+    "name": "myrtle beach, SC",
+    "state": "SC",
+    "lat": 33.6889,
+    "lng": -78.886902,
+    "subareas": []
+  },
+  {
+    "code": "nacogdoches",
+    "name": "deep east texas",
+    "state": "TX",
+    "lat": 31.604271,
+    "lng": -94.654083,
+    "subareas": []
+  },
+  {
+    "code": "nashville",
+    "name": "nashville, TN",
+    "state": "TN",
+    "lat": 36.165798,
+    "lng": -86.784401,
+    "subareas": []
+  },
+  {
+    "code": "natchez",
+    "name": "southwest MS",
+    "state": "MS",
+    "lat": 31.554199,
+    "lng": -91.387497,
+    "subareas": []
+  },
+  {
+    "code": "nd",
+    "name": "north dakota",
+    "state": "ND",
+    "lat": 47.5,
+    "lng": -100.5,
+    "subareas": []
+  },
+  {
+    "code": "nesd",
+    "name": "northeast SD",
+    "state": "SD",
+    "lat": 45.3367,
+    "lng": -97.646484,
+    "subareas": []
+  },
+  {
+    "code": "newhaven",
+    "name": "new haven, CT",
+    "state": "CT",
+    "lat": 41.308102,
+    "lng": -72.928596,
+    "subareas": []
+  },
+  {
+    "code": "newjersey",
+    "name": "north jersey",
+    "state": "NJ",
+    "lat": 40.91,
+    "lng": -74.172997,
+    "subareas": []
+  },
+  {
+    "code": "newlondon",
+    "name": "eastern CT",
+    "state": "CT",
+    "lat": 41.344101,
+    "lng": -72.1036,
+    "subareas": []
+  },
+  {
+    "code": "neworleans",
+    "name": "new orleans",
+    "state": "LA",
+    "lat": 29.972799,
+    "lng": -90.058998,
+    "subareas": []
+  },
+  {
+    "code": "newyork",
+    "name": "new york city",
+    "state": "NY",
+    "lat": 40.714199,
+    "lng": -74.006401,
+    "subareas": [
+      {
+        "code": "mnh",
+        "name": "manhattan"
+      },
+      {
+        "code": "brk",
+        "name": "brooklyn"
+      },
+      {
+        "code": "que",
+        "name": "queens"
+      },
+      {
+        "code": "brx",
+        "name": "bronx"
+      },
+      {
+        "code": "stn",
+        "name": "staten island"
+      },
+      {
+        "code": "jsy",
+        "name": "new jersey"
+      },
+      {
+        "code": "lgi",
+        "name": "long island"
+      },
+      {
+        "code": "wch",
+        "name": "westchester"
+      },
+      {
+        "code": "fct",
+        "name": "fairfield co, CT"
+      }
+    ]
+  },
+  {
+    "code": "nh",
+    "name": "new hampshire",
+    "state": "NH",
+    "lat": 43.654099,
+    "lng": -71.564201,
+    "subareas": []
+  },
+  {
+    "code": "nmi",
+    "name": "northern michigan",
+    "state": "MI",
+    "lat": 44.459301,
+    "lng": -84.814499,
+    "subareas": []
+  },
+  {
+    "code": "norfolk",
+    "name": "norfolk / hampton roads",
+    "state": "VA",
+    "lat": 36.84,
+    "lng": -76.269997,
+    "subareas": []
+  },
+  {
+    "code": "northernwi",
+    "name": "northern WI",
+    "state": "WI",
+    "lat": 45.638901,
+    "lng": -89.412498,
+    "subareas": []
+  },
+  {
+    "code": "northmiss",
+    "name": "north mississippi",
+    "state": "MS",
+    "lat": 34.358799,
+    "lng": -89.5261,
+    "subareas": []
+  },
+  {
+    "code": "northplatte",
+    "name": "north platte, NE",
+    "state": "NE",
+    "lat": 41.123901,
+    "lng": -100.764999,
+    "subareas": []
+  },
+  {
+    "code": "nwct",
+    "name": "northwest CT",
+    "state": "CT",
+    "lat": 41.914501,
+    "lng": -73.2761,
+    "subareas": []
+  },
+  {
+    "code": "nwga",
+    "name": "northwest GA",
+    "state": "GA",
+    "lat": 34.5,
+    "lng": -84.942001,
+    "subareas": []
+  },
+  {
+    "code": "nwks",
+    "name": "northwest KS",
+    "state": "KS",
+    "lat": 39.095963,
+    "lng": -100.50293,
+    "subareas": []
+  },
+  {
+    "code": "ocala",
+    "name": "ocala, FL",
+    "state": "FL",
+    "lat": 29.186899,
+    "lng": -82.140297,
+    "subareas": []
+  },
+  {
+    "code": "odessa",
+    "name": "odessa / midland",
+    "state": "TX",
+    "lat": 31.8456,
+    "lng": -102.366997,
+    "subareas": []
+  },
+  {
+    "code": "ogden",
+    "name": "ogden-clearfield",
+    "state": "UT",
+    "lat": 41.223099,
+    "lng": -111.973,
+    "subareas": []
+  },
+  {
+    "code": "okaloosa",
+    "name": "okaloosa / walton",
+    "state": "FL",
+    "lat": 30.7621,
+    "lng": -86.570503,
+    "subareas": []
+  },
+  {
+    "code": "oklahomacity",
+    "name": "oklahoma city",
+    "state": "OK",
+    "lat": 35.467499,
+    "lng": -97.516098,
+    "subareas": []
+  },
+  {
+    "code": "olympic",
+    "name": "olympic peninsula",
+    "state": "WA",
+    "lat": 47.798302,
+    "lng": -123.617996,
+    "subareas": []
+  },
+  {
+    "code": "omaha",
+    "name": "omaha / council bluffs",
+    "state": "NE",
+    "lat": 41.258598,
+    "lng": -95.9375,
+    "subareas": []
+  },
+  {
+    "code": "oneonta",
+    "name": "oneonta, NY",
+    "state": "NY",
+    "lat": 42.447781,
+    "lng": -75.06958,
+    "subareas": []
+  },
+  {
+    "code": "onslow",
+    "name": "jacksonville, NC",
+    "state": "NC",
+    "lat": 34.758801,
+    "lng": -77.4244,
+    "subareas": []
+  },
+  {
+    "code": "orangecounty",
+    "name": "orange county, CA",
+    "state": "CA",
+    "lat": 33.731499,
+    "lng": -117.862,
+    "subareas": []
+  },
+  {
+    "code": "oregoncoast",
+    "name": "oregon coast",
+    "state": "OR",
+    "lat": 43.396099,
+    "lng": -124.167,
+    "subareas": []
+  },
+  {
+    "code": "orlando",
+    "name": "orlando, FL",
+    "state": "FL",
+    "lat": 28.538099,
+    "lng": -81.379402,
+    "subareas": []
+  },
+  {
+    "code": "ottumwa",
+    "name": "southeast IA",
+    "state": "IA",
+    "lat": 41.0075,
+    "lng": -92.408798,
+    "subareas": []
+  },
+  {
+    "code": "outerbanks",
+    "name": "outer banks",
+    "state": "NC",
+    "lat": 36.031898,
+    "lng": -75.676598,
+    "subareas": []
+  },
+  {
+    "code": "owensboro",
+    "name": "owensboro, KY",
+    "state": "KY",
+    "lat": 37.7742,
+    "lng": -87.113297,
+    "subareas": []
+  },
+  {
+    "code": "palmsprings",
+    "name": "palm springs, CA",
+    "state": "CA",
+    "lat": 33.830299,
+    "lng": -116.543999,
+    "subareas": []
+  },
+  {
+    "code": "panamacity",
+    "name": "panama city, FL",
+    "state": "FL",
+    "lat": 30.1586,
+    "lng": -85.660301,
+    "subareas": []
+  },
+  {
+    "code": "parkersburg",
+    "name": "parkersburg-marietta",
+    "state": "WV",
+    "lat": 39.266701,
+    "lng": -81.561699,
+    "subareas": []
+  },
+  {
+    "code": "pennstate",
+    "name": "state college, PA",
+    "state": "PA",
+    "lat": 40.793301,
+    "lng": -77.860298,
+    "subareas": []
+  },
+  {
+    "code": "pensacola",
+    "name": "pensacola, FL",
+    "state": "FL",
+    "lat": 30.421101,
+    "lng": -87.216904,
+    "subareas": []
+  },
+  {
+    "code": "peoria",
+    "name": "peoria, IL",
+    "state": "IL",
+    "lat": 40.6936,
+    "lng": -89.588898,
+    "subareas": []
+  },
+  {
+    "code": "philadelphia",
+    "name": "philadelphia",
+    "state": "PA",
+    "lat": 39.952202,
+    "lng": -75.1642,
+    "subareas": []
+  },
+  {
+    "code": "phoenix",
+    "name": "phoenix, AZ",
+    "state": "AZ",
+    "lat": 33.448299,
+    "lng": -112.072998,
+    "subareas": [
+      {
+        "code": "cph",
+        "name": "central/south phx"
+      },
+      {
+        "code": "evl",
+        "name": "east valley"
+      },
+      {
+        "code": "nph",
+        "name": "phx north"
+      },
+      {
+        "code": "wvl",
+        "name": "west valley"
+      }
+    ]
+  },
+  {
+    "code": "pittsburgh",
+    "name": "pittsburgh, PA",
+    "state": "PA",
+    "lat": 40.440601,
+    "lng": -79.996101,
+    "subareas": []
+  },
+  {
+    "code": "plattsburgh",
+    "name": "plattsburgh-adirondacks",
+    "state": "NY",
+    "lat": 44.699402,
+    "lng": -73.4533,
+    "subareas": []
+  },
+  {
+    "code": "poconos",
+    "name": "poconos",
+    "state": "PA",
+    "lat": 41.248611,
+    "lng": -75.248611,
+    "subareas": []
+  },
+  {
+    "code": "porthuron",
+    "name": "port huron, MI",
+    "state": "MI",
+    "lat": 42.970798,
+    "lng": -82.425003,
+    "subareas": []
+  },
+  {
+    "code": "portland",
+    "name": "portland, OR",
+    "state": "OR",
+    "lat": 45.523602,
+    "lng": -122.675003,
+    "subareas": [
+      {
+        "code": "mlt",
+        "name": "multnomah county"
+      },
+      {
+        "code": "wsc",
+        "name": "washington county"
+      },
+      {
+        "code": "clk",
+        "name": "clark/cowlitz WA"
+      },
+      {
+        "code": "clc",
+        "name": "clackamas county"
+      },
+      {
+        "code": "nco",
+        "name": "north coast"
+      },
+      {
+        "code": "yam",
+        "name": "yamhill co"
+      },
+      {
+        "code": "grg",
+        "name": "columbia gorge"
+      }
+    ]
+  },
+  {
+    "code": "potsdam",
+    "name": "potsdam-canton-massena",
+    "state": "NY",
+    "lat": 44.668652,
+    "lng": -74.998169,
+    "subareas": []
+  },
+  {
+    "code": "prescott",
+    "name": "prescott, AZ",
+    "state": "AZ",
+    "lat": 34.540001,
+    "lng": -112.468002,
+    "subareas": []
+  },
+  {
+    "code": "providence",
+    "name": "rhode island",
+    "state": "RI",
+    "lat": 41.8302,
+    "lng": -71.409103,
+    "subareas": []
+  },
+  {
+    "code": "provo",
+    "name": "provo / orem",
+    "state": "UT",
+    "lat": 40.233898,
+    "lng": -111.657997,
+    "subareas": []
+  },
+  {
+    "code": "pueblo",
+    "name": "pueblo, CO",
+    "state": "CO",
+    "lat": 38.254398,
+    "lng": -104.609001,
+    "subareas": []
+  },
+  {
+    "code": "pullman",
+    "name": "pullman / moscow",
+    "state": "WA",
+    "lat": 46.732498,
+    "lng": -117.171997,
+    "subareas": []
+  },
+  {
+    "code": "quadcities",
+    "name": "quad cities, IA/IL",
+    "state": "IA",
+    "lat": 41.511299,
+    "lng": -90.594398,
+    "subareas": []
+  },
+  {
+    "code": "quincy",
+    "name": "western IL",
+    "state": "IL",
+    "lat": 39.935013,
+    "lng": -91.389771,
+    "subareas": []
+  },
+  {
+    "code": "racine",
+    "name": "kenosha-racine",
+    "state": "WI",
+    "lat": 42.584702,
+    "lng": -87.821098,
+    "subareas": []
+  },
+  {
+    "code": "raleigh",
+    "name": "raleigh / durham / CH",
+    "state": "NC",
+    "lat": 35.7719,
+    "lng": -78.638901,
+    "subareas": []
+  },
+  {
+    "code": "rapidcity",
+    "name": "rapid city / west SD",
+    "state": "SD",
+    "lat": 44.080502,
+    "lng": -103.231003,
+    "subareas": []
+  },
+  {
+    "code": "reading",
+    "name": "reading, PA",
+    "state": "PA",
+    "lat": 40.335602,
+    "lng": -75.9272,
+    "subareas": []
+  },
+  {
+    "code": "redding",
+    "name": "redding, CA",
+    "state": "CA",
+    "lat": 40.5867,
+    "lng": -122.390999,
+    "subareas": []
+  },
+  {
+    "code": "reno",
+    "name": "reno / tahoe",
+    "state": "NV",
+    "lat": 39.529701,
+    "lng": -119.813004,
+    "subareas": []
+  },
+  {
+    "code": "richmond",
+    "name": "richmond, VA",
+    "state": "VA",
+    "lat": 37.5383,
+    "lng": -77.461502,
+    "subareas": []
+  },
+  {
+    "code": "richmondin",
+    "name": "richmond, IN",
+    "state": "IN",
+    "lat": 39.829632,
+    "lng": -84.890671,
+    "subareas": []
+  },
+  {
+    "code": "rmn",
+    "name": "rochester, MN",
+    "state": "MN",
+    "lat": 44.021702,
+    "lng": -92.469704,
+    "subareas": []
+  },
+  {
+    "code": "roanoke",
+    "name": "roanoke, VA",
+    "state": "VA",
+    "lat": 37.274101,
+    "lng": -79.942001,
+    "subareas": []
+  },
+  {
+    "code": "rochester",
+    "name": "rochester, NY",
+    "state": "NY",
+    "lat": 43.154701,
+    "lng": -77.615799,
+    "subareas": []
+  },
+  {
+    "code": "rockford",
+    "name": "rockford, IL",
+    "state": "IL",
+    "lat": 42.271099,
+    "lng": -89.093903,
+    "subareas": []
+  },
+  {
+    "code": "rockies",
+    "name": "high rockies",
+    "state": "CO",
+    "lat": 39.1917,
+    "lng": -106.824699,
+    "subareas": []
+  },
+  {
+    "code": "roseburg",
+    "name": "roseburg, OR",
+    "state": "OR",
+    "lat": 43.216702,
+    "lng": -123.341003,
+    "subareas": []
+  },
+  {
+    "code": "roswell",
+    "name": "roswell / carlsbad",
+    "state": "NM",
+    "lat": 33.394199,
+    "lng": -104.522003,
+    "subareas": []
+  },
+  {
+    "code": "sacramento",
+    "name": "sacramento",
+    "state": "CA",
+    "lat": 38.581699,
+    "lng": -121.492996,
+    "subareas": []
+  },
+  {
+    "code": "saginaw",
+    "name": "saginaw-midland-baycity",
+    "state": "MI",
+    "lat": 43.419399,
+    "lng": -83.950798,
+    "subareas": []
+  },
+  {
+    "code": "salem",
+    "name": "salem, OR",
+    "state": "OR",
+    "lat": 44.9431,
+    "lng": -123.033997,
+    "subareas": []
+  },
+  {
+    "code": "salina",
+    "name": "salina, KS",
+    "state": "KS",
+    "lat": 38.825001,
+    "lng": -97.607498,
+    "subareas": []
+  },
+  {
+    "code": "saltlakecity",
+    "name": "salt lake city",
+    "state": "UT",
+    "lat": 40.760799,
+    "lng": -111.889999,
+    "subareas": []
+  },
+  {
+    "code": "sanangelo",
+    "name": "san angelo, TX",
+    "state": "TX",
+    "lat": 31.452999,
+    "lng": -100.452499,
+    "subareas": []
+  },
+  {
+    "code": "sanantonio",
+    "name": "san antonio",
+    "state": "TX",
+    "lat": 29.423901,
+    "lng": -98.493301,
+    "subareas": []
+  },
+  {
+    "code": "sandiego",
+    "name": "san diego",
+    "state": "CA",
+    "lat": 32.715302,
+    "lng": -117.155998,
+    "subareas": [
+      {
+        "code": "csd",
+        "name": "city of san diego"
+      },
+      {
+        "code": "nsd",
+        "name": "north san diego county"
+      },
+      {
+        "code": "esd",
+        "name": "east san diego county"
+      },
+      {
+        "code": "ssd",
+        "name": "south san diego county"
+      }
+    ]
+  },
+  {
+    "code": "sandusky",
+    "name": "sandusky, OH",
+    "state": "OH",
+    "lat": 41.448898,
+    "lng": -82.708099,
+    "subareas": []
+  },
+  {
+    "code": "sanmarcos",
+    "name": "san marcos, TX",
+    "state": "TX",
+    "lat": 29.883101,
+    "lng": -97.941101,
+    "subareas": []
+  },
+  {
+    "code": "santabarbara",
+    "name": "santa barbara",
+    "state": "CA",
+    "lat": 34.420799,
+    "lng": -119.696999,
+    "subareas": []
+  },
+  {
+    "code": "santafe",
+    "name": "santa fe / taos",
+    "state": "NM",
+    "lat": 35.686901,
+    "lng": -105.936996,
+    "subareas": []
+  },
+  {
+    "code": "santamaria",
+    "name": "santa maria, CA",
+    "state": "CA",
+    "lat": 34.963799,
+    "lng": -120.433296,
+    "subareas": []
+  },
+  {
+    "code": "sarasota",
+    "name": "sarasota-bradenton",
+    "state": "FL",
+    "lat": 27.3361,
+    "lng": -82.5308,
+    "subareas": []
+  },
+  {
+    "code": "savannah",
+    "name": "savannah / hinesville",
+    "state": "GA",
+    "lat": 32.050701,
+    "lng": -81.103798,
+    "subareas": []
+  },
+  {
+    "code": "scottsbluff",
+    "name": "scottsbluff / panhandle",
+    "state": "NE",
+    "lat": 41.8666,
+    "lng": -103.667,
+    "subareas": []
+  },
+  {
+    "code": "scranton",
+    "name": "scranton / wilkes-barre",
+    "state": "PA",
+    "lat": 41.408901,
+    "lng": -75.662804,
+    "subareas": []
+  },
+  {
+    "code": "sd",
+    "name": "south dakota",
+    "state": "SD",
+    "lat": 44.296101,
+    "lng": -99.236702,
+    "subareas": []
+  },
+  {
+    "code": "seattle",
+    "name": "seattle-tacoma",
+    "state": "WA",
+    "lat": 47.6064,
+    "lng": -122.331001,
+    "subareas": [
+      {
+        "code": "see",
+        "name": "seattle"
+      },
+      {
+        "code": "est",
+        "name": "eastside"
+      },
+      {
+        "code": "sno",
+        "name": "snohomish county"
+      },
+      {
+        "code": "kit",
+        "name": "kitsap / west puget"
+      },
+      {
+        "code": "tac",
+        "name": "tacoma / pierce"
+      },
+      {
+        "code": "oly",
+        "name": "olympia / thurston"
+      },
+      {
+        "code": "skc",
+        "name": "south king co"
+      }
+    ]
+  },
+  {
+    "code": "seks",
+    "name": "southeast KS",
+    "state": "KS",
+    "lat": 37.230328,
+    "lng": -95.718384,
+    "subareas": []
+  },
+  {
+    "code": "semo",
+    "name": "southeast missouri",
+    "state": "MO",
+    "lat": 36.879601,
+    "lng": -89.587997,
+    "subareas": []
+  },
+  {
+    "code": "sfbay",
+    "name": "SF bay area",
+    "state": "CA",
+    "lat": 37.5,
+    "lng": -122.25,
+    "subareas": [
+      {
+        "code": "sfc",
+        "name": "city of san francisco"
+      },
+      {
+        "code": "sby",
+        "name": "south bay area"
+      },
+      {
+        "code": "eby",
+        "name": "east bay area"
+      },
+      {
+        "code": "pen",
+        "name": "peninsula"
+      },
+      {
+        "code": "nby",
+        "name": "north bay / marin"
+      },
+      {
+        "code": "scz",
+        "name": "santa cruz co"
+      }
+    ]
+  },
+  {
+    "code": "sheboygan",
+    "name": "sheboygan, WI",
+    "state": "WI",
+    "lat": 43.750801,
+    "lng": -87.714401,
+    "subareas": []
+  },
+  {
+    "code": "shoals",
+    "name": "florence / muscle shoals",
+    "state": "AL",
+    "lat": 34.799702,
+    "lng": -87.6772,
+    "subareas": []
+  },
+  {
+    "code": "showlow",
+    "name": "show low, AZ",
+    "state": "AZ",
+    "lat": 34.2542,
+    "lng": -110.029999,
+    "subareas": []
+  },
+  {
+    "code": "shreveport",
+    "name": "shreveport, LA",
+    "state": "LA",
+    "lat": 32.468102,
+    "lng": -93.771103,
+    "subareas": []
+  },
+  {
+    "code": "sierravista",
+    "name": "sierra vista, AZ",
+    "state": "AZ",
+    "lat": 31.554399,
+    "lng": -110.303001,
+    "subareas": []
+  },
+  {
+    "code": "siouxcity",
+    "name": "sioux city, IA",
+    "state": "IA",
+    "lat": 42.5,
+    "lng": -96.400002,
+    "subareas": []
+  },
+  {
+    "code": "siouxfalls",
+    "name": "sioux falls / SE SD",
+    "state": "SD",
+    "lat": 43.549999,
+    "lng": -96.700302,
+    "subareas": []
+  },
+  {
+    "code": "siskiyou",
+    "name": "siskiyou county",
+    "state": "CA",
+    "lat": 41.208199,
+    "lng": -122.272003,
+    "subareas": []
+  },
+  {
+    "code": "skagit",
+    "name": "skagit / island / SJI",
+    "state": "WA",
+    "lat": 48.384499,
+    "lng": -122.357002,
+    "subareas": []
+  },
+  {
+    "code": "slo",
+    "name": "san luis obispo",
+    "state": "CA",
+    "lat": 35.282799,
+    "lng": -120.658997,
+    "subareas": []
+  },
+  {
+    "code": "smd",
+    "name": "southern maryland",
+    "state": "MD",
+    "lat": 38.534199,
+    "lng": -76.783401,
+    "subareas": []
+  },
+  {
+    "code": "southbend",
+    "name": "south bend / michiana",
+    "state": "IN",
+    "lat": 41.6833,
+    "lng": -86.25,
+    "subareas": []
+  },
+  {
+    "code": "southcoast",
+    "name": "south coast, MA",
+    "state": "MA",
+    "lat": 41.6385,
+    "lng": -71.048599,
+    "subareas": []
+  },
+  {
+    "code": "southjersey",
+    "name": "south jersey",
+    "state": "NJ",
+    "lat": 39.480301,
+    "lng": -75.013901,
+    "subareas": []
+  },
+  {
+    "code": "spacecoast",
+    "name": "space coast, FL",
+    "state": "FL",
+    "lat": 28.613501,
+    "lng": -80.693199,
+    "subareas": []
+  },
+  {
+    "code": "spokane",
+    "name": "spokane / coeur d'alene",
+    "state": "WA",
+    "lat": 47.658901,
+    "lng": -117.425003,
+    "subareas": []
+  },
+  {
+    "code": "springfield",
+    "name": "springfield, MO",
+    "state": "MO",
+    "lat": 37.215302,
+    "lng": -93.298103,
+    "subareas": []
+  },
+  {
+    "code": "springfieldil",
+    "name": "springfield, IL",
+    "state": "IL",
+    "lat": 39.801701,
+    "lng": -89.6436,
+    "subareas": []
+  },
+  {
+    "code": "statesboro",
+    "name": "statesboro, GA",
+    "state": "GA",
+    "lat": 32.448799,
+    "lng": -81.783203,
+    "subareas": []
+  },
+  {
+    "code": "staugustine",
+    "name": "st augustine, FL",
+    "state": "FL",
+    "lat": 29.8944,
+    "lng": -81.314697,
+    "subareas": []
+  },
+  {
+    "code": "stcloud",
+    "name": "st cloud, MN",
+    "state": "MN",
+    "lat": 45.560799,
+    "lng": -94.162201,
+    "subareas": []
+  },
+  {
+    "code": "stgeorge",
+    "name": "st george, UT",
+    "state": "UT",
+    "lat": 37.095299,
+    "lng": -113.578003,
+    "subareas": []
+  },
+  {
+    "code": "stillwater",
+    "name": "stillwater, OK",
+    "state": "OK",
+    "lat": 36.115601,
+    "lng": -97.058098,
+    "subareas": []
+  },
+  {
+    "code": "stjoseph",
+    "name": "st joseph",
+    "state": "MO",
+    "lat": 39.7686,
+    "lng": -94.846603,
+    "subareas": []
+  },
+  {
+    "code": "stlouis",
+    "name": "st louis, MO",
+    "state": "MO",
+    "lat": 38.627701,
+    "lng": -90.242798,
+    "subareas": []
+  },
+  {
+    "code": "stockton",
+    "name": "stockton, CA",
+    "state": "CA",
+    "lat": 37.957802,
+    "lng": -121.290001,
+    "subareas": []
+  },
+  {
+    "code": "susanville",
+    "name": "susanville, CA",
+    "state": "CA",
+    "lat": 40.416302,
+    "lng": -120.653,
+    "subareas": []
+  },
+  {
+    "code": "swks",
+    "name": "southwest KS",
+    "state": "KS",
+    "lat": 37.04641,
+    "lng": -100.931396,
+    "subareas": []
+  },
+  {
+    "code": "swmi",
+    "name": "southwest michigan",
+    "state": "MI",
+    "lat": 41.984001,
+    "lng": -86.066902,
+    "subareas": []
+  },
+  {
+    "code": "swv",
+    "name": "southern WV",
+    "state": "WV",
+    "lat": 37.779499,
+    "lng": -81.183296,
+    "subareas": []
+  },
+  {
+    "code": "swva",
+    "name": "southwest VA",
+    "state": "VA",
+    "lat": 36.892803,
+    "lng": -82.084351,
+    "subareas": []
+  },
+  {
+    "code": "syracuse",
+    "name": "syracuse, NY",
+    "state": "NY",
+    "lat": 43.0481,
+    "lng": -76.147797,
+    "subareas": []
+  },
+  {
+    "code": "tallahassee",
+    "name": "tallahassee",
+    "state": "FL",
+    "lat": 30.438101,
+    "lng": -84.2808,
+    "subareas": []
+  },
+  {
+    "code": "tampa",
+    "name": "tampa bay area",
+    "state": "FL",
+    "lat": 28,
+    "lng": -82.449997,
+    "subareas": [
+      {
+        "code": "hdo",
+        "name": "hernando co"
+      },
+      {
+        "code": "hil",
+        "name": "hillsborough co"
+      },
+      {
+        "code": "psc",
+        "name": "pasco co"
+      },
+      {
+        "code": "pnl",
+        "name": "pinellas co"
+      }
+    ]
+  },
+  {
+    "code": "terrehaute",
+    "name": "terre haute, IN",
+    "state": "IN",
+    "lat": 39.466702,
+    "lng": -87.413902,
+    "subareas": []
+  },
+  {
+    "code": "texarkana",
+    "name": "texarkana",
+    "state": "AR",
+    "lat": 33.424999,
+    "lng": -94.047501,
+    "subareas": []
+  },
+  {
+    "code": "texoma",
+    "name": "texoma",
+    "state": "TX",
+    "lat": 33.832001,
+    "lng": -96.571098,
+    "subareas": []
+  },
+  {
+    "code": "thumb",
+    "name": "the thumb, MI",
+    "state": "MI",
+    "lat": 43.417019,
+    "lng": -83.092346,
+    "subareas": []
+  },
+  {
+    "code": "tippecanoe",
+    "name": "lafayette / west lafayette",
+    "state": "IN",
+    "lat": 40.416698,
+    "lng": -86.875298,
+    "subareas": []
+  },
+  {
+    "code": "toledo",
+    "name": "toledo, OH",
+    "state": "OH",
+    "lat": 41.663898,
+    "lng": -83.555298,
+    "subareas": []
+  },
+  {
+    "code": "topeka",
+    "name": "topeka, KS",
+    "state": "KS",
+    "lat": 39.048302,
+    "lng": -95.677803,
+    "subareas": []
+  },
+  {
+    "code": "treasure",
+    "name": "treasure coast, FL",
+    "state": "FL",
+    "lat": 27.230801,
+    "lng": -80.226303,
+    "subareas": []
+  },
+  {
+    "code": "tricities",
+    "name": "tri-cities, TN",
+    "state": "TN",
+    "lat": 36.4174,
+    "lng": -82.440697,
+    "subareas": []
+  },
+  {
+    "code": "tucson",
+    "name": "tucson, AZ",
+    "state": "AZ",
+    "lat": 32.221699,
+    "lng": -110.926003,
+    "subareas": []
+  },
+  {
+    "code": "tulsa",
+    "name": "tulsa, OK",
+    "state": "OK",
+    "lat": 36.1539,
+    "lng": -95.9925,
+    "subareas": []
+  },
+  {
+    "code": "tuscaloosa",
+    "name": "tuscaloosa",
+    "state": "AL",
+    "lat": 33.209702,
+    "lng": -87.569199,
+    "subareas": []
+  },
+  {
+    "code": "tuscarawas",
+    "name": "tuscarawas co",
+    "state": "OH",
+    "lat": 40.4501,
+    "lng": -81.466499,
+    "subareas": []
+  },
+  {
+    "code": "twinfalls",
+    "name": "twin falls, ID",
+    "state": "ID",
+    "lat": 42.563099,
+    "lng": -114.459999,
+    "subareas": []
+  },
+  {
+    "code": "twintiers",
+    "name": "twin tiers NY/PA",
+    "state": "NY",
+    "lat": 41.875301,
+    "lng": -78.875,
+    "subareas": []
+  },
+  {
+    "code": "up",
+    "name": "upper peninsula, MI",
+    "state": "MI",
+    "lat": 46.550098,
+    "lng": -87.408302,
+    "subareas": []
+  },
+  {
+    "code": "utica",
+    "name": "utica-rome-oneida",
+    "state": "NY",
+    "lat": 43.1008,
+    "lng": -75.233101,
+    "subareas": []
+  },
+  {
+    "code": "valdosta",
+    "name": "valdosta, GA",
+    "state": "GA",
+    "lat": 30.8325,
+    "lng": -83.278603,
+    "subareas": []
+  },
+  {
+    "code": "ventura",
+    "name": "ventura county",
+    "state": "CA",
+    "lat": 34.277,
+    "lng": -119.044998,
+    "subareas": []
+  },
+  {
+    "code": "vermont",
+    "name": "vermont",
+    "state": "VT",
+    "lat": 44.461201,
+    "lng": -73.193703,
+    "subareas": []
+  },
+  {
+    "code": "victoriatx",
+    "name": "victoria, TX",
+    "state": "TX",
+    "lat": 28.805,
+    "lng": -97.003304,
+    "subareas": []
+  },
+  {
+    "code": "visalia",
+    "name": "visalia-tulare",
+    "state": "CA",
+    "lat": 36.330299,
+    "lng": -119.291,
+    "subareas": []
+  },
+  {
+    "code": "waco",
+    "name": "waco, TX",
+    "state": "TX",
+    "lat": 31.5492,
+    "lng": -97.1464,
+    "subareas": []
+  },
+  {
+    "code": "washingtondc",
+    "name": "washington, DC",
+    "state": "DC",
+    "lat": 38.889999,
+    "lng": -77.029999,
+    "subareas": [
+      {
+        "code": "doc",
+        "name": "district of columbia"
+      },
+      {
+        "code": "nva",
+        "name": "northern virginia"
+      },
+      {
+        "code": "mld",
+        "name": "maryland"
+      }
+    ]
+  },
+  {
+    "code": "waterloo",
+    "name": "waterloo / cedar falls",
+    "state": "IA",
+    "lat": 42.4925,
+    "lng": -92.345802,
+    "subareas": []
+  },
+  {
+    "code": "watertown",
+    "name": "watertown, NY",
+    "state": "NY",
+    "lat": 43.974701,
+    "lng": -75.911102,
+    "subareas": []
+  },
+  {
+    "code": "wausau",
+    "name": "wausau, WI",
+    "state": "WI",
+    "lat": 44.959202,
+    "lng": -89.629997,
+    "subareas": []
+  },
+  {
+    "code": "wenatchee",
+    "name": "wenatchee, WA",
+    "state": "WA",
+    "lat": 47.423599,
+    "lng": -120.308998,
+    "subareas": []
+  },
+  {
+    "code": "westernmass",
+    "name": "western massachusetts",
+    "state": "MA",
+    "lat": 42.349998,
+    "lng": -73,
+    "subareas": []
+  },
+  {
+    "code": "westky",
+    "name": "western KY",
+    "state": "KY",
+    "lat": 37.081474,
+    "lng": -88.077393,
+    "subareas": []
+  },
+  {
+    "code": "westmd",
+    "name": "western maryland",
+    "state": "MD",
+    "lat": 39.651699,
+    "lng": -78.7658,
+    "subareas": []
+  },
+  {
+    "code": "westslope",
+    "name": "western slope",
+    "state": "CO",
+    "lat": 39.0704,
+    "lng": -108.552002,
+    "subareas": []
+  },
+  {
+    "code": "wheeling",
+    "name": "northern panhandle",
+    "state": "WV",
+    "lat": 40.0639,
+    "lng": -80.7211,
+    "subareas": []
+  },
+  {
+    "code": "wichita",
+    "name": "wichita, KS",
+    "state": "KS",
+    "lat": 37.6922,
+    "lng": -97.337196,
+    "subareas": []
+  },
+  {
+    "code": "wichitafalls",
+    "name": "wichita falls, TX",
+    "state": "TX",
+    "lat": 33.913601,
+    "lng": -98.493103,
+    "subareas": []
+  },
+  {
+    "code": "williamsport",
+    "name": "williamsport, PA",
+    "state": "PA",
+    "lat": 41.2411,
+    "lng": -77.001404,
+    "subareas": []
+  },
+  {
+    "code": "wilmington",
+    "name": "wilmington, NC",
+    "state": "NC",
+    "lat": 34.225601,
+    "lng": -77.945,
+    "subareas": []
+  },
+  {
+    "code": "winchester",
+    "name": "winchester, VA",
+    "state": "VA",
+    "lat": 39.178299,
+    "lng": -78.166603,
+    "subareas": []
+  },
+  {
+    "code": "winstonsalem",
+    "name": "winston-salem, NC",
+    "state": "NC",
+    "lat": 36.099701,
+    "lng": -80.2444,
+    "subareas": []
+  },
+  {
+    "code": "worcester",
+    "name": "worcester / central MA",
+    "state": "MA",
+    "lat": 42.262501,
+    "lng": -71.802803,
+    "subareas": []
+  },
+  {
+    "code": "wv",
+    "name": "west virginia (old)",
+    "state": "WV",
+    "lat": 38.709999,
+    "lng": -80.660004,
+    "subareas": []
+  },
+  {
+    "code": "wyoming",
+    "name": "wyoming",
+    "state": "WY",
+    "lat": 43.004002,
+    "lng": -108.153999,
+    "subareas": []
+  },
+  {
+    "code": "yakima",
+    "name": "yakima, WA",
+    "state": "WA",
+    "lat": 46.6022,
+    "lng": -120.504997,
+    "subareas": []
+  },
+  {
+    "code": "york",
+    "name": "york, PA",
+    "state": "PA",
+    "lat": 39.962502,
+    "lng": -76.728104,
+    "subareas": []
+  },
+  {
+    "code": "youngstown",
+    "name": "youngstown, OH",
+    "state": "OH",
+    "lat": 41.099701,
+    "lng": -80.649696,
+    "subareas": []
+  },
+  {
+    "code": "yubasutter",
+    "name": "yuba-sutter, CA",
+    "state": "CA",
+    "lat": 39.144402,
+    "lng": -121.647003,
+    "subareas": []
+  },
+  {
+    "code": "yuma",
+    "name": "yuma, AZ",
+    "state": "AZ",
+    "lat": 32.7253,
+    "lng": -114.624001,
+    "subareas": []
+  },
+  {
+    "code": "zanesville",
+    "name": "zanesville / cambridge",
+    "state": "OH",
+    "lat": 39.9403,
+    "lng": -82.013199,
+    "subareas": []
+  }
+]

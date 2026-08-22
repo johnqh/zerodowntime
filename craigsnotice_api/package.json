@@ -1,0 +1,29 @@
+{
+  "name": "@craigsnotice/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch --preload ./src/otel.ts src/index.ts",
+    "start": "bun --preload ./src/otel.ts src/index.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src tests",
+    "db:init": "bun run src/db/init.ts",
+    "port:sync": "bun run scripts/sync-blueprints.ts"
+  },
+  "dependencies": {
+    "@craigsnotice/types": "workspace:*",
+    "hono": "^4.6.0",
+    "@hono/zod-validator": "^0.7.0",
+    "zod": "^4.0.0",
+    "drizzle-orm": "^0.45.0",
+    "postgres": "^3.4.0",
+    "firebase-admin": "^13.0.0",
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.0"
+  }
+}
