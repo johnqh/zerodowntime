@@ -1,0 +1,171 @@
+import { and, eq, inArray } from "drizzle-orm";
+import {
+  searchResultRowSchema,
+  listingDetailRowSchema,
+  type SearchResultRow,
+  type ListingDetailRow,
+} from "@craigsnotice/types";
+import type { Db } from "../db";
+import { listings, scrapeRuns } from "../db/schema";
+import type { BrightDataClient } from "./brightdata/client";
+import type { ResultDelivery } from "./brightdata/delivery";
+import type { FailureInjector } from "./selfheal";
+import { parseRows } from "./parse";
+
+export interface IngestDeps {
+  db: Db;
+  bd: BrightDataClient;
+  delivery: ResultDelivery;
+  searchCollectorId: string;
+  detailCollectorId: string;
+  /** Staged-break trigger for the demo; armed via the debug route. */
+  injector?: FailureInjector;
+}
+
+export interface IngestResult {
+  runId: string;
+  scrapedCount: number;
+  newListingIds: string[];
+  violationRate: number;
+  sampleViolation: string | null;
+}
+
+/** Rows from the watch this listing belongs to; shape mirrors the Watch domain type. */
+export interface IngestWatch {
+  id: string;
+  searchUrl: string;
+}
+
+const toDate = (raw: string | null): Date | null => {
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+export const ingestWatch = async (
+  deps: IngestDeps,
+  watch: IngestWatch,
+  scraperConfigId: string
+): Promise<IngestResult> => {
+  const snapshotId = await deps.bd.trigger(deps.searchCollectorId, [
+    { url: watch.searchUrl },
+  ]);
+
+  const [run] = await deps.db
+    .insert(scrapeRuns)
+    .values({
+      watchId: watch.id,
+      scraperConfigId,
+      snapshotId,
+      status: "collecting",
+    })
+    .returning();
+  const runId = run!.id;
+
+  const failRun = async (err: unknown): Promise<never> => {
+    await deps.db
+      .update(scrapeRuns)
+      .set({
+        status: "failed",
+        finishedAt: new Date(),
+        error: (err as Error).message,
+      })
+      .where(eq(scrapeRuns.id, runId));
+    throw err;
+  };
+
+  let raw: unknown[];
+  try {
+    raw = await deps.delivery.await(snapshotId);
+  } catch (err) {
+    return failRun(err);
+  }
+
+  // The injector fires on the search parse only; firing on the detail parse
+  // too would make one injection look like two independent breakages.
+  const forceFailure = deps.injector?.consume() ?? false;
+  const parsed = parseRows<SearchResultRow>(
+    raw,
+    searchResultRowSchema,
+    forceFailure
+  );
+
+  const scrapedIds = parsed.rows.map((r) => r.postId);
+  const existing = scrapedIds.length
+    ? await deps.db
+        .select({ clPostId: listings.clPostId })
+        .from(listings)
+        .where(
+          and(
+            eq(listings.watchId, watch.id),
+            inArray(listings.clPostId, scrapedIds)
+          )
+        )
+    : [];
+
+  const seen = new Set(existing.map((e) => e.clPostId));
+  const fresh = parsed.rows.filter((r) => !seen.has(r.postId));
+
+  const details = new Map<string, ListingDetailRow>();
+  if (fresh.length > 0) {
+    try {
+      const detailSnapshot = await deps.bd.trigger(
+        deps.detailCollectorId,
+        fresh.map((r) => ({ url: r.url }))
+      );
+      const detailRaw = await deps.delivery.await(detailSnapshot);
+      for (const d of parseRows<ListingDetailRow>(
+        detailRaw,
+        listingDetailRowSchema
+      ).rows) {
+        details.set(d.postId, d);
+      }
+    } catch (err) {
+      return failRun(err);
+    }
+  }
+
+  const newListingIds: string[] = [];
+  for (const row of fresh) {
+    const detail = details.get(row.postId);
+    const price = detail?.price ?? row.price;
+
+    const [inserted] = await deps.db
+      .insert(listings)
+      .values({
+        watchId: watch.id,
+        clPostId: row.postId,
+        title: detail?.title ?? row.title,
+        price: price === null ? null : String(price),
+        url: row.url,
+        postedAt: toDate(detail?.postedAt ?? row.postedAt),
+        location: detail?.location ?? row.location,
+        condition: detail?.condition ?? null,
+        description: detail?.description ?? null,
+        imageCount: detail?.imageCount ?? 0,
+        detailFetchedAt: detail ? new Date() : null,
+      })
+      .onConflictDoNothing({ target: listings.clPostId })
+      .returning();
+
+    if (inserted) newListingIds.push(inserted.id);
+  }
+
+  await deps.db
+    .update(scrapeRuns)
+    .set({
+      status: "ready",
+      rowCount: parsed.total,
+      violationCount: parsed.violations,
+      finishedAt: new Date(),
+    })
+    .where(eq(scrapeRuns.id, runId));
+
+  return {
+    runId,
+    scrapedCount: parsed.total,
+    newListingIds,
+    violationRate: parsed.violationRate,
+    sampleViolation: parsed.sampleViolation,
+  };
+};
