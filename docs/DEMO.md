@@ -23,10 +23,15 @@ If you tunnel the API so SigNoz Cloud can reach the heal webhook, set
 Without it the `/api/v1/hooks` route is not mounted — deliberately, since it
 triggers a billable heal.
 
+The API must be started from a shell where `bdata` is on the PATH, or the
+self-heal beat at 3:00 will fail with `command not found`. The API warns at
+boot if it cannot find it.
+
 Sanity check, ~90 seconds before you present:
 
 ```bash
 curl -s localhost:8022/health
+command -v bdata || echo "MISSING - self-heal will fail"
 psql -qtA craigsnotice -c "SELECT kind, health FROM scraper_configs"
 ```
 

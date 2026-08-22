@@ -25,6 +25,7 @@ import {
 } from "./services/selfheal";
 import { createScheduler, type CycleDeps } from "./services/scheduler";
 import { createOgImageFetcher } from "./services/ogImage";
+import { preflight } from "./services/preflight";
 import {
   createFixtureBrightData,
   createFixtureFcmChannel,
@@ -188,6 +189,11 @@ const seedScraperEntities = async (): Promise<void> => {
 };
 
 await seedScraperEntities();
+
+// Warn loudly at boot rather than discovering it mid-heal.
+for (const warning of (await preflight({ fixtures })).warnings) {
+  console.warn(`[craigsnotice] ${warning}`);
+}
 
 const scheduler = createScheduler(cycleDeps, db);
 scheduler.start();

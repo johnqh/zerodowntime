@@ -120,6 +120,18 @@ bun run db:init
 bun run port:sync                              # applies the five blueprints
 ```
 
+### The Bright Data CLI is a runtime dependency, not just a setup step
+
+Self-healing has no REST endpoint — `POST /dca/collector/:id/heal` returns 404 —
+so the API shells out to `bdata scraper heal`. **The `bdata` binary must be on
+the PATH of the process running the API**, not just on the machine. Without it
+everything works until a scraper breaks, and then the repair fails with
+`command not found` instead of healing.
+
+The API checks this at boot and prints a warning if it cannot find `bdata`, so
+you learn about it on startup rather than mid-demo. `DEMO_MODE=fixtures` never
+shells out, so the check is skipped there.
+
 Create the two collectors (once):
 
 ```bash
@@ -146,6 +158,12 @@ VALUES ('search','<search id>'), ('detail','<detail id>');
 cd craigsnotice_api && bun run dev     # :8022
 cd craigsnotice_app && bun run dev     # :5173
 ```
+
+If the API logs `bdata CLI not found on PATH`, self-healing will not work.
+Everything else will.
+
+There is no Claude Code or Anthropic dependency: the LLM judgment runs inside
+Port's own agent runtime, so the only external binary the API needs is `bdata`.
 
 ### Firebase
 
