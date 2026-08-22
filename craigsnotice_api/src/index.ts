@@ -6,7 +6,11 @@ import { mirrorScraperConfig, safeMirror } from "./services/port/mirror";
 import { metrics } from "./telemetry/metrics";
 import { createFirebaseVerifier } from "./services/firebase";
 import { createBrightDataClient } from "./services/brightdata/client";
-import { createPollingDelivery } from "./services/brightdata/delivery";
+import {
+  createPollingDelivery,
+  createWebhookDelivery,
+  createWebhookStore,
+} from "./services/brightdata/delivery";
 import { createPortClient } from "./services/port/client";
 import {
   createDispatcher,
@@ -91,11 +95,36 @@ const emit = createSelfHealEmitter();
 const onHeal = (info: DegradedInfo) =>
   handleDegraded({ db, bd, port, emit }, info);
 
+/**
+ * Bright Data can push finished runs to us instead of us polling — but only
+ * if it can reach us. Its servers cannot see localhost, so the webhook path
+ * needs PUBLIC_BASE_URL pointing at a tunnel (cloudflared/ngrok) or a real
+ * deployment. Without one we poll, which needs no inbound connectivity.
+ */
+const publicBaseUrl = process.env.PUBLIC_BASE_URL?.replace(/\/$/, "") ?? "";
+const webhookStore = createWebhookStore();
+
+const useWebhookDelivery = publicBaseUrl.startsWith("http") && !fixtures;
+
+const deliverTo = useWebhookDelivery
+  ? `${publicBaseUrl}/api/v1/hooks/brightdata`
+  : undefined;
+
+const delivery = useWebhookDelivery
+  ? createWebhookDelivery(webhookStore)
+  : createPollingDelivery(bd);
+
+console.log(
+  useWebhookDelivery
+    ? `[craigsnotice] Bright Data will deliver to ${deliverTo}`
+    : "[craigsnotice] polling Bright Data (set PUBLIC_BASE_URL to use webhooks)"
+);
+
 const cycleDeps: CycleDeps = {
   db,
   bd,
   port,
-  delivery: createPollingDelivery(bd),
+  delivery,
   searchCollectorId: fixtures
     ? FIXTURE_SEARCH_COLLECTOR
     : (process.env.BRIGHTDATA_SEARCH_COLLECTOR ?? ""),
@@ -108,6 +137,7 @@ const cycleDeps: CycleDeps = {
   dispatcher,
   injector,
   fetchImage: createOgImageFetcher(),
+  ...(deliverTo ? { deliverTo } : {}),
   onDegraded: async (info) => {
     await onHeal(info);
   },
@@ -123,6 +153,17 @@ const app = createApp({
   debugToken: config.debugToken,
   onHeal,
   webhookSecret: process.env.SIGNOZ_WEBHOOK_SECRET ?? null,
+  ...(useWebhookDelivery
+    ? {
+        brightDataHook: {
+          store: webhookStore,
+          fetchRows: async (snapshotId: string) => {
+            const snap = await bd.fetchSnapshot(snapshotId);
+            return snap.rows ?? [];
+          },
+        },
+      }
+    : {}),
   appOrigins: (process.env.APP_ORIGINS ?? "http://localhost:5173")
     .split(",")
     .map((o) => o.trim())

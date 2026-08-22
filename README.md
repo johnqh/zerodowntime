@@ -19,7 +19,23 @@ Two AI-built collectors, created with `bdata scraper create`:
 | `craigsnotice-search` | `c_mt4uabgk2nmd7ndx42` | Craigslist search results → post id, title, price, url, posted date, location |
 | `craigsnotice-detail` | `c_mt4ug26f4tafeboze` | One listing → description, condition, photo count |
 
-The API triggers them over `POST /dca/trigger` and polls `GET /dca/dataset`.
+The API triggers them over `POST /dca/trigger`. Bright Data then delivers the
+finished rows one of two ways, chosen automatically at startup:
+
+- **Bright Data pushes** — when `PUBLIC_BASE_URL` is set, the trigger carries
+  an `endpoint=` param and Bright Data POSTs to
+  `/api/v1/hooks/brightdata` the moment the run finishes. No polling.
+- **We poll** — the fallback. `GET /dca/dataset` every 5s.
+
+**On localhost the push path needs a tunnel.** Bright Data's servers cannot
+reach `localhost:8022`, so run something like
+`cloudflared tunnel --url http://localhost:8022` and set `PUBLIC_BASE_URL` to
+the URL it prints. Without it the API polls, which needs no inbound
+connectivity and is the right default for a laptop.
+
+Scheduling stays on our side either way: Bright Data has no per-collector
+scheduling API, and a Bright Data-side schedule could not know about
+per-user watches, each of which has its own search URL and interval.
 **Every scraped row is Zod-validated at the boundary.** The validated
 violation rate is the health signal: above 30% the scraper is considered
 broken rather than the data considered bad, which drives the repair loop below.

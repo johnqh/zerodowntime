@@ -29,6 +29,8 @@ export interface IngestDeps {
   port?: PortClient;
   /** Backfills the hero image when the collector did not return one. */
   fetchImage?: ImageFetcher;
+  /** When set, Bright Data POSTs finished runs here instead of us polling. */
+  deliverTo?: string;
 }
 
 export interface IngestResult {
@@ -59,7 +61,12 @@ export const ingestWatch = async (
   const snapshotId = await withSpan(
     "scrape.trigger",
     { "watch.id": watch.id, collector: deps.searchCollectorId },
-    () => deps.bd.trigger(deps.searchCollectorId, [{ url: watch.searchUrl }])
+    () =>
+      deps.bd.trigger(
+        deps.searchCollectorId,
+        [{ url: watch.searchUrl }],
+        deps.deliverTo
+      )
   );
 
   const [run] = await deps.db
@@ -166,7 +173,8 @@ export const ingestWatch = async (
         async () => {
           const detailSnapshot = await deps.bd.trigger(
             deps.detailCollectorId,
-            fresh.map((r) => ({ url: r.url }))
+            fresh.map((r) => ({ url: r.url })),
+            deps.deliverTo
           );
           const detailRaw = await deps.delivery.await(detailSnapshot);
           for (const d of parseRows<ListingDetailRow>(

@@ -6,7 +6,15 @@ export interface Snapshot {
 }
 
 export interface BrightDataClient {
-  trigger(collectorId: string, inputs: Array<{ url: string }>): Promise<string>;
+  /**
+   * `deliverTo` makes Bright Data POST the finished rows to that URL instead
+   * of us polling for them.
+   */
+  trigger(
+    collectorId: string,
+    inputs: Array<{ url: string }>,
+    deliverTo?: string
+  ): Promise<string>;
   fetchSnapshot(snapshotId: string): Promise<Snapshot>;
   heal(collectorId: string, prompt: string): Promise<void>;
 }
@@ -58,11 +66,18 @@ export const createBrightDataClient = (
   };
 
   return {
-    async trigger(collectorId, inputs) {
-      const res = await fetchImpl(
-        `${BASE}/dca/trigger?collector=${collectorId}&queue_next=1`,
-        { method: "POST", headers: authHeaders, body: JSON.stringify(inputs) }
-      );
+    async trigger(collectorId, inputs, deliverTo) {
+      const params = new URLSearchParams({
+        collector: collectorId,
+        queue_next: "1",
+      });
+      if (deliverTo) params.set("endpoint", deliverTo);
+
+      const res = await fetchImpl(`${BASE}/dca/trigger?${params.toString()}`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify(inputs),
+      });
       if (!res.ok) {
         throw new Error(`bright data trigger failed: ${res.status}`);
       }

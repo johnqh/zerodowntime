@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { successResponse, errorResponse } from "@craigsnotice/types";
 import type { DegradedInfo, HealResult } from "../services/selfheal";
+import type { WebhookStore } from "../services/brightdata/delivery";
 
 const signozAlertSchema = z.object({
   alerts: z
@@ -39,9 +40,30 @@ const secretsMatch = (a: string, b: string): boolean => {
  * SIGNOZ_WEBHOOK_SECRET is unset rather than exposing it unauthenticated —
  * which matters because the demo runbook puts this behind a public tunnel.
  */
+/**
+ * Bright Data's delivery callback. It POSTs when a collection finishes, so we
+ * never poll: /dca/trigger carries an `endpoint=` param pointing here.
+ */
+const brightDataSchema = z
+  .object({
+    collection_id: z.string().optional(),
+    snapshot_id: z.string().optional(),
+    status: z.string().optional(),
+    error: z.string().optional(),
+    result_url: z.string().optional(),
+  })
+  .passthrough();
+
+export interface BrightDataHookDeps {
+  store: WebhookStore;
+  /** Fetches the rows for a finished collection. */
+  fetchRows(snapshotId: string): Promise<unknown[]>;
+}
+
 export const createHooksRouter = (
   onHeal: HealHandler,
-  webhookSecret: string
+  webhookSecret: string,
+  brightData?: BrightDataHookDeps
 ): Hono => {
   const router = new Hono();
 
@@ -77,6 +99,55 @@ export const createHooksRouter = (
       return c.json(successResponse({ healed }));
     }
   );
+
+  if (brightData) {
+    router.post("/brightdata", async (c) => {
+      let body: unknown;
+      try {
+        body = await c.req.json();
+      } catch {
+        return c.json(errorResponse("invalid json"), 400);
+      }
+
+      if (Array.isArray(body)) {
+        return c.json(
+          successResponse({ accepted: false, reason: "no collection id" }),
+          202
+        );
+      }
+
+      const parsed = brightDataSchema.safeParse(body);
+      if (!parsed.success) {
+        return c.json(errorResponse("unrecognised payload"), 400);
+      }
+
+      const snapshotId =
+        parsed.data.collection_id ?? parsed.data.snapshot_id ?? null;
+      if (!snapshotId) {
+        return c.json(errorResponse("missing collection id"), 400);
+      }
+
+      if (parsed.data.error || parsed.data.status === "failed") {
+        const failed = brightData.store.fail(
+          snapshotId,
+          parsed.data.error ?? "failed"
+        );
+        return c.json(successResponse({ accepted: failed }));
+      }
+
+      let rows: unknown[];
+      try {
+        rows = await brightData.fetchRows(snapshotId);
+      } catch (err) {
+        brightData.store.fail(snapshotId, (err as Error).message);
+        return c.json(errorResponse((err as Error).message), 502);
+      }
+
+      // An unmatched id is normal: a retriggered or already-timed-out run.
+      const accepted = brightData.store.resolve(snapshotId, rows);
+      return c.json(successResponse({ accepted, rows: rows.length }));
+    });
+  }
 
   return router;
 };
