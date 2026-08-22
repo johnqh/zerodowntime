@@ -1,0 +1,14 @@
+identifier: craigsnotice_deal_alert
+title: CraigsNotice Deal Alert
+icon: Alert
+schema:
+  properties:
+    score: { type: number, title: Score }
+    isGoodDeal: { type: boolean, title: Good deal }
+    reasoning: { type: string, title: Agent reasoning }
+    priceVsMedian: { type: number, title: Price vs median }
+    userFeedback: { type: string, title: User feedback, enum: [good, bad, none] }
+  required: [score, isGoodDeal, reasoning]
+relations:
+  listing: { target: craigsnotice_listing, required: false, many: false }
+  watch: { target: craigsnotice_watch, required: false, many: false }

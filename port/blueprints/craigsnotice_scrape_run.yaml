@@ -1,0 +1,14 @@
+identifier: craigsnotice_scrape_run
+title: CraigsNotice Scrape Run
+icon: Deployment
+schema:
+  properties:
+    snapshotId: { type: string, title: Snapshot }
+    status: { type: string, title: Status, enum: [collecting, ready, failed] }
+    rowCount: { type: number, title: Rows }
+    violationCount: { type: number, title: Violations }
+    durationMs: { type: number, title: Duration (ms) }
+  required: [snapshotId, status]
+relations:
+  watch: { target: craigsnotice_watch, required: false, many: false }
+  scraper: { target: craigsnotice_scraper_config, required: false, many: false }

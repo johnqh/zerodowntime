@@ -1,0 +1,13 @@
+identifier: craigsnotice_listing
+title: CraigsNotice Listing
+icon: Package
+schema:
+  properties:
+    price: { type: number, title: Price }
+    url: { type: string, format: url, title: URL }
+    postedAt: { type: string, format: date-time, title: Posted }
+    condition: { type: string, title: Condition }
+    location: { type: string, title: Location }
+  required: [url]
+relations:
+  watch: { target: craigsnotice_watch, required: false, many: false }

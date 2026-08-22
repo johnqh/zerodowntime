@@ -10,6 +10,8 @@ import { listings, scrapeRuns } from "../db/schema";
 import type { BrightDataClient } from "./brightdata/client";
 import type { ResultDelivery } from "./brightdata/delivery";
 import type { FailureInjector } from "./selfheal";
+import type { PortClient } from "./port/client";
+import { mirrorListing, mirrorScrapeRun, safeMirror } from "./port/mirror";
 import { parseRows } from "./parse";
 
 export interface IngestDeps {
@@ -20,6 +22,8 @@ export interface IngestDeps {
   detailCollectorId: string;
   /** Staged-break trigger for the demo; armed via the debug route. */
   injector?: FailureInjector;
+  /** Optional Port catalog mirror; never load-bearing. */
+  port?: PortClient;
 }
 
 export interface IngestResult {
@@ -61,6 +65,30 @@ export const ingestWatch = async (
     })
     .returning();
   const runId = run!.id;
+  const startedAt = Date.now();
+
+  const mirrorRun = async (
+    status: string,
+    rowCount: number,
+    violationCount: number,
+    finished: boolean
+  ): Promise<void> => {
+    if (!deps.port) return;
+    await safeMirror(() =>
+      mirrorScrapeRun(deps.port!, {
+        id: runId,
+        watchId: watch.id,
+        scraperConfigId,
+        snapshotId,
+        status,
+        rowCount,
+        violationCount,
+        durationMs: finished ? Date.now() - startedAt : null,
+      })
+    );
+  };
+
+  await mirrorRun("collecting", 0, 0, false);
 
   const failRun = async (err: unknown): Promise<never> => {
     await deps.db
@@ -71,6 +99,7 @@ export const ingestWatch = async (
         error: (err as Error).message,
       })
       .where(eq(scrapeRuns.id, runId));
+    await mirrorRun("failed", 0, 0, true);
     throw err;
   };
 
@@ -148,7 +177,12 @@ export const ingestWatch = async (
       .onConflictDoNothing({ target: listings.clPostId })
       .returning();
 
-    if (inserted) newListingIds.push(inserted.id);
+    if (inserted) {
+      newListingIds.push(inserted.id);
+      if (deps.port) {
+        await safeMirror(() => mirrorListing(deps.port!, inserted));
+      }
+    }
   }
 
   await deps.db
@@ -160,6 +194,8 @@ export const ingestWatch = async (
       finishedAt: new Date(),
     })
     .where(eq(scrapeRuns.id, runId));
+
+  await mirrorRun("ready", parsed.total, parsed.violations, true);
 
   return {
     runId,

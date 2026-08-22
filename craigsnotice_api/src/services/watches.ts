@@ -5,11 +5,15 @@ import {
 } from "@craigsnotice/types";
 import type { Db } from "../db";
 import { watches } from "../db/schema";
+import type { PortClient } from "./port/client";
+import { mirrorWatch, safeMirror } from "./port/mirror";
 
 export const createWatch = async (
   db: Db,
   userId: string,
-  input: CreateWatchInput
+  input: CreateWatchInput,
+  port?: PortClient,
+  ownerEmail = ""
 ) => {
   const searchUrl = buildCraigslistSearchUrl({
     siteCode: input.siteCode,
@@ -32,6 +36,8 @@ export const createWatch = async (
       searchUrl,
     })
     .returning();
+
+  if (port) await safeMirror(() => mirrorWatch(port, row!, ownerEmail));
 
   return row!;
 };

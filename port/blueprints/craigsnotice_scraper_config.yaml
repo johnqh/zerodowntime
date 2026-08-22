@@ -1,0 +1,12 @@
+identifier: craigsnotice_scraper_config
+title: CraigsNotice Scraper
+icon: Cloud
+schema:
+  properties:
+    kind: { type: string, title: Kind, enum: [search, detail] }
+    collectorId: { type: string, title: Bright Data collector }
+    health: { type: string, title: Health, enum: [healthy, degraded] }
+    violationRate: { type: number, title: Schema violation rate }
+    lastHealedAt: { type: string, format: date-time, title: Last healed }
+    healPrompt: { type: string, title: Last heal prompt }
+  required: [kind, collectorId, health]

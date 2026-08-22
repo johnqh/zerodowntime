@@ -8,6 +8,7 @@ import {
   InvalidWatchTargetError,
 } from "@craigsnotice/types";
 import type { Db } from "../db";
+import type { PortClient } from "../services/port/client";
 import {
   createWatch,
   deleteWatch,
@@ -15,12 +16,18 @@ import {
   listWatches,
 } from "../services/watches";
 
-export const createWatchesRouter = (db: Db): Hono => {
+export const createWatchesRouter = (db: Db, port?: PortClient): Hono => {
   const router = new Hono();
 
   router.post("/", zValidator("json", createWatchSchema), async (c) => {
     try {
-      const watch = await createWatch(db, c.get("userId"), c.req.valid("json"));
+      const watch = await createWatch(
+        db,
+        c.get("userId"),
+        c.req.valid("json"),
+        port,
+        c.get("userEmail")
+      );
       return c.json(successResponse(watch), 201);
     } catch (err) {
       if (err instanceof InvalidWatchTargetError) {

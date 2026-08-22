@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { eq } from "drizzle-orm";
 import { db, resetDb } from "./setup";
 import { createFakeBrightData } from "../src/services/brightdata/fake";
+import { createFakePort } from "../src/services/port/fake";
 import { createPollingDelivery } from "../src/services/brightdata/delivery";
 import { ingestWatch } from "../src/services/ingest";
 import {
@@ -135,6 +136,56 @@ describe("ingestWatch", () => {
 
     expect(result.violationRate).toBeCloseTo(2 / 3);
     expect(result.sampleViolation).toMatch(/post_id/);
+    expect(
+      await db.select().from(listings).where(eq(listings.watchId, watch.id))
+    ).toHaveLength(1);
+  });
+
+  it("mirrors the run and each new listing to Port when a client is supplied", async () => {
+    const { watch, scraperConfigId } = await seed();
+    const bd = createFakeBrightData();
+    bd.queue("x", [searchRow("1")]);
+    const port = createFakePort();
+
+    await ingestWatch({ ...depsWith(bd), port }, watch, scraperConfigId);
+
+    const runs = port.upserts.filter(
+      (u) => u.blueprint === "craigsnotice_scrape_run"
+    );
+    expect(runs.map((r) => r.properties.status)).toEqual([
+      "collecting",
+      "ready",
+    ]);
+    expect(runs[1]!.properties.rowCount).toBe(1);
+    expect(runs[1]!.relations).toEqual({
+      watch: watch.id,
+      scraper: scraperConfigId,
+    });
+
+    const mirrored = port.upserts.filter(
+      (u) => u.blueprint === "craigsnotice_listing"
+    );
+    expect(mirrored).toHaveLength(1);
+    expect(mirrored[0]!.title).toBe("Mac Studio 1");
+    expect(mirrored[0]!.relations.watch).toBe(watch.id);
+  });
+
+  it("keeps ingesting when the Port mirror throws", async () => {
+    const { watch, scraperConfigId } = await seed();
+    const bd = createFakeBrightData();
+    bd.queue("x", [searchRow("1")]);
+    const port = createFakePort();
+    port.upsertEntity = async () => {
+      throw new Error("port is down");
+    };
+
+    const result = await ingestWatch(
+      { ...depsWith(bd), port },
+      watch,
+      scraperConfigId
+    );
+
+    expect(result.newListingIds).toHaveLength(1);
     expect(
       await db.select().from(listings).where(eq(listings.watchId, watch.id))
     ).toHaveLength(1);

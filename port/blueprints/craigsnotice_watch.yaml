@@ -1,0 +1,15 @@
+identifier: craigsnotice_watch
+title: CraigsNotice Watch
+icon: Search
+schema:
+  properties:
+    siteCode: { type: string, title: Craigslist site }
+    subarea: { type: string, title: Subarea }
+    categoryCode: { type: string, title: Category }
+    query: { type: string, title: Looking for }
+    targetPrice: { type: number, title: Target price }
+    intervalSec: { type: number, title: Interval (s) }
+    status: { type: string, title: Status, enum: [active, paused] }
+    searchUrl: { type: string, format: url, title: Search URL }
+    ownerEmail: { type: string, title: Owner }
+  required: [siteCode, categoryCode, query, searchUrl]
