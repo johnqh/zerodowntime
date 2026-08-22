@@ -9,6 +9,7 @@ import {
 } from "@craigsnotice/types";
 import type { Db } from "../db";
 import type { PortClient } from "../services/port/client";
+import { runWatchCycle, type CycleDeps } from "../services/scheduler";
 import {
   createWatch,
   deleteWatch,
@@ -16,7 +17,11 @@ import {
   listWatches,
 } from "../services/watches";
 
-export const createWatchesRouter = (db: Db, port?: PortClient): Hono => {
+export const createWatchesRouter = (
+  db: Db,
+  port?: PortClient,
+  cycleDeps?: CycleDeps
+): Hono => {
   const router = new Hono();
 
   router.post("/", zValidator("json", createWatchSchema), async (c) => {
@@ -60,6 +65,21 @@ export const createWatchesRouter = (db: Db, port?: PortClient): Hono => {
       return ok
         ? c.json(successResponse({ deleted: true }))
         : c.json(errorResponse("watch not found"), 404);
+    }
+  );
+
+  // The demo button. A 300s interval is realistic but unusable on stage.
+  router.post(
+    "/:id/run",
+    zValidator("param", z.object({ id: z.uuid() })),
+    async (c) => {
+      if (!cycleDeps) {
+        return c.json(errorResponse("pipeline not configured"), 503);
+      }
+      const watch = await getWatch(db, c.get("userId"), c.req.valid("param").id);
+      if (!watch) return c.json(errorResponse("watch not found"), 404);
+
+      return c.json(successResponse(await runWatchCycle(cycleDeps, watch.id)));
     }
   );
 

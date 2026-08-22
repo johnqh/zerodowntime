@@ -1,14 +1,80 @@
+import { getMessaging } from "firebase-admin/messaging";
 import { createApp } from "./app";
 import { loadConfig } from "./config";
 import { createDb } from "./db";
 import { createFirebaseVerifier } from "./services/firebase";
+import { createBrightDataClient } from "./services/brightdata/client";
+import { createPollingDelivery } from "./services/brightdata/delivery";
+import { createPortClient } from "./services/port/client";
+import {
+  createDispatcher,
+  createSseChannel,
+  createSseHub,
+} from "./services/notify/dispatcher";
+import { createFcmChannel } from "./services/notify/fcm";
+import {
+  createFailureInjector,
+  handleDegraded,
+  type DegradedInfo,
+} from "./services/selfheal";
+import { createScheduler, type CycleDeps } from "./services/scheduler";
 
 const config = loadConfig();
+const db = createDb(config.databaseUrl);
+const verifier = createFirebaseVerifier();
+
+const bd = createBrightDataClient(process.env.BRIGHTDATA_API_TOKEN ?? "");
+const port = createPortClient({
+  clientId: process.env.PORT_CLIENT_ID ?? "",
+  clientSecret: process.env.PORT_CLIENT_SECRET ?? "",
+});
+
+const hub = createSseHub();
+const dispatcher = createDispatcher([
+  createFcmChannel(getMessaging(), db),
+  createSseChannel(hub),
+]);
+
+const injector = createFailureInjector();
+
+// Phase 5 replaces this with the OTel-backed emitter.
+const emit = (event: string, attrs: Record<string, unknown>): void => {
+  console.log(JSON.stringify({ event, ...attrs }));
+};
+
+const onHeal = (info: DegradedInfo) =>
+  handleDegraded({ db, bd, port, emit }, info);
+
+const cycleDeps: CycleDeps = {
+  db,
+  bd,
+  port,
+  delivery: createPollingDelivery(bd),
+  searchCollectorId: process.env.BRIGHTDATA_SEARCH_COLLECTOR ?? "",
+  detailCollectorId: process.env.BRIGHTDATA_DETAIL_COLLECTOR ?? "",
+  agentId: process.env.PORT_DEAL_AGENT_ID ?? "",
+  minBaselineSamples: config.minBaselineSamples,
+  violationRateThreshold: config.violationRateThreshold,
+  dispatcher,
+  injector,
+  onDegraded: async (info) => {
+    await onHeal(info);
+  },
+};
 
 const app = createApp({
-  db: createDb(config.databaseUrl),
-  verifier: createFirebaseVerifier(),
+  db,
+  verifier,
+  port,
+  hub,
+  cycleDeps,
+  injector,
+  debugToken: config.debugToken,
+  onHeal,
 });
+
+const scheduler = createScheduler(cycleDeps, db);
+scheduler.start();
 
 const server = Bun.serve({ port: config.port, fetch: app.fetch });
 console.log(
@@ -16,6 +82,7 @@ console.log(
 );
 
 const shutdown = async (): Promise<void> => {
+  scheduler.stop();
   await server.stop();
   process.exit(0);
 };

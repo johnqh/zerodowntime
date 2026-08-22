@@ -1,0 +1,45 @@
+{
+  "alert": "CraigsNotice scraper degraded",
+  "alertType": "METRIC_BASED_ALERT",
+  "description": "A Bright Data collector is returning rows that no longer match its output schema. Firing this alert posts to the API, which runs a plain-language Bright Data heal and flips the Port scraper entity back to healthy.",
+  "ruleType": "threshold_rule",
+  "evalWindow": "1m",
+  "frequency": "1m",
+  "condition": {
+    "compositeQuery": {
+      "queryType": "builder",
+      "panelType": "graph",
+      "builderQueries": {
+        "A": {
+          "queryName": "A",
+          "dataSource": "metrics",
+          "aggregateOperator": "last",
+          "aggregateAttribute": { "key": "scraper.health", "type": "Gauge" },
+          "groupBy": [
+            { "key": "scraper_config_id", "type": "tag" },
+            { "key": "collector_id", "type": "tag" }
+          ],
+          "expression": "A"
+        }
+      }
+    },
+    "op": "3",
+    "target": 1,
+    "matchType": "1"
+  },
+  "labels": {
+    "severity": "critical",
+    "service": "craigsnotice-api"
+  },
+  "annotations": {
+    "summary": "scraper.health dropped below 1",
+    "description": "collector {{collector_id}} is degraded"
+  },
+  "preferredChannels": ["craigsnotice-heal-webhook"],
+  "_webhookChannel": {
+    "name": "craigsnotice-heal-webhook",
+    "type": "webhook",
+    "api_url": "http://localhost:8022/api/v1/hooks/signoz/heal",
+    "note": "Point at a tunnel URL if SigNoz Cloud cannot reach localhost."
+  }
+}
