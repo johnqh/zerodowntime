@@ -10,53 +10,53 @@ Built for the **Zero Downtime Hackathon** (Bright Data · Port · SigNoz).
 
 ## The three technologies
 
-### Bright Data Scraper Studio
+### How did you use Bright Data in your project?
 
-**Bright Data** does all the scraping through two AI-built collectors — one for
-Craigslist search results, one for listing detail — created with
-`bdata scraper create` and driven over `/dca/trigger`, with results either
-polled or pushed back to us by webhook.
+We scrape Craigslist with two AI-built Scraper Studio collectors: one reads a
+search results page (post id, title, price, URL, posted date, location), the
+other opens each new listing for its description, condition, photo count and
+image. Bright Data is the entire data layer — the app derives a Craigslist
+search URL from what you're watching for, and every listing that reaches the
+agent came through those collectors.
 
-**It keeps itself working:** every scraped row is Zod-validated at the
-boundary, and when the failure rate crosses 30% we treat the scraper as broken
-rather than the data as bad — `bdata scraper heal` rewrites the selectors from
-a plain-language prompt built out of the actual validation error, and the
-repair goes through Bright Data's own approval gate before it ships.
-
-**Why it matters:** Craigslist changes its markup and nobody tells you; the
+It also keeps itself working, which is the part we care about. Every scraped
+row is Zod-validated at the boundary, and when the failure rate crosses 30% we
+treat the scraper as broken rather than the data as bad: `bdata scraper heal`
+rewrites the selectors from a plain-language prompt built out of the actual
+validation error, and the fix passes through Bright Data's own approval gate
+before it ships. Craigslist changes its markup and nobody tells you — the
 pipeline notices and repairs itself instead of quietly returning nothing.
 
-### Port
+### How did you use Port in your project?
 
-**Port** is the Context Lake and the judgment runtime. Watches, scrapers,
-scrape runs, listings, and deal alerts all mirror into it as entities with real
-relations, from five blueprints checked into the repo as YAML — so the whole
-catalog rebuilds from source with `bun run port:sync`.
+Port manages the catalog and makes the decisions. Every watch, scraper, scrape
+run, listing and deal alert is an entity in Port's Context Lake with real
+relations between them, defined by five blueprints checked into the repo as
+YAML — so the whole catalog rebuilds from source with `bun run port:sync`, and
+Port is where you go to see what the system has been doing.
 
-**A Port AI agent makes every call on every listing:** first whether the
-listing is even the thing you asked for (a Craigslist search for "Mac mini"
-returns Dell laptops and projectors), then whether it is genuinely good value —
-weighing generation, configuration, condition, age, and what's included, not
-just the price.
+A Port AI agent judges every listing, twice. First: is this even the thing you
+asked for? A Craigslist search for "Mac mini" returns Dell laptops, projectors
+and monitors, and a cheap wrong thing is not a deal. Then, only for real
+matches: is it genuinely good value — weighing generation, configuration,
+condition, age, and what's included, against comparable listings rather than a
+blended median. Your thumbs-up/down on an alert is written back onto the Port
+entity and fed into the next invocation, so the agent calibrates to you instead
+of to a threshold someone hardcoded.
 
-**The human stays in the loop:** thumbs-up/down on an alert is written back
-onto the Port entity and fed into the next invocation, so the agent calibrates
-to the person using it rather than to a threshold someone hardcoded.
+### How did you use SigNoz in your project?
 
-### SigNoz
+We monitor the whole pipeline as one trace per watch cycle — scrape → validate
+→ judge → notify — so any deal alert is traceable back to the exact scrape that
+produced it, alongside metrics for throughput, agent latency, failures and
+scraper health.
 
-**SigNoz** traces every watch cycle end to end — scrape → validate → judge →
-notify — so any deal alert is traceable back to the exact scrape that produced
-it, alongside metrics for throughput, agent latency, failures, and scraper
-health.
-
-**Self-healing is a first-class signal:** the breakage, the plain-language
-repair prompt, and the recovery are all emitted as severity-tagged events, so a
-repair is searchable on its own and correlated to the trace that caught it.
-
-**The loop closes:** a SigNoz alert on the `scraper.health` gauge can trigger
-that repair on its own, so observability doesn't just watch the pipeline — it
-fixes it.
+Self-healing is treated as a first-class signal rather than a log line: the
+breakage, the plain-language repair prompt and the recovery are all emitted as
+severity-tagged events, so a repair is searchable on its own and correlated to
+the trace that caught it. And the loop closes — a SigNoz alert on the
+`scraper.health` gauge can trigger that repair by itself, so observability
+doesn't just watch the pipeline, it fixes it.
 
 
 ## About the staged break
