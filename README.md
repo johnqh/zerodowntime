@@ -8,91 +8,56 @@ Built for the **Zero Downtime Hackathon** (Bright Data · Port · SigNoz).
 
 ---
 
-## The three technologies, and what each actually does here
+## The three technologies
 
 ### Bright Data Scraper Studio
 
-Two AI-built collectors, created with `bdata scraper create`:
+**Bright Data** does all the scraping through two AI-built collectors — one for
+Craigslist search results, one for listing detail — created with
+`bdata scraper create` and driven over `/dca/trigger`, with results either
+polled or pushed back to us by webhook.
 
-| Collector | id | Job |
-|---|---|---|
-| `craigsnotice-search` | `c_mt4uabgk2nmd7ndx42` | Craigslist search results → post id, title, price, url, posted date, location |
-| `craigsnotice-detail` | `c_mt4ug26f4tafeboze` | One listing → description, condition, photo count |
+**It keeps itself working:** every scraped row is Zod-validated at the
+boundary, and when the failure rate crosses 30% we treat the scraper as broken
+rather than the data as bad — `bdata scraper heal` rewrites the selectors from
+a plain-language prompt built out of the actual validation error, and the
+repair goes through Bright Data's own approval gate before it ships.
 
-The API triggers them over `POST /dca/trigger`. Bright Data then delivers the
-finished rows one of two ways, chosen automatically at startup:
-
-- **Bright Data pushes** — when `PUBLIC_BASE_URL` is set, the trigger carries
-  an `endpoint=` param and Bright Data POSTs to
-  `/api/v1/hooks/brightdata` the moment the run finishes. No polling.
-- **We poll** — the fallback. `GET /dca/dataset` every 5s.
-
-**On localhost the push path needs a tunnel.** Bright Data's servers cannot
-reach `localhost:8022`, so run something like
-`cloudflared tunnel --url http://localhost:8022` and set `PUBLIC_BASE_URL` to
-the URL it prints. Without it the API polls, which needs no inbound
-connectivity and is the right default for a laptop.
-
-Scheduling stays on our side either way: Bright Data has no per-collector
-scheduling API, and a Bright Data-side schedule could not know about
-per-user watches, each of which has its own search URL and interval.
-**Every scraped row is Zod-validated at the boundary.** The validated
-violation rate is the health signal: above 30% the scraper is considered
-broken rather than the data considered bad, which drives the repair loop below.
-
-Self-healing runs through `bdata scraper heal <collector> "<plain-language
-prompt>"`, and the prompt is built from the *actual* Zod violation, so the AI
-is told which fields stopped extracting rather than "something broke".
+**Why it matters:** Craigslist changes its markup and nobody tells you; the
+pipeline notices and repairs itself instead of quietly returning nothing.
 
 ### Port
 
-Port is both the catalog and the judgment runtime.
+**Port** is the Context Lake and the judgment runtime. Watches, scrapers,
+scrape runs, listings, and deal alerts all mirror into it as entities with real
+relations, from five blueprints checked into the repo as YAML — so the whole
+catalog rebuilds from source with `bun run port:sync`.
 
-- **Context Lake** — five blueprints (`craigsnotice_watch`,
-  `craigsnotice_scraper_config`, `craigsnotice_scrape_run`,
-  `craigsnotice_listing`, `craigsnotice_deal_alert`), checked in as YAML under
-  `port/blueprints/` and applied with `bun run port:sync`. Watches, runs,
-  listings, alerts and scraper health all mirror into it live.
-- **Deal agent** — `POST /v1/agent/craigsnotice_deal_agent/invoke` decides
-  whether each listing is a good deal. It receives the listing, a rolling
-  price baseline for that watch, the buyer's target price, and **the buyer's
-  last ten thumbs-up/down verdicts**, and returns
-  `{isGoodDeal, score, reasoning, priceVsMedian}`.
-- **Human decision-making** — 👍/👎 on an alert is written to Postgres, patched
-  onto the Port `craigsnotice_deal_alert` entity as `userFeedback`, and fed
-  into the next invocation. The agent's bar visibly moves.
+**A Port AI agent makes every call on every listing:** first whether the
+listing is even the thing you asked for (a Craigslist search for "Mac mini"
+returns Dell laptops and projectors), then whether it is genuinely good value —
+weighing generation, configuration, condition, age, and what's included, not
+just the price.
 
-Port mirroring is wrapped in `safeMirror`: a Port outage logs and the pipeline
-keeps running. The catalog is a catalog, never a dependency.
+**The human stays in the loop:** thumbs-up/down on an alert is written back
+onto the Port entity and fed into the next invocation, so the agent calibrates
+to the person using it rather than to a threshold someone hardcoded.
 
 ### SigNoz
 
-OpenTelemetry traces, metrics and logs, exported over OTLP.
+**SigNoz** traces every watch cycle end to end — scrape → validate → judge →
+notify — so any deal alert is traceable back to the exact scrape that produced
+it, alongside metrics for throughput, agent latency, failures, and scraper
+health.
 
-- **One trace per watch tick.** `watch.tick` is the root; `scrape.trigger`,
-  `scrape.poll`, `scrape.parse`, `listing.detail.fetch`, `baseline.compute`,
-  `agent.invoke` and `alert.notify` all descend from it, so any alert is
-  traceable back to the scrape that produced it. Asserted in
-  `tests/trace-tree.test.ts`, not just hoped for.
-- **Metrics** — `listings.ingested`, `alerts.sent`, `agent.invocations`,
-  `agent.failures`, `scrape.violations`, `selfheal.events`, histograms for
-  agent latency and scrape duration, and a `scraper.health` gauge labelled
-  `scraper_config_id` / `collector_id`.
-- **Auto-repair as a first-class signal.** Each `scraper.selfheal.*` event
-  lands three ways at once: a span event inside the trace that detected it, a
-  severity-tagged log record carrying the heal prompt (WARN → INFO, or ERROR
-  if the heal fails), and a counter.
-- **The loop closes.** A SigNoz alert on `scraper.health == 0`
-  (`signoz/alerts/scraper-degraded.json`) posts to
-  `POST /api/v1/hooks/signoz/heal`, which runs a real heal. Observability
-  doesn't just watch the pipeline — it repairs it.
+**Self-healing is a first-class signal:** the breakage, the plain-language
+repair prompt, and the recovery are all emitted as severity-tagged events, so a
+repair is searchable on its own and correlated to the trace that caught it.
 
-  That endpoint triggers a billable heal against a live scraper, so it
-  requires a shared secret in `x-signoz-token` (constant-time compared) and
-  the route is **not mounted at all** unless `SIGNOZ_WEBHOOK_SECRET` is set.
-  Set it before exposing the API through a tunnel.
+**The loop closes:** a SigNoz alert on the `scraper.health` gauge can trigger
+that repair on its own, so observability doesn't just watch the pipeline — it
+fixes it.
 
----
 
 ## About the staged break
 
