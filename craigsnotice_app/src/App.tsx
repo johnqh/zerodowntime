@@ -42,9 +42,9 @@ const TopBar = () => {
               onClick={() => void push.enable()}
               className="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50"
             >
-              {push.status === "denied" || push.status === "unsupported"
-                ? "Alerts show in-app"
-                : "Enable notifications"}
+              {push.status === "idle"
+                ? "Enable notifications"
+                : "Alerts show in-app"}
             </button>
           )}
           <span className="text-slate-500">{user?.email}</span>

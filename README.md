@@ -166,6 +166,27 @@ cd craigsnotice_api && bun run dev     # :8022
 cd craigsnotice_app && bun run dev     # :5173
 ```
 
+### Firebase
+
+The API needs a service-account credential (`FIREBASE_PROJECT_ID`,
+`FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) from Firebase Console →
+Project settings → Service accounts. **These are real secrets** and live only
+in the gitignored `craigsnotice_api/.env`.
+
+The app needs the web config (`VITE_FIREBASE_*`) from Project settings → Your
+apps. That config is public — it ships inside the client bundle — but it is
+still read from env so the repo carries no project-specific values.
+
+Two things must be turned on in the Firebase Console before the app fully
+works:
+
+1. **Authentication → Sign-in method → Google** must be enabled, and
+   `localhost` must be listed under Authorized domains.
+2. **Cloud Messaging → Web Push certificates → Generate key pair**, and put
+   the result in `VITE_FIREBASE_VAPID_KEY`. Without it the "Enable
+   notifications" button reports that alerts will show in-app, and the SSE
+   feed carries them instead.
+
 Without `FIREBASE_PROJECT_ID` the API accepts any bearer token so the pipeline
 can be exercised before Firebase is provisioned. It refuses to do this when
 `NODE_ENV=production`.
