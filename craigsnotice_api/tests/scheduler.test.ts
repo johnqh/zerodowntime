@@ -9,6 +9,7 @@ import { listings, scraperConfigs, users, watches } from "../src/db/schema";
 
 const noSleep = async (): Promise<void> => {};
 const GOOD = {
+  matchesQuery: true,
   isGoodDeal: true,
   score: 90,
   reasoning: "cheap",
@@ -94,6 +95,7 @@ describe("runWatchCycle", () => {
     bd.queue("x", [row("1")]);
     const port = createFakePort();
     port.respondWith({
+      matchesQuery: true,
       isGoodDeal: false,
       score: 10,
       reasoning: "pricey",

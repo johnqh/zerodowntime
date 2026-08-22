@@ -20,6 +20,7 @@ import {
   type DegradedInfo,
 } from "./services/selfheal";
 import { createScheduler, type CycleDeps } from "./services/scheduler";
+import { createOgImageFetcher } from "./services/ogImage";
 import {
   createFixtureBrightData,
   createFixtureFcmChannel,
@@ -106,6 +107,7 @@ const cycleDeps: CycleDeps = {
   violationRateThreshold: config.violationRateThreshold,
   dispatcher,
   injector,
+  fetchImage: createOgImageFetcher(),
   onDegraded: async (info) => {
     await onHeal(info);
   },
@@ -121,6 +123,10 @@ const app = createApp({
   debugToken: config.debugToken,
   onHeal,
   webhookSecret: process.env.SIGNOZ_WEBHOOK_SECRET ?? null,
+  appOrigins: (process.env.APP_ORIGINS ?? "http://localhost:5173")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean),
 });
 
 /**

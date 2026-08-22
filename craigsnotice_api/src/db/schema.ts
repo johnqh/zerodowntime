@@ -77,7 +77,11 @@ export const listings = pgTable("listings", {
   condition: text("condition"),
   description: text("description"),
   imageCount: integer("image_count").notNull().default(0),
+  imageUrl: text("image_url"),
   detailFetchedAt: timestamp("detail_fetched_at", { withTimezone: true }),
+  /** Null until judged. False = the search returned something the buyer did
+   *  not ask for, so it must not alert and must not skew the baseline. */
+  matchesQuery: boolean("matches_query"),
   firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

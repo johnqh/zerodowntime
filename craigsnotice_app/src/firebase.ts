@@ -29,3 +29,19 @@ export const firebaseApp = (): FirebaseApp => {
 };
 
 export const firebaseAuth = (): Auth => getAuth(firebaseApp());
+
+/**
+ * Dev-only affordance for automated browser testing: Google's OAuth popup
+ * cannot be driven headlessly, so expose a custom-token sign-in instead. The
+ * token still goes through real Firebase verification on the API. Guarded by
+ * import.meta.env.DEV, so it is stripped from production builds.
+ */
+if (import.meta.env.DEV) {
+  (globalThis as unknown as Record<string, unknown>).__craigsnotice = {
+    signInWithCustomToken: async (token: string) => {
+      const { signInWithCustomToken } = await import("firebase/auth");
+      const cred = await signInWithCustomToken(firebaseAuth(), token);
+      return cred.user.uid;
+    },
+  };
+}

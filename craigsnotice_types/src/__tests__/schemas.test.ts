@@ -116,8 +116,31 @@ describe("searchResultRowSchema", () => {
 });
 
 describe("agentVerdictSchema", () => {
+  it("requires matchesQuery, so relevance is never implicit", () => {
+    expect(
+      agentVerdictSchema.safeParse({
+        isGoodDeal: true,
+        score: 80,
+        reasoning: "cheap",
+        priceVsMedian: -0.3,
+      }).success
+    ).toBe(false);
+  });
+
+  it("accepts a verdict that rejects an irrelevant listing", () => {
+    const v = {
+      matchesQuery: false,
+      isGoodDeal: false,
+      score: 0,
+      reasoning: "This is a Magic Trackpad, not a Mac Studio.",
+      priceVsMedian: -0.96,
+    };
+    expect(agentVerdictSchema.parse(v)).toEqual(v);
+  });
+
   it("accepts a well-formed verdict", () => {
     const v = {
+      matchesQuery: true,
       isGoodDeal: true,
       score: 82,
       reasoning: "30% under median",
@@ -129,6 +152,7 @@ describe("agentVerdictSchema", () => {
   it("rejects a score outside 0-100", () => {
     expect(
       agentVerdictSchema.safeParse({
+        matchesQuery: true,
         isGoodDeal: true,
         score: 140,
         reasoning: "x",
@@ -140,6 +164,7 @@ describe("agentVerdictSchema", () => {
   it("rejects a missing reasoning field", () => {
     expect(
       agentVerdictSchema.safeParse({
+        matchesQuery: true,
         isGoodDeal: true,
         score: 50,
         priceVsMedian: 0,

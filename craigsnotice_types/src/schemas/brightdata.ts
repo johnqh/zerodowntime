@@ -49,6 +49,22 @@ const firstTimestamp = (raw: string | null | undefined): string | null => {
   return match ? match[0].replace(" ", "T") : trimmed;
 };
 
+/**
+ * Scrapers name this differently depending on how the AI generated them
+ * (image_url, image, thumbnail, images[]). Accept any of them and normalise
+ * to the first usable URL.
+ */
+const imageField = z
+  .union([z.string(), z.array(z.string()), z.null()])
+  .optional()
+  .transform((raw) => {
+    if (raw === null || raw === undefined) return null;
+    const first = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof first !== "string") return null;
+    const trimmed = first.trim();
+    return trimmed.startsWith("http") ? trimmed : null;
+  });
+
 const dateField = z
   .string()
   .nullish()
@@ -62,6 +78,9 @@ export const searchResultRowSchema = z
     price: priceField,
     posted_at: dateField,
     location: z.string().nullish(),
+    image_url: imageField,
+    image: imageField,
+    thumbnail: imageField,
   })
   .transform((r) => ({
     postId: r.post_id,
@@ -70,6 +89,7 @@ export const searchResultRowSchema = z
     price: r.price,
     postedAt: r.posted_at,
     location: r.location ?? null,
+    imageUrl: r.image_url ?? r.image ?? r.thumbnail ?? null,
   }));
 
 export type SearchResultRow = z.infer<typeof searchResultRowSchema>;
@@ -85,6 +105,9 @@ export const listingDetailRowSchema = z
     image_count: z.number().int().nonnegative().nullish(),
     posted_at: dateField,
     location: z.string().nullish(),
+    image_url: imageField,
+    image: imageField,
+    images: imageField,
   })
   .transform((r) => ({
     postId: r.post_id,
@@ -96,6 +119,7 @@ export const listingDetailRowSchema = z
     imageCount: r.image_count ?? 0,
     postedAt: r.posted_at,
     location: r.location ?? null,
+    imageUrl: r.image_url ?? r.image ?? r.images ?? null,
   }));
 
 export type ListingDetailRow = z.infer<typeof listingDetailRowSchema>;

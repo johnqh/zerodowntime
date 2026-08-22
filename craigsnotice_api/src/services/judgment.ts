@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import {
   agentVerdictSchema,
+  getCategory,
   type AgentRequest,
   type AgentVerdict,
 } from "@craigsnotice/types";
@@ -34,12 +35,20 @@ export interface FeedbackContext {
  */
 export const buildAgentPrompt = (payload: AgentRequest): string =>
   [
-    "Judge whether this Craigslist listing is a good deal for this buyer.",
+    `The buyer is looking for: "${payload.want.query}" (category: ${payload.want.categoryLabel}).`,
+    "",
+    "STEP 1 - Relevance. Craigslist search is loose and returns related but",
+    "wrong items. Decide whether this listing IS the thing the buyer asked",
+    "for. Accessories, different product lines, and merely similar brands do",
+    "NOT count. If it is not the item, set matchesQuery=false, isGoodDeal=false",
+    "and score=0, and say what it actually is. A cheap wrong thing is not a deal.",
+    "",
+    "STEP 2 - Only if it IS the right item, judge the price.",
     "",
     "Input:",
     JSON.stringify(payload, null, 2),
     "",
-    'Reply with ONLY this JSON object and no prose: {"isGoodDeal": boolean, "score": 0-100, "reasoning": "one sentence", "priceVsMedian": number}',
+    'Reply with ONLY this JSON object and no prose: {"matchesQuery": boolean, "isGoodDeal": boolean, "score": 0-100, "reasoning": "one sentence", "priceVsMedian": number}',
   ].join("\n");
 
 export interface JudgmentOutcome {
@@ -123,7 +132,13 @@ export const judgeListing = async (
     }
   );
 
+  const category = getCategory(watch.categoryCode);
+
   const payload: AgentRequest = {
+    want: {
+      query: watch.query,
+      categoryLabel: category?.label ?? watch.categoryCode,
+    },
     listing: {
       title: listing.title,
       price: listing.price === null ? null : Number(listing.price),
@@ -174,7 +189,15 @@ export const judgeListing = async (
   }
 
   const verdict = parsed.data;
-  if (!verdict.isGoodDeal) {
+
+  // Record relevance on the listing: it gates alerts AND keeps irrelevant
+  // prices out of this watch's baseline.
+  await deps.db
+    .update(listings)
+    .set({ matchesQuery: verdict.matchesQuery })
+    .where(eq(listings.id, listingId));
+
+  if (!verdict.matchesQuery || !verdict.isGoodDeal) {
     return { listingId, verdict, alertId: null, error: null };
   }
 

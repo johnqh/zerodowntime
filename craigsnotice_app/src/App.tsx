@@ -17,16 +17,20 @@ const TopBar = () => {
 
   const linkClass = (to: string): string =>
     pathname.startsWith(to)
-      ? "font-medium text-slate-900"
-      : "text-slate-500 hover:text-slate-900";
+      ? "eyebrow text-accent no-underline"
+      : "eyebrow text-ink-faint no-underline hover:text-ink";
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-5xl items-center gap-6 px-6 py-3">
-        <Link to="/watches" className="font-semibold text-slate-900">
+    <header className="rule-double bg-paper-deep">
+      <div className="mx-auto flex max-w-6xl items-baseline gap-8 px-6 py-4">
+        <Link
+          to="/watches"
+          className="text-xl font-bold tracking-title no-underline"
+        >
           CraigsNotice
         </Link>
-        <nav className="flex gap-4 text-sm">
+
+        <nav className="flex gap-5">
           <Link to="/watches" className={linkClass("/watches")}>
             Watches
           </Link>
@@ -35,23 +39,23 @@ const TopBar = () => {
           </Link>
         </nav>
 
-        <div className="ml-auto flex items-center gap-3 text-sm">
+        <div className="ml-auto flex items-baseline gap-5">
           {push.status !== "granted" && (
             <button
               type="button"
               onClick={() => void push.enable()}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50"
+              className="eyebrow text-ink-faint hover:text-accent"
             >
               {push.status === "idle"
                 ? "Enable notifications"
                 : "Alerts show in-app"}
             </button>
           )}
-          <span className="text-slate-500">{user?.email}</span>
+          <span className="eyebrow text-ink-faint">{user?.email}</span>
           <button
             type="button"
             onClick={() => void signOutUser()}
-            className="text-slate-500 hover:text-slate-900"
+            className="eyebrow text-ink hover:text-accent"
           >
             Sign out
           </button>
@@ -66,8 +70,8 @@ export const App = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-slate-500">
-        Loading…
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <span className="eyebrow text-ink-faint">Loading</span>
       </div>
     );
   }
@@ -75,7 +79,7 @@ export const App = () => {
   if (!user) return <Login />;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-paper">
       <TopBar />
       <Routes>
         <Route path="/" element={<Navigate to="/watches" replace />} />

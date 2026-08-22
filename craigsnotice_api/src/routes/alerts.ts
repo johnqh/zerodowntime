@@ -25,6 +25,7 @@ export interface AlertView {
   priceVsMedian: number;
   createdAt: string;
   userFeedback: "good" | "bad" | null;
+  imageUrl: string | null;
 }
 
 export const createAlertsRouter = (
@@ -43,6 +44,7 @@ export const createAlertsRouter = (
         title: listings.title,
         price: listings.price,
         url: listings.url,
+        imageUrl: listings.imageUrl,
         score: dealAlerts.score,
         reasoning: dealAlerts.reasoning,
         priceVsMedian: dealAlerts.priceVsMedian,
@@ -68,6 +70,7 @@ export const createAlertsRouter = (
       priceVsMedian: Number(r.priceVsMedian),
       createdAt: r.createdAt.toISOString(),
       userFeedback: (r.userFeedback as "good" | "bad" | null) ?? null,
+      imageUrl: r.imageUrl,
     }));
 
     return c.json(successResponse(view));

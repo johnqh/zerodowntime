@@ -74,8 +74,32 @@ describe("watchBaseline", () => {
       title: `t${postId}`,
       price,
       firstSeenAt,
+      // Only listings confirmed to be the wanted item count toward a baseline.
+      matchesQuery: true,
       url: `https://sfbay.craigslist.org/x/${postId}.html`,
     });
+
+  it("ignores listings the agent judged irrelevant", async () => {
+    const w = await seedWatch();
+    const now = new Date();
+    for (const [i, p] of ["100", "200", "300", "400", "500"].entries()) {
+      await addListing(w.id, `rel${i}`, p, now);
+    }
+    // A cheap accessory that is not the wanted item must not drag the floor down.
+    await db.insert(listings).values({
+      watchId: w.id,
+      clPostId: "accessory",
+      title: "Magic Trackpad",
+      price: "80",
+      firstSeenAt: now,
+      matchesQuery: false,
+      url: "https://sfbay.craigslist.org/x/accessory.html",
+    });
+
+    const b = await watchBaseline(db, w.id, 5, now);
+    expect(b!.count).toBe(5);
+    expect(b!.min).toBe(100);
+  });
 
   it("returns null for a brand-new watch (cold start)", async () => {
     const w = await seedWatch();

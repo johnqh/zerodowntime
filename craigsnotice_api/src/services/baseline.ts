@@ -47,6 +47,9 @@ export const watchBaseline = async (
 ): Promise<Baseline | null> => {
   const cutoff = new Date(now.getTime() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
 
+  // Only listings confirmed to be the item the buyer asked for. Craigslist
+  // search is loose, and mixing an $80 trackpad with a $22,500 Mac Pro makes
+  // the median meaningless — which made irrelevant items look like steals.
   const rows = await db
     .select({ price: listings.price })
     .from(listings)
@@ -54,6 +57,7 @@ export const watchBaseline = async (
       and(
         eq(listings.watchId, watchId),
         isNotNull(listings.price),
+        eq(listings.matchesQuery, true),
         gte(listings.firstSeenAt, cutoff)
       )
     );

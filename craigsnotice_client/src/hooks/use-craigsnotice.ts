@@ -6,12 +6,17 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
-import type { CreateWatchInput, FeedbackVerdict, Watch } from "@craigsnotice/types";
+import type {
+  CreateWatchInput,
+  FeedbackVerdict,
+  Watch,
+} from "@craigsnotice/types";
 import {
   CraigsnoticeClient,
   type AlertView,
   type CycleResult,
   type NetworkClient,
+  type WatchView,
 } from "../network/craigsnotice-client";
 import { queryKeys, STALE_TIMES } from "./query-keys";
 
@@ -27,7 +32,9 @@ const useClient = (ctx: ClientContext): CraigsnoticeClient =>
     [ctx.network, ctx.baseUrl]
   );
 
-export const useWatches = (ctx: ClientContext): UseQueryResult<Watch[]> => {
+export const useWatches = (
+  ctx: ClientContext
+): UseQueryResult<WatchView[]> => {
   const client = useClient(ctx);
   return useQuery({
     queryKey: queryKeys.craigsnotice.watches(),
@@ -37,6 +44,8 @@ export const useWatches = (ctx: ClientContext): UseQueryResult<Watch[]> => {
     ),
     enabled: !!ctx.token,
     staleTime: STALE_TIMES.WATCHES,
+    // The scheduler runs watches on its own; poll so "last checked" stays live.
+    refetchInterval: STALE_TIMES.WATCHES,
   });
 };
 
@@ -50,6 +59,10 @@ export const useAlerts = (ctx: ClientContext): UseQueryResult<AlertView[]> => {
     ),
     enabled: !!ctx.token,
     staleTime: STALE_TIMES.ALERTS,
+    // The SSE stream is the fast path, but it can drop. Polling means the
+    // feed still fills in on its own rather than looking empty.
+    refetchInterval: STALE_TIMES.ALERTS,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -72,8 +85,11 @@ export const useDeleteWatch = (
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => client.deleteWatch(ctx.token, id),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: queryKeys.craigsnotice.watches() }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.craigsnotice.watches() });
+      // Deleting a watch removes its alerts too.
+      void qc.invalidateQueries({ queryKey: queryKeys.craigsnotice.alerts() });
+    },
   });
 };
 

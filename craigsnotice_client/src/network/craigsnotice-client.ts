@@ -17,6 +17,15 @@ export const fetchNetworkClient: NetworkClient = {
   },
 };
 
+/** A watch as the list endpoint returns it, with its running state. */
+export interface WatchView extends Watch {
+  lastRunAt: string | null;
+  runCount: number;
+  dealCount: number;
+  /** One image per recent deal, for the stack on the watch row. */
+  dealImages: string[];
+}
+
 export interface AlertView {
   id: string;
   watchId: string;
@@ -28,6 +37,7 @@ export interface AlertView {
   priceVsMedian: number;
   createdAt: string;
   userFeedback: FeedbackVerdict | null;
+  imageUrl: string | null;
 }
 
 export interface CycleResult {
@@ -64,8 +74,8 @@ export class CraigsnoticeClient {
     return res.data as T;
   }
 
-  listWatches = (token: string): Promise<Watch[]> =>
-    this.call<Watch[]>(token, "/api/v1/watches");
+  listWatches = (token: string): Promise<WatchView[]> =>
+    this.call<WatchView[]>(token, "/api/v1/watches");
 
   createWatch = (token: string, input: CreateWatchInput): Promise<Watch> =>
     this.call<Watch>(token, "/api/v1/watches", {

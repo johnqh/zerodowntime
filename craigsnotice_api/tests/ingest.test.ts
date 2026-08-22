@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db, resetDb } from "./setup";
 import { createFakeBrightData } from "../src/services/brightdata/fake";
@@ -139,6 +139,40 @@ describe("ingestWatch", () => {
     expect(
       await db.select().from(listings).where(eq(listings.watchId, watch.id))
     ).toHaveLength(1);
+  });
+
+  it("backfills the hero image only when the scraper did not return one", async () => {
+    const { watch, scraperConfigId } = await seed();
+    const bd = createFakeBrightData();
+    bd.queue("x", [searchRow("1")]);
+    const fetchImage = vi.fn(async (_url: string) => "https://images.craigslist.org/og.jpg");
+
+    await ingestWatch({ ...depsWith(bd), fetchImage }, watch, scraperConfigId);
+
+    expect(fetchImage).toHaveBeenCalledOnce();
+    const [row] = await db
+      .select()
+      .from(listings)
+      .where(eq(listings.clPostId, "1"));
+    expect(row!.imageUrl).toBe("https://images.craigslist.org/og.jpg");
+  });
+
+  it("prefers the scraper's image over the backfill", async () => {
+    const { watch, scraperConfigId } = await seed();
+    const bd = createFakeBrightData();
+    bd.queue("x", [
+      { ...searchRow("1"), image_url: "https://images.craigslist.org/scraped.jpg" },
+    ]);
+    const fetchImage = vi.fn(async (_url: string) => "https://images.craigslist.org/og.jpg");
+
+    await ingestWatch({ ...depsWith(bd), fetchImage }, watch, scraperConfigId);
+
+    expect(fetchImage).not.toHaveBeenCalled();
+    const [row] = await db
+      .select()
+      .from(listings)
+      .where(eq(listings.clPostId, "1"));
+    expect(row!.imageUrl).toBe("https://images.craigslist.org/scraped.jpg");
   });
 
   it("mirrors the run and each new listing to Port when a client is supplied", async () => {

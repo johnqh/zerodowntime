@@ -40,25 +40,39 @@ export const useAlertStream = (
   "undefined"
     ? undefined
     : EventSource,
-  getTicket: TicketFetcher = defaultTicketFetcher(baseUrl)
+  getTicket?: TicketFetcher
 ): AlertStreamState => {
   const [alerts, setAlerts] = useState<AlertView[]>([]);
   const [connected, setConnected] = useState(false);
   const sourceRef = useRef<EventSource | null>(null);
 
+  /**
+   * Held in a ref, never a dependency. Defaulting it inline built a new
+   * closure every render, which changed the effect's identity every render,
+   * which tore down and rebuilt the stream in a loop — and setConnected
+   * re-rendered, feeding it. That produced thousands of connections a minute.
+   */
+  const fetcherRef = useRef<TicketFetcher>(defaultTicketFetcher(baseUrl));
+  fetcherRef.current = getTicket ?? defaultTicketFetcher(baseUrl);
+
   useEffect(() => {
     if (!token || !EventSourceImpl) return;
 
     let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let attempt = 0;
 
     const connect = async (): Promise<void> => {
+      if (cancelled) return;
+
       // Exchange the bearer token for a single-use ticket over an
       // authenticated request. The token itself must never reach a URL.
       let ticket: string;
       try {
-        ticket = await getTicket(token);
+        ticket = await fetcherRef.current(token);
       } catch {
         setConnected(false);
+        scheduleRetry();
         return;
       }
       if (cancelled) return;
@@ -67,8 +81,23 @@ export const useAlertStream = (
       const source = new EventSourceImpl(url);
       sourceRef.current = source;
 
-      source.onopen = () => setConnected(true);
-      source.onerror = () => setConnected(false);
+      source.onopen = () => {
+        attempt = 0;
+        setConnected(true);
+      };
+
+      /**
+       * Tickets are single-use, so EventSource's own retry would replay a
+       * spent ticket and get 401 forever. Close it and reconnect with a
+       * freshly minted one instead.
+       */
+      source.onerror = () => {
+        setConnected(false);
+        source.close();
+        if (sourceRef.current === source) sourceRef.current = null;
+        scheduleRetry();
+      };
+
       source.addEventListener("deal-alert", (event) => {
         try {
           const alert = JSON.parse((event as MessageEvent).data) as AlertView;
@@ -81,15 +110,23 @@ export const useAlertStream = (
       });
     };
 
+    function scheduleRetry(): void {
+      if (cancelled) return;
+      attempt += 1;
+      const delay = Math.min(1000 * 2 ** (attempt - 1), 30_000);
+      retryTimer = setTimeout(() => void connect(), delay);
+    }
+
     void connect();
 
     return () => {
       cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
       sourceRef.current?.close();
       sourceRef.current = null;
       setConnected(false);
     };
-  }, [baseUrl, token, EventSourceImpl, getTicket]);
+  }, [baseUrl, token, EventSourceImpl]);
 
   return { alerts, connected };
 };

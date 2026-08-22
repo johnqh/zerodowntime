@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import health from "./routes/health";
 import {
   createFirebaseAuth,
@@ -34,10 +35,31 @@ export interface AppDeps {
   onHeal?: HealHandler;
   webhookSecret?: string | null;
   tickets?: StreamTicketStore;
+  /** Browser origins allowed to call the API. */
+  appOrigins?: string[];
 }
 
 export const createApp = (deps: AppDeps): Hono => {
   const app = new Hono();
+
+  /**
+   * The app is served from a different origin than the API (5173 vs 8022), so
+   * every browser call — including the EventSource stream — is cross-origin.
+   * Without this the entire frontend fails at the preflight.
+   *
+   * Credentials are not used: auth travels in an Authorization header and the
+   * SSE stream uses a ticket, so no cookies are involved.
+   */
+  app.use(
+    "/api/*",
+    cors({
+      origin: deps.appOrigins ?? ["http://localhost:5173"],
+      allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+      allowHeaders: ["Authorization", "Content-Type", "x-debug-token"],
+      maxAge: 600,
+    })
+  );
+
   app.route("/health", health);
   app.route("/", health);
 

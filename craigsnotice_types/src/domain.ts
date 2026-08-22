@@ -30,6 +30,7 @@ export interface Listing {
   condition: string | null;
   description: string | null;
   imageCount: number;
+  imageUrl: string | null;
   detailFetchedAt: string | null;
   firstSeenAt: string;
 }

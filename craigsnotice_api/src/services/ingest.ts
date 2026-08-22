@@ -10,6 +10,7 @@ import { listings, scrapeRuns } from "../db/schema";
 import type { BrightDataClient } from "./brightdata/client";
 import type { ResultDelivery } from "./brightdata/delivery";
 import type { FailureInjector } from "./selfheal";
+import type { ImageFetcher } from "./ogImage";
 import type { PortClient } from "./port/client";
 import { mirrorListing, mirrorScrapeRun, safeMirror } from "./port/mirror";
 import { parseRows } from "./parse";
@@ -26,6 +27,8 @@ export interface IngestDeps {
   injector?: FailureInjector;
   /** Optional Port catalog mirror; never load-bearing. */
   port?: PortClient;
+  /** Backfills the hero image when the collector did not return one. */
+  fetchImage?: ImageFetcher;
 }
 
 export interface IngestResult {
@@ -184,6 +187,12 @@ export const ingestWatch = async (
     const detail = details.get(row.postId);
     const price = detail?.price ?? row.price;
 
+    // Scraper first; only fall back to the page's own og:image if it gave none.
+    let imageUrl = detail?.imageUrl ?? row.imageUrl;
+    if (!imageUrl && deps.fetchImage) {
+      imageUrl = await deps.fetchImage(row.url);
+    }
+
     const [inserted] = await deps.db
       .insert(listings)
       .values({
@@ -197,6 +206,7 @@ export const ingestWatch = async (
         condition: detail?.condition ?? null,
         description: detail?.description ?? null,
         imageCount: detail?.imageCount ?? 0,
+        imageUrl,
         detailFetchedAt: detail ? new Date() : null,
       })
       .onConflictDoNothing({ target: listings.clPostId })

@@ -1,3 +1,64 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/**
+ * Vintage: a mid-century mail-order catalogue. Aged paper, sepia ink, serif
+ * throughout, double rules, small-caps labels, and an oxblood accent. Warm and
+ * printed rather than screen-native.
+ */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-paper font-serif text-ink;
+    font-feature-settings: "onum" 1, "kern" 1; /* old-style figures */
+    /* Faint fibre so the stock reads as paper rather than a white rectangle. */
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(181, 138, 56, 0.05), transparent 55%),
+      radial-gradient(circle at 82% 70%, rgba(140, 47, 47, 0.045), transparent 50%);
+    background-attachment: fixed;
+  }
+
+  a {
+    @apply underline-offset-2;
+  }
+
+  ::selection {
+    @apply bg-accent text-paper;
+  }
+}
+
+@layer components {
+  /* Small caps label, letterspaced, the catalogue's section marker. */
+  .eyebrow {
+    @apply text-micro font-bold uppercase tracking-caps text-ink-muted;
+  }
+
+  /* Prices and counts: lining figures so columns align. */
+  .figure {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* The catalogue's signature: a heavy rule with a hairline beneath it. */
+  .rule-double {
+    border-bottom: 3px double theme("colors.rule");
+  }
+
+  .field {
+    @apply w-full border border-rule/50 bg-paper px-3 py-2 text-base text-ink
+      outline-none placeholder:text-ink-faint focus:border-accent;
+  }
+
+  .panel {
+    @apply border border-rule/40 bg-paper-deep shadow-card;
+  }
+
+  /* Ornamental divider used between catalogue entries. */
+  .ornament::before {
+    content: "❦";
+    @apply text-brass;
+  }
+}

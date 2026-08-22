@@ -12,12 +12,14 @@ import {
 } from "../src/db/schema";
 
 const GOOD = {
+  matchesQuery: true,
   isGoodDeal: true,
   score: 88,
   reasoning: "34% under median",
   priceVsMedian: -0.34,
 };
 const BAD = {
+  matchesQuery: true,
   isGoodDeal: false,
   score: 21,
   reasoning: "above median",
@@ -47,6 +49,7 @@ const seed = async (prices: Array<string | null> = []) => {
       clPostId: `hist${i}`,
       title: `hist ${i}`,
       price: p,
+      matchesQuery: true,
       url: `https://sfbay.craigslist.org/x/hist${i}.html`,
     });
   }
@@ -133,7 +136,7 @@ describe("judgeListing", () => {
     await judgeListing(deps(port), watch.id, listing.id);
 
     const prompt = port.invocations[0]!.prompt;
-    expect(prompt).toContain('"count": 6');
+    expect(prompt).toContain('"count": 5');
     expect(prompt).toMatch(/"median":\s*\d/);
   });
 
@@ -164,10 +167,98 @@ describe("judgeListing", () => {
     expect(prompt).toContain('"verdict": "bad"');
   });
 
+
+  it("tells the agent what the buyer actually wants", async () => {
+    const { watch, listing } = await seed();
+    const port = createFakePort();
+    port.respondWith(GOOD);
+
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const prompt = port.invocations[0]!.prompt;
+    expect(prompt).toContain("Mac Studio");
+    expect(prompt).toContain("computers");
+    expect(prompt).toMatch(/relevance/i);
+  });
+
+  it("raises no alert for a cheap listing that is not what the buyer asked for", async () => {
+    const { watch, listing } = await seed();
+    const port = createFakePort();
+    // A $80 trackpad in a Mac Studio search: 96% under median, still not a deal.
+    port.respondWith({
+      matchesQuery: false,
+      isGoodDeal: true,
+      score: 90,
+      reasoning: "This is a Magic Trackpad, not a Mac Studio.",
+      priceVsMedian: -0.96,
+    });
+
+    const out = await judgeListing(deps(port), watch.id, listing.id);
+
+    expect(out.alertId).toBeNull();
+    expect(await db.select().from(dealAlerts)).toHaveLength(0);
+  });
+
+  it("marks an irrelevant listing so it never enters the baseline", async () => {
+    const { watch, listing } = await seed();
+    const port = createFakePort();
+    port.respondWith({
+      matchesQuery: false,
+      isGoodDeal: false,
+      score: 0,
+      reasoning: "Magic Trackpad, not a Mac Studio.",
+      priceVsMedian: -0.96,
+    });
+
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const [row] = await db
+      .select()
+      .from(listings)
+      .where(eq(listings.id, listing.id));
+    expect(row!.matchesQuery).toBe(false);
+  });
+
+  it("marks a relevant listing so it does count toward the baseline", async () => {
+    const { watch, listing } = await seed();
+    const port = createFakePort();
+    port.respondWith(GOOD);
+
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const [row] = await db
+      .select()
+      .from(listings)
+      .where(eq(listings.id, listing.id));
+    expect(row!.matchesQuery).toBe(true);
+  });
+
+  it("excludes irrelevant prices from the baseline sent to the agent", async () => {
+    const { watch, listing } = await seed(["2000", "2100", "2200", "2300", "2400"]);
+    // An accessory priced far below the real distribution, already judged irrelevant.
+    await db.insert(listings).values({
+      watchId: watch.id,
+      clPostId: "trackpad",
+      title: "Magic Trackpad",
+      price: "80",
+      url: "https://sfbay.craigslist.org/x/trackpad.html",
+      matchesQuery: false,
+    });
+
+    const port = createFakePort();
+    port.respondWith(GOOD);
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const prompt = port.invocations[0]!.prompt;
+    expect(prompt).toContain('"count": 5');
+    // $80 would have dragged the minimum down; it must not appear.
+    expect(prompt).toContain('"min": 2000');
+  });
+
   it("degrades gracefully when the agent returns a malformed verdict", async () => {
     const { watch, listing } = await seed();
     const port = createFakePort();
-    port.respondWith({ isGoodDeal: true, score: 500 });
+    port.respondWith({ matchesQuery: true, isGoodDeal: true, score: 500 });
 
     const out = await judgeListing(deps(port), watch.id, listing.id);
 

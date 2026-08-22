@@ -122,6 +122,71 @@ describe("useAlertStream", () => {
     expect(result.current.alerts).toHaveLength(0);
   });
 
+  it("reconnects with a NEW ticket after an error, never replaying the old one", async () => {
+    // Tickets are single use, so EventSource's built-in retry would replay a
+    // spent ticket and 401 forever.
+    FakeEventSource.last = null;
+    let issued = 0;
+    const ticketing = async (): Promise<string> => `tkt-${++issued}`;
+
+    renderHook(() => useAlertStream("http://x", "tok", Impl, ticketing));
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
+
+    const first = FakeEventSource.last!;
+    expect(first.url).toContain("ticket=tkt-1");
+
+    act(() => {
+      first.onerror?.();
+    });
+    expect(first.closed).toBe(true);
+
+    await waitFor(
+      () => {
+        expect(FakeEventSource.last!.url).toContain("ticket=tkt-2");
+      },
+      { timeout: 4000 }
+    );
+    expect(issued).toBe(2);
+  });
+
+  it("marks itself disconnected as soon as the stream errors", async () => {
+    const { result } = renderHook(() =>
+      useAlertStream("http://x", "tok", Impl, okTicket)
+    );
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
+
+    act(() => {
+      FakeEventSource.last!.onopen?.();
+    });
+    await waitFor(() => expect(result.current.connected).toBe(true));
+
+    act(() => {
+      FakeEventSource.last!.onerror?.();
+    });
+    expect(result.current.connected).toBe(false);
+  });
+
+  it("opens exactly one connection across many re-renders", async () => {
+    // Regression: defaulting the ticket fetcher inline made a new closure per
+    // render, so the effect re-ran every render and reconnected in a loop.
+    FakeEventSource.last = null;
+    let opened = 0;
+    const counting = async (): Promise<string> => {
+      opened += 1;
+      return `tkt-${opened}`;
+    };
+
+    const { rerender } = renderHook(() =>
+      useAlertStream("http://x", "tok", Impl, counting)
+    );
+    await waitFor(() => expect(FakeEventSource.last).not.toBeNull());
+
+    for (let i = 0; i < 10; i += 1) rerender();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(opened).toBe(1);
+  });
+
   it("closes the source on unmount", async () => {
     const { unmount } = renderHook(() =>
       useAlertStream("http://x", "tok", Impl, okTicket)

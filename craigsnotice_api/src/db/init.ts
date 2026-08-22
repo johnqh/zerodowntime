@@ -90,6 +90,9 @@ const STATEMENTS: string[] = [
     created_at timestamptz NOT NULL DEFAULT now()
   )`,
 
+  `ALTER TABLE listings ADD COLUMN IF NOT EXISTS matches_query boolean`,
+  `ALTER TABLE listings ADD COLUMN IF NOT EXISTS image_url text`,
+
   `CREATE INDEX IF NOT EXISTS listings_watch_idx ON listings(watch_id)`,
   `CREATE INDEX IF NOT EXISTS listings_first_seen_idx ON listings(first_seen_at)`,
   `CREATE INDEX IF NOT EXISTS deal_alerts_watch_idx ON deal_alerts(watch_id)`,

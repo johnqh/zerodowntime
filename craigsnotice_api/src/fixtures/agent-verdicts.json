@@ -3,36 +3,42 @@
     "isGoodDeal": true,
     "score": 91,
     "reasoning": "At $980 this is 35% below the median for this watch and the listing is well documented with 9 photos.",
-    "priceVsMedian": -0.35
+    "priceVsMedian": -0.35,
+    "matchesQuery": true
   },
   {
     "isGoodDeal": false,
     "score": 24,
     "reasoning": "Priced above the median with no compelling spec advantage.",
-    "priceVsMedian": 0.18
+    "priceVsMedian": 0.18,
+    "matchesQuery": true
   },
   {
     "isGoodDeal": true,
     "score": 84,
     "reasoning": "Below the 25th percentile and in like-new condition with the original box.",
-    "priceVsMedian": -0.24
+    "priceVsMedian": -0.24,
+    "matchesQuery": true
   },
   {
     "isGoodDeal": false,
     "score": 12,
-    "reasoning": "Listed as salvage and does not power on; not a deal at any price for a working-machine watch.",
-    "priceVsMedian": -0.6
+    "reasoning": "This is listed as salvage and is not the working machine the buyer asked for.",
+    "priceVsMedian": -0.6,
+    "matchesQuery": false
   },
   {
     "isGoodDeal": false,
     "score": 38,
     "reasoning": "Roughly at the median. Fair, but not a deal worth a notification.",
-    "priceVsMedian": 0.03
+    "priceVsMedian": 0.03,
+    "matchesQuery": true
   },
   {
     "isGoodDeal": true,
     "score": 77,
     "reasoning": "Meaningfully under median for a 64GB configuration.",
-    "priceVsMedian": -0.19
+    "priceVsMedian": -0.19,
+    "matchesQuery": true
   }
 ]

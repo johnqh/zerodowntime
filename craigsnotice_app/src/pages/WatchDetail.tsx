@@ -1,9 +1,12 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAlerts, useSendFeedback, useWatches } from "@craigsnotice/client";
+import { getCategory, getSite } from "@craigsnotice/types";
+import { EmptyState, Heading, Text } from "@sudobility/components";
 import { AlertCard } from "../components/AlertCard";
 import { useClientContext } from "../hooks/useClientContext";
 
+/** The results view for one watch: every deal it has surfaced. */
 export const WatchDetail = () => {
   const { id = "" } = useParams();
   const ctx = useClientContext();
@@ -21,47 +24,92 @@ export const WatchDetail = () => {
   );
 
   if (watches.isLoading) {
-    return <p className="px-6 py-8 text-slate-500">Loading…</p>;
+    return (
+      <Text className="mx-auto block max-w-4xl px-6 py-10 text-ink-muted">
+        Loading…
+      </Text>
+    );
   }
 
   if (!watch) {
     return (
-      <div className="px-6 py-8">
-        <p className="text-slate-500">Watch not found.</p>
-        <Link to="/watches" className="text-slate-900 underline">
-          Back to watches
-        </Link>
+      <div className="mx-auto max-w-4xl px-6 py-10">
+        <EmptyState
+          title="Watch not found"
+          description="It may have been deleted."
+          action={
+            <Link to="/watches" className="eyebrow underline">
+              Back to watches
+            </Link>
+          }
+        />
       </div>
     );
   }
 
+  const site = getSite(watch.siteCode);
+  const category = getCategory(watch.categoryCode);
+
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
-      <Link to="/watches" className="text-sm text-slate-500 hover:underline">
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <Link to="/watches" className="eyebrow text-ink-faint no-underline hover:text-accent">
         ← Watches
       </Link>
 
-      <h2 className="mt-2 text-xl font-semibold text-slate-900">
-        {watch.query}
-      </h2>
-      <p className="mt-1 text-sm text-slate-500">
-        {watch.siteCode} · {watch.categoryCode} · every {watch.intervalSec}s
-        {watch.targetPrice !== null && ` · under $${watch.targetPrice}`}
-      </p>
-      <a
-        href={watch.searchUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block break-all text-xs text-slate-400 hover:underline"
-      >
-        {watch.searchUrl}
-      </a>
+      <div className="rule-double mt-4 pb-5">
+        <Heading level={1} className="text-display font-bold leading-none tracking-title">
+          {watch.query}
+        </Heading>
 
-      <h3 className="mb-3 mt-6 font-semibold text-slate-900">Alerts</h3>
+        <dl className="mt-5 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
+          {[
+            ["Location", site?.name ?? watch.siteCode],
+            ["Category", category?.label ?? watch.categoryCode],
+            ["Interval", `${Math.round(watch.intervalSec / 60)} min`],
+            [
+              "Target",
+              watch.targetPrice !== null ? `$${watch.targetPrice}` : "—",
+            ],
+            ["Runs", String(watch.runCount)],
+            ["Status", watch.status],
+            ["Deals found", String(mine.length)],
+          ].map(([label, value]) => (
+            <div key={label}>
+              <dt className="eyebrow text-ink-faint">{label}</dt>
+              <dd className="figure mt-1 text-base font-medium">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <a
+          href={watch.searchUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-5 block break-all text-xs text-ink-faint hover:text-accent"
+        >
+          {watch.searchUrl}
+        </a>
+      </div>
+
+      <div className="mt-10 flex items-baseline justify-between border-b border-rule/40 pb-2">
+        <Heading level={2} className="text-xl font-bold tracking-title">
+          Results
+        </Heading>
+        <span className="eyebrow text-ink-faint">
+          {mine.length} {mine.length === 1 ? "deal" : "deals"}
+        </span>
+      </div>
+
       {mine.length === 0 ? (
-        <p className="text-slate-500">No alerts for this watch yet.</p>
+        <EmptyState
+          title="Nothing yet"
+          description="This watch is checking on its own. Good deals appear here as they are found."
+          className="mt-10"
+        />
       ) : (
-        <div className="space-y-3">
+        <div className="mt-6 space-y-4">
           {mine.map((a) => (
             <AlertCard
               key={a.id}

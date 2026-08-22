@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { db, resetDb } from "./setup";
+import {
+  alertFeedback,
+  dealAlerts,
+  listings,
+  scrapeRuns,
+  scraperConfigs,
+  users,
+  watches,
+} from "../src/db/schema";
 import { createApp } from "../src/app";
 import type { TokenVerifier } from "../src/middleware/firebaseAuth";
 
@@ -108,6 +117,101 @@ describe("watches routes", () => {
       headers: authed("user-b"),
     });
     expect(res.status).toBe(404);
+  });
+
+  it("reports lastRunAt and runCount so the UI can show it is watching", async () => {
+    const a = app();
+    await a.request("/api/v1/watches", {
+      method: "POST",
+      headers: authed("user-a"),
+      body: JSON.stringify(body),
+    });
+
+    const { data } = await (
+      await a.request("/api/v1/watches", { headers: authed("user-a") })
+    ).json();
+
+    expect(data[0]).toHaveProperty("lastRunAt");
+    expect(data[0].lastRunAt).toBeNull();
+    expect(data[0].runCount).toBe(0);
+  });
+
+  it("deletes a watch that has runs, listings, alerts and feedback", async () => {
+    const a = app();
+    const created = await (
+      await a.request("/api/v1/watches", {
+        method: "POST",
+        headers: authed("user-a"),
+        body: JSON.stringify(body),
+      })
+    ).json();
+    const watchId = created.data.id;
+
+    // Everything that holds a foreign key to the watch.
+    const [u] = await db.select().from(users);
+    const [cfg] = await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "c1" })
+      .returning();
+    await db.insert(scrapeRuns).values({
+      watchId,
+      scraperConfigId: cfg!.id,
+      snapshotId: "snap_1",
+    });
+    const [l] = await db
+      .insert(listings)
+      .values({
+        watchId,
+        clPostId: "p1",
+        title: "Mac Studio",
+        price: "1200",
+        url: "https://sfbay.craigslist.org/x/1.html",
+      })
+      .returning();
+    const [alert] = await db
+      .insert(dealAlerts)
+      .values({
+        listingId: l!.id,
+        watchId,
+        score: 80,
+        isGoodDeal: true,
+        reasoning: "cheap",
+        priceVsMedian: "-0.3",
+      })
+      .returning();
+    await db
+      .insert(alertFeedback)
+      .values({ alertId: alert!.id, userId: u!.id, verdict: "good" });
+
+    const res = await a.request(`/api/v1/watches/${watchId}`, {
+      method: "DELETE",
+      headers: authed("user-a"),
+    });
+    expect(res.status).toBe(200);
+
+    expect(await db.select().from(watches)).toHaveLength(0);
+    expect(await db.select().from(listings)).toHaveLength(0);
+    expect(await db.select().from(dealAlerts)).toHaveLength(0);
+    expect(await db.select().from(alertFeedback)).toHaveLength(0);
+    expect(await db.select().from(scrapeRuns)).toHaveLength(0);
+  });
+
+  it("will not delete another user's watch", async () => {
+    const a = app();
+    const created = await (
+      await a.request("/api/v1/watches", {
+        method: "POST",
+        headers: authed("user-a"),
+        body: JSON.stringify(body),
+      })
+    ).json();
+
+    const res = await a.request(`/api/v1/watches/${created.data.id}`, {
+      method: "DELETE",
+      headers: authed("user-b"),
+    });
+    expect(res.status).toBe(404);
+    expect(await db.select().from(watches)).toHaveLength(1);
   });
 
   it("deletes a watch", async () => {

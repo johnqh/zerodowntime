@@ -1,4 +1,5 @@
 import { CATEGORIES } from "@craigsnotice/types";
+import { Label } from "@sudobility/components";
 
 export interface CategoryPickerProps {
   value: string;
@@ -7,17 +8,14 @@ export interface CategoryPickerProps {
 
 export const CategoryPicker = ({ value, onChange }: CategoryPickerProps) => (
   <div>
-    <label
-      htmlFor="category"
-      className="mb-1 block text-sm font-medium text-slate-700"
-    >
+    <Label htmlFor="category" className="eyebrow mb-2 block">
       Category
-    </label>
+    </Label>
     <select
       id="category"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-900"
+      className="field appearance-none"
     >
       {CATEGORIES.map((c) => (
         <option key={c.code} value={c.code}>

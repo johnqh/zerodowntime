@@ -4,24 +4,40 @@ export const Login = () => {
   const { signIn } = useAuth();
 
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 px-6 text-center">
+    <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-1 content-center gap-10 px-6 md:grid-cols-[2fr_1fr]">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-          CraigsNotice
+        <h1 className="text-display font-bold leading-none tracking-title">
+          Craigs
+          <span className="text-accent">Notice</span>
         </h1>
-        <p className="mt-2 max-w-md text-slate-600">
-          Tell us what you are hunting for. We watch Craigslist and push you a
-          notification the moment a genuinely good deal shows up.
+        <p className="mt-6 max-w-xl text-lede text-ink-muted">
+          Tell it what you are hunting for. It watches Craigslist on its own and
+          notifies you the moment a genuinely good deal appears.
         </p>
+
+        <dl className="rule-double mt-10 grid max-w-xl grid-cols-3 border-b-0 border-t-[3px] border-double border-rule pt-5">
+          {[
+            ["413", "Craigslist cities"],
+            ["46", "Categories"],
+            ["Always", "Watching"],
+          ].map(([figure, label]) => (
+            <div key={label}>
+              <dt className="figure text-2xl font-bold">{figure}</dt>
+              <dd className="eyebrow mt-1 text-ink-faint">{label}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
-      <button
-        type="button"
-        onClick={() => void signIn()}
-        className="rounded-lg bg-slate-900 px-6 py-3 font-medium text-white transition hover:bg-slate-700"
-      >
-        Sign in with Google
-      </button>
+      <div className="self-end">
+        <button
+          type="button"
+          onClick={() => void signIn()}
+          className="eyebrow w-full border border-rule bg-ink px-6 py-4 text-paper shadow-card hover:bg-accent"
+        >
+          Sign in with Google
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,11 @@
 import { useMemo } from "react";
-import { useAlerts, useSendFeedback, type AlertView } from "@craigsnotice/client";
+import {
+  useAlerts,
+  useSendFeedback,
+  type AlertView,
+} from "@craigsnotice/client";
 import { useAlertStream } from "@craigsnotice/lib";
+import { EmptyState, Heading, Text } from "@sudobility/components";
 import { AlertCard } from "../components/AlertCard";
 import { API_BASE_URL } from "../firebase";
 import { useAuth } from "../context/AuthContext";
@@ -24,29 +29,38 @@ export const Alerts = () => {
   }, [alerts.data, stream.alerts]);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Deal alerts</h2>
-        <span
-          className={
-            stream.connected
-              ? "text-xs text-emerald-700"
-              : "text-xs text-slate-400"
-          }
-        >
-          {stream.connected ? "● live" : "○ offline"}
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <div className="rule-double flex items-baseline justify-between pb-2">
+        <Heading level={1} className="text-title font-bold tracking-title">
+          Deal alerts
+        </Heading>
+        <span className="flex items-center gap-1.5">
+          <span
+            className={
+              stream.connected
+                ? "inline-block h-2 w-2 rounded-full bg-accent"
+                : "inline-block h-2 w-2 rounded-full bg-ink-faint"
+            }
+          />
+          <span className="eyebrow text-ink-faint">
+            {stream.connected ? "Live" : "Offline"}
+          </span>
         </span>
       </div>
 
-      {alerts.isLoading && <p className="text-slate-500">Loading…</p>}
-      {!alerts.isLoading && merged.length === 0 && (
-        <p className="text-slate-500">
-          Nothing yet. Hit <strong>Run now</strong> on a watch to hunt
-          immediately.
-        </p>
+      {alerts.isLoading && (
+        <Text className="mt-6 block text-ink-muted">Loading…</Text>
       )}
 
-      <div className="space-y-3">
+      {!alerts.isLoading && merged.length === 0 && (
+        <EmptyState
+          title="Nothing yet"
+          description="Your watches are checking on their own. Good deals land here."
+          className="mt-10"
+        />
+      )}
+
+      <div className="mt-6 space-y-4">
         {merged.map((a) => (
           <AlertCard
             key={a.id}

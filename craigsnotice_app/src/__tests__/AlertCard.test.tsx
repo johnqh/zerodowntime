@@ -13,6 +13,7 @@ const alert = {
   priceVsMedian: -0.34,
   createdAt: "2026-08-22T12:00:00Z",
   userFeedback: null,
+  imageUrl: "https://images.craigslist.org/00x0x_abc_600x450.jpg",
 };
 
 describe("AlertCard", () => {
@@ -57,6 +58,25 @@ describe("AlertCard", () => {
         .getByRole("button", { name: /not a good deal/i })
         .hasAttribute("disabled")
     ).toBe(true);
+  });
+
+  it("shows the listing photo", () => {
+    render(<AlertCard alert={alert} onFeedback={vi.fn()} />);
+    const img = document.querySelector("img");
+    expect(img?.getAttribute("src")).toBe(alert.imageUrl);
+  });
+
+  it("falls back to a placeholder when the listing has no photo", () => {
+    render(<AlertCard alert={{ ...alert, imageUrl: null }} onFeedback={vi.fn()} />);
+    expect(document.querySelector("img")).toBeNull();
+    expect(screen.getAllByText(/no photo/i).length).toBeGreaterThan(0);
+  });
+
+  it("links to the Craigslist listing explicitly", () => {
+    render(<AlertCard alert={alert} onFeedback={vi.fn()} />);
+    const link = screen.getByRole("link", { name: /view on craigslist/i });
+    expect(link.getAttribute("href")).toBe(alert.url);
+    expect(link.getAttribute("target")).toBe("_blank");
   });
 
   it("handles a listing with no price without rendering NaN", () => {
