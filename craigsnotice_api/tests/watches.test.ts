@@ -87,7 +87,9 @@ describe("watches routes", () => {
       body: JSON.stringify(body),
     });
 
-    const res = await a.request("/api/v1/watches", { headers: authed("user-a") });
+    const res = await a.request("/api/v1/watches", {
+      headers: authed("user-a"),
+    });
     const { data } = await res.json();
     expect(data).toHaveLength(1);
   });

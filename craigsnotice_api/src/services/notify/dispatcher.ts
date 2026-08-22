@@ -1,3 +1,6 @@
+import { withSpan } from "../../telemetry";
+import { metrics } from "../../telemetry/metrics";
+
 export interface AlertPayload {
   alertId: string;
   watchId: string;
@@ -98,7 +101,12 @@ export const createDispatcher = (
   async dispatch(userId, alert) {
     for (const channel of channels) {
       try {
-        await channel.send(userId, alert);
+        await withSpan(
+          "alert.notify",
+          { "alert.id": alert.alertId, channel: channel.name },
+          () => channel.send(userId, alert)
+        );
+        metrics.alertsSent.add(1, { channel: channel.name });
       } catch (err) {
         console.warn(
           `[notify] channel ${channel.name} failed: ${(err as Error).message}`

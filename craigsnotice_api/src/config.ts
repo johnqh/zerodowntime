@@ -28,7 +28,9 @@ export const loadConfig = (env: Env = process.env): Config => {
 
   const demoMode = (env.DEMO_MODE ?? "live") as DemoMode;
   if (demoMode !== "live" && demoMode !== "fixtures") {
-    throw new Error(`DEMO_MODE must be "live" or "fixtures", got "${demoMode}"`);
+    throw new Error(
+      `DEMO_MODE must be "live" or "fixtures", got "${demoMode}"`
+    );
   }
 
   return Object.freeze({

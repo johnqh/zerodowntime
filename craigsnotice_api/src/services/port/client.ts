@@ -95,9 +95,13 @@ export const createPortClient = (opts: PortClientOptions): PortClient => {
     },
 
     async patchEntity(blueprint, identifier, properties) {
-      await request(`/blueprints/${blueprint}/entities/${identifier}`, "PATCH", {
-        properties,
-      });
+      await request(
+        `/blueprints/${blueprint}/entities/${identifier}`,
+        "PATCH",
+        {
+          properties,
+        }
+      );
     },
 
     invokeAgent(agentId, payload) {

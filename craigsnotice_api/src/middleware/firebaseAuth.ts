@@ -44,10 +44,7 @@ export const createFirebaseAuth = (
     const resolved =
       user ??
       (
-        await db
-          .select()
-          .from(users)
-          .where(eq(users.firebaseUid, claims.uid))
+        await db.select().from(users).where(eq(users.firebaseUid, claims.uid))
       )[0];
 
     if (!resolved) return c.json(errorResponse("failed to resolve user"), 500);

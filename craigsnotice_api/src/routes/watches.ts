@@ -50,7 +50,11 @@ export const createWatchesRouter = (
     "/:id",
     zValidator("param", z.object({ id: z.uuid() })),
     async (c) => {
-      const watch = await getWatch(db, c.get("userId"), c.req.valid("param").id);
+      const watch = await getWatch(
+        db,
+        c.get("userId"),
+        c.req.valid("param").id
+      );
       return watch
         ? c.json(successResponse(watch))
         : c.json(errorResponse("watch not found"), 404);
@@ -61,7 +65,11 @@ export const createWatchesRouter = (
     "/:id",
     zValidator("param", z.object({ id: z.uuid() })),
     async (c) => {
-      const ok = await deleteWatch(db, c.get("userId"), c.req.valid("param").id);
+      const ok = await deleteWatch(
+        db,
+        c.get("userId"),
+        c.req.valid("param").id
+      );
       return ok
         ? c.json(successResponse({ deleted: true }))
         : c.json(errorResponse("watch not found"), 404);
@@ -76,7 +84,11 @@ export const createWatchesRouter = (
       if (!cycleDeps) {
         return c.json(errorResponse("pipeline not configured"), 503);
       }
-      const watch = await getWatch(db, c.get("userId"), c.req.valid("param").id);
+      const watch = await getWatch(
+        db,
+        c.get("userId"),
+        c.req.valid("param").id
+      );
       if (!watch) return c.json(errorResponse("watch not found"), 404);
 
       return c.json(successResponse(await runWatchCycle(cycleDeps, watch.id)));

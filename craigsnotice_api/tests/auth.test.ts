@@ -58,11 +58,18 @@ describe("firebase auth middleware", () => {
 
   it("does not create a duplicate user on a second request", async () => {
     const app = appWith();
-    await app.request("/me", { headers: { Authorization: "Bearer good-token" } });
-    await app.request("/me", { headers: { Authorization: "Bearer good-token" } });
+    await app.request("/me", {
+      headers: { Authorization: "Bearer good-token" },
+    });
+    await app.request("/me", {
+      headers: { Authorization: "Bearer good-token" },
+    });
 
     expect(
-      await db.select().from(users).where(eq(users.firebaseUid, "firebase-uid-1"))
+      await db
+        .select()
+        .from(users)
+        .where(eq(users.firebaseUid, "firebase-uid-1"))
     ).toHaveLength(1);
   });
 });

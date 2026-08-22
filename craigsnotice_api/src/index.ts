@@ -18,6 +18,7 @@ import {
   type DegradedInfo,
 } from "./services/selfheal";
 import { createScheduler, type CycleDeps } from "./services/scheduler";
+import { createSelfHealEmitter } from "./telemetry/events";
 
 const config = loadConfig();
 const db = createDb(config.databaseUrl);
@@ -37,10 +38,8 @@ const dispatcher = createDispatcher([
 
 const injector = createFailureInjector();
 
-// Phase 5 replaces this with the OTel-backed emitter.
-const emit = (event: string, attrs: Record<string, unknown>): void => {
-  console.log(JSON.stringify({ event, ...attrs }));
-};
+// Span event + severity-tagged log record + counter, all three.
+const emit = createSelfHealEmitter();
 
 const onHeal = (info: DegradedInfo) =>
   handleDegraded({ db, bd, port, emit }, info);

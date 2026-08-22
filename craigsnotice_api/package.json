@@ -15,15 +15,24 @@
   },
   "dependencies": {
     "@craigsnotice/types": "workspace:*",
-    "hono": "^4.6.0",
     "@hono/zod-validator": "^0.7.0",
-    "zod": "^4.0.0",
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.79.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.221.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.221.0",
+    "@opentelemetry/resources": "^2.10.0",
+    "@opentelemetry/sdk-metrics": "^2.10.0",
+    "@opentelemetry/sdk-node": "^0.221.0",
     "drizzle-orm": "^0.45.0",
-    "postgres": "^3.4.0",
     "firebase-admin": "^13.0.0",
-    "yaml": "^2.5.0"
+    "hono": "^4.6.0",
+    "postgres": "^3.4.0",
+    "yaml": "^2.5.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@opentelemetry/context-async-hooks": "^2.10.0",
+    "@opentelemetry/sdk-trace-base": "^2.10.0",
     "@types/bun": "^1.4.0"
   }
 }

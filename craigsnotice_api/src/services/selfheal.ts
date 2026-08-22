@@ -4,6 +4,7 @@ import { scraperConfigs } from "../db/schema";
 import type { BrightDataClient } from "./brightdata/client";
 import type { PortClient } from "./port/client";
 import { safeMirror } from "./port/mirror";
+import { metrics } from "../telemetry/metrics";
 
 export interface DegradedInfo {
   scraperConfigId: string;
@@ -83,6 +84,8 @@ export const handleDegraded = async (
     })
   );
 
+  metrics.recordScraperHealth(config.id, config.bdCollectorId, false);
+
   deps.emit("scraper.selfheal.triggered", {
     collectorId: config.bdCollectorId,
     scraperConfigId: config.id,
@@ -116,6 +119,8 @@ export const handleDegraded = async (
       lastHealedAt: healedAt.toISOString(),
     })
   );
+
+  metrics.recordScraperHealth(config.id, config.bdCollectorId, true);
 
   deps.emit("scraper.selfheal.succeeded", {
     collectorId: config.bdCollectorId,

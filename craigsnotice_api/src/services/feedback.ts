@@ -28,10 +28,7 @@ export const recordFeedback = async (
   await db
     .delete(alertFeedback)
     .where(
-      and(
-        eq(alertFeedback.alertId, alertId),
-        eq(alertFeedback.userId, userId)
-      )
+      and(eq(alertFeedback.alertId, alertId), eq(alertFeedback.userId, userId))
     );
 
   const [row] = await db

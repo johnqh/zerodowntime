@@ -29,7 +29,9 @@ export const buildCraigslistSearchUrl = (input: SearchUrlInput): string => {
   }
 
   if (!getCategory(input.categoryCode)) {
-    throw new InvalidWatchTargetError(`unknown category: ${input.categoryCode}`);
+    throw new InvalidWatchTargetError(
+      `unknown category: ${input.categoryCode}`
+    );
   }
 
   if (input.subarea && !site.subareas.some((a) => a.code === input.subarea)) {

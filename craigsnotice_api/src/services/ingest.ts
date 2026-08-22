@@ -13,6 +13,8 @@ import type { FailureInjector } from "./selfheal";
 import type { PortClient } from "./port/client";
 import { mirrorListing, mirrorScrapeRun, safeMirror } from "./port/mirror";
 import { parseRows } from "./parse";
+import { withSpan } from "../telemetry";
+import { metrics } from "../telemetry/metrics";
 
 export interface IngestDeps {
   db: Db;
@@ -51,9 +53,11 @@ export const ingestWatch = async (
   watch: IngestWatch,
   scraperConfigId: string
 ): Promise<IngestResult> => {
-  const snapshotId = await deps.bd.trigger(deps.searchCollectorId, [
-    { url: watch.searchUrl },
-  ]);
+  const snapshotId = await withSpan(
+    "scrape.trigger",
+    { "watch.id": watch.id, collector: deps.searchCollectorId },
+    () => deps.bd.trigger(deps.searchCollectorId, [{ url: watch.searchUrl }])
+  );
 
   const [run] = await deps.db
     .insert(scrapeRuns)
@@ -105,7 +109,11 @@ export const ingestWatch = async (
 
   let raw: unknown[];
   try {
-    raw = await deps.delivery.await(snapshotId);
+    raw = await withSpan(
+      "scrape.poll",
+      { "watch.id": watch.id, "run.id": runId, "snapshot.id": snapshotId },
+      () => deps.delivery.await(snapshotId)
+    );
   } catch (err) {
     return failRun(err);
   }
@@ -113,11 +121,22 @@ export const ingestWatch = async (
   // The injector fires on the search parse only; firing on the detail parse
   // too would make one injection look like two independent breakages.
   const forceFailure = deps.injector?.consume() ?? false;
-  const parsed = parseRows<SearchResultRow>(
-    raw,
-    searchResultRowSchema,
-    forceFailure
+  const parsed = await withSpan(
+    "scrape.parse",
+    { "watch.id": watch.id, "run.id": runId },
+    async (span) => {
+      const p = parseRows<SearchResultRow>(
+        raw,
+        searchResultRowSchema,
+        forceFailure
+      );
+      span.setAttribute("scrape.violation_rate", p.violationRate);
+      span.setAttribute("scrape.row_count", p.total);
+      return p;
+    }
   );
+
+  metrics.scrapeViolations.add(parsed.violations, { "watch.id": watch.id });
 
   const scrapedIds = parsed.rows.map((r) => r.postId);
   const existing = scrapedIds.length
@@ -138,17 +157,23 @@ export const ingestWatch = async (
   const details = new Map<string, ListingDetailRow>();
   if (fresh.length > 0) {
     try {
-      const detailSnapshot = await deps.bd.trigger(
-        deps.detailCollectorId,
-        fresh.map((r) => ({ url: r.url }))
+      await withSpan(
+        "listing.detail.fetch",
+        { "watch.id": watch.id, "listing.count": fresh.length },
+        async () => {
+          const detailSnapshot = await deps.bd.trigger(
+            deps.detailCollectorId,
+            fresh.map((r) => ({ url: r.url }))
+          );
+          const detailRaw = await deps.delivery.await(detailSnapshot);
+          for (const d of parseRows<ListingDetailRow>(
+            detailRaw,
+            listingDetailRowSchema
+          ).rows) {
+            details.set(d.postId, d);
+          }
+        }
       );
-      const detailRaw = await deps.delivery.await(detailSnapshot);
-      for (const d of parseRows<ListingDetailRow>(
-        detailRaw,
-        listingDetailRowSchema
-      ).rows) {
-        details.set(d.postId, d);
-      }
     } catch (err) {
       return failRun(err);
     }
@@ -196,6 +221,11 @@ export const ingestWatch = async (
     .where(eq(scrapeRuns.id, runId));
 
   await mirrorRun("ready", parsed.total, parsed.violations, true);
+
+  metrics.listingsIngested.add(newListingIds.length, { "watch.id": watch.id });
+  metrics.scrapeDuration.record(Date.now() - startedAt, {
+    "watch.id": watch.id,
+  });
 
   return {
     runId,

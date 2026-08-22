@@ -1,0 +1,229 @@
+{
+  "title": "CraigsNotice pipeline",
+  "description": "Scrape -> judge -> notify, plus scraper health and auto-repair events.",
+  "tags": [
+    "craigsnotice",
+    "hackathon"
+  ],
+  "widgets": [
+    {
+      "title": "Pipeline throughput",
+      "description": "New listings stored vs deal alerts dispatched.",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "rate",
+            "aggregateAttribute": {
+              "key": "craigsnotice.listings.ingested",
+              "type": "Sum"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "craigsnotice.listings.ingested"
+          },
+          "B": {
+            "queryName": "B",
+            "dataSource": "metrics",
+            "aggregateOperator": "rate",
+            "aggregateAttribute": {
+              "key": "craigsnotice.alerts.sent",
+              "type": "Sum"
+            },
+            "expression": "B",
+            "disabled": false,
+            "legend": "craigsnotice.alerts.sent"
+          }
+        }
+      }
+    },
+    {
+      "title": "Agent health",
+      "description": "Port agent invocations vs failures (threw or returned a malformed verdict).",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "rate",
+            "aggregateAttribute": {
+              "key": "craigsnotice.agent.invocations",
+              "type": "Sum"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "craigsnotice.agent.invocations"
+          },
+          "B": {
+            "queryName": "B",
+            "dataSource": "metrics",
+            "aggregateOperator": "rate",
+            "aggregateAttribute": {
+              "key": "craigsnotice.agent.failures",
+              "type": "Sum"
+            },
+            "expression": "B",
+            "disabled": false,
+            "legend": "craigsnotice.agent.failures"
+          }
+        }
+      }
+    },
+    {
+      "title": "Agent latency",
+      "description": "p50 / p95 of Port agent invocation latency.",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "p50",
+            "aggregateAttribute": {
+              "key": "craigsnotice.agent.latency",
+              "type": "Histogram"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "craigsnotice.agent.latency"
+          },
+          "B": {
+            "queryName": "B",
+            "dataSource": "metrics",
+            "aggregateOperator": "p95",
+            "aggregateAttribute": {
+              "key": "craigsnotice.agent.latency",
+              "type": "Histogram"
+            },
+            "expression": "B",
+            "disabled": false,
+            "legend": "craigsnotice.agent.latency"
+          }
+        }
+      }
+    },
+    {
+      "title": "Scrape duration",
+      "description": "p50 / p95 of Bright Data trigger-to-ready time.",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "p50",
+            "aggregateAttribute": {
+              "key": "craigsnotice.scrape.duration",
+              "type": "Histogram"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "craigsnotice.scrape.duration"
+          },
+          "B": {
+            "queryName": "B",
+            "dataSource": "metrics",
+            "aggregateOperator": "p95",
+            "aggregateAttribute": {
+              "key": "craigsnotice.scrape.duration",
+              "type": "Histogram"
+            },
+            "expression": "B",
+            "disabled": false,
+            "legend": "craigsnotice.scrape.duration"
+          }
+        }
+      }
+    },
+    {
+      "title": "Scraper health",
+      "description": "1 healthy / 0 degraded, by collector. This is the series the auto-heal alert fires on.",
+      "panelTypes": "value",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "last",
+            "aggregateAttribute": {
+              "key": "scraper.health",
+              "type": "Gauge"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "scraper.health",
+            "groupBy": [
+              {
+                "key": "collector_id",
+                "type": "tag"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Self-heal events",
+      "description": "Auto-repair lifecycle, by event. Pair with the logs view filtered to event =~ 'scraper.selfheal.*'.",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "rate",
+            "aggregateAttribute": {
+              "key": "craigsnotice.selfheal.events",
+              "type": "Sum"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "craigsnotice.selfheal.events",
+            "groupBy": [
+              {
+                "key": "event",
+                "type": "tag"
+              },
+              {
+                "key": "severity",
+                "type": "tag"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Schema violations",
+      "description": "Scraped rows failing Zod validation. A sustained rise is a scraper drifting before it fully breaks.",
+      "panelTypes": "graph",
+      "query": {
+        "queryType": "builder",
+        "builderQueries": {
+          "A": {
+            "queryName": "A",
+            "dataSource": "metrics",
+            "aggregateOperator": "rate",
+            "aggregateAttribute": {
+              "key": "craigsnotice.scrape.violations",
+              "type": "Sum"
+            },
+            "expression": "A",
+            "disabled": false,
+            "legend": "craigsnotice.scrape.violations"
+          }
+        }
+      }
+    }
+  ],
+  "_logsPanelNote": "Add a logs panel filtered to body CONTAINS 'scraper.selfheal' to read the heal prompts alongside the metrics."
+}

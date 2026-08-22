@@ -7,6 +7,7 @@ import { isDegraded } from "./parse";
 import type { PortClient } from "./port/client";
 import type { AlertPayload } from "./notify/dispatcher";
 import type { DegradedInfo } from "./selfheal";
+import { withSpan } from "../telemetry";
 
 export interface CycleDeps extends IngestDeps {
   port: PortClient;
@@ -25,84 +26,88 @@ export interface CycleResult {
   degraded: boolean;
 }
 
-export const runWatchCycle = async (
+export const runWatchCycle = (
   deps: CycleDeps,
   watchId: string
-): Promise<CycleResult> => {
-  const [watch] = await deps.db
-    .select()
-    .from(watches)
-    .where(eq(watches.id, watchId));
-  if (!watch) throw new Error(`watch ${watchId} not found`);
+): Promise<CycleResult> =>
+  withSpan("watch.tick", { "watch.id": watchId }, async (span) => {
+    const [watch] = await deps.db
+      .select()
+      .from(watches)
+      .where(eq(watches.id, watchId));
+    if (!watch) throw new Error(`watch ${watchId} not found`);
 
-  const [config] = await deps.db
-    .select()
-    .from(scraperConfigs)
-    .where(
-      and(
-        eq(scraperConfigs.kind, "search"),
-        eq(scraperConfigs.bdCollectorId, deps.searchCollectorId)
-      )
-    );
-  if (!config) throw new Error("search scraper config not registered");
+    const [config] = await deps.db
+      .select()
+      .from(scraperConfigs)
+      .where(
+        and(
+          eq(scraperConfigs.kind, "search"),
+          eq(scraperConfigs.bdCollectorId, deps.searchCollectorId)
+        )
+      );
+    if (!config) throw new Error("search scraper config not registered");
 
-  const ingest = await ingestWatch(deps, watch, config.id);
+    const ingest = await ingestWatch(deps, watch, config.id);
 
-  if (isDegraded(ingest.violationRate, deps.violationRateThreshold)) {
-    await deps.onDegraded?.({
-      scraperConfigId: config.id,
-      violationRate: ingest.violationRate,
-      sampleViolation: ingest.sampleViolation,
-    });
+    if (isDegraded(ingest.violationRate, deps.violationRateThreshold)) {
+      await deps.onDegraded?.({
+        scraperConfigId: config.id,
+        violationRate: ingest.violationRate,
+        sampleViolation: ingest.sampleViolation,
+      });
+      return {
+        runId: ingest.runId,
+        scrapedCount: ingest.scrapedCount,
+        judged: 0,
+        alerted: 0,
+        degraded: true,
+      };
+    }
+
+    let alerted = 0;
+    for (const listingId of ingest.newListingIds) {
+      const outcome = await judgeListing(
+        {
+          db: deps.db,
+          port: deps.port,
+          agentId: deps.agentId,
+          minBaselineSamples: deps.minBaselineSamples,
+        },
+        watchId,
+        listingId
+      );
+      if (!outcome.alertId || !outcome.verdict) continue;
+
+      const [listing] = await deps.db
+        .select()
+        .from(listings)
+        .where(eq(listings.id, listingId));
+
+      await deps.dispatcher.dispatch(watch.userId, {
+        alertId: outcome.alertId,
+        watchId,
+        title: listing!.title,
+        price: listing!.price === null ? null : Number(listing!.price),
+        url: listing!.url,
+        score: outcome.verdict.score,
+        reasoning: outcome.verdict.reasoning,
+        priceVsMedian: outcome.verdict.priceVsMedian,
+      });
+      alerted += 1;
+    }
+
+    span.setAttribute("cycle.judged", ingest.newListingIds.length);
+    span.setAttribute("cycle.alerted", alerted);
+
     return {
       runId: ingest.runId,
       scrapedCount: ingest.scrapedCount,
-      judged: 0,
-      alerted: 0,
-      degraded: true,
+      judged: ingest.newListingIds.length,
+      alerted,
+      degraded: false,
     };
-  }
-
-  let alerted = 0;
-  for (const listingId of ingest.newListingIds) {
-    const outcome = await judgeListing(
-      {
-        db: deps.db,
-        port: deps.port,
-        agentId: deps.agentId,
-        minBaselineSamples: deps.minBaselineSamples,
-      },
-      watchId,
-      listingId
-    );
-    if (!outcome.alertId || !outcome.verdict) continue;
-
-    const [listing] = await deps.db
-      .select()
-      .from(listings)
-      .where(eq(listings.id, listingId));
-
-    await deps.dispatcher.dispatch(watch.userId, {
-      alertId: outcome.alertId,
-      watchId,
-      title: listing!.title,
-      price: listing!.price === null ? null : Number(listing!.price),
-      url: listing!.url,
-      score: outcome.verdict.score,
-      reasoning: outcome.verdict.reasoning,
-      priceVsMedian: outcome.verdict.priceVsMedian,
-    });
-    alerted += 1;
-  }
-
-  return {
-    runId: ingest.runId,
-    scrapedCount: ingest.scrapedCount,
-    judged: ingest.newListingIds.length,
-    alerted,
-    degraded: false,
-  };
-};
+  });
 
 export interface Scheduler {
   start(): void;

@@ -34,7 +34,9 @@ describe("createBrightDataClient", () => {
   });
 
   it("throws on a non-2xx trigger response", async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: "nope" }, 401));
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ error: "nope" }, 401));
     const client = createBrightDataClient(
       "bad",
       fetchImpl as unknown as typeof fetch
@@ -45,7 +47,9 @@ describe("createBrightDataClient", () => {
   });
 
   it("reports a building snapshot as not ready", async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ status: "building" }));
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ status: "building" }));
     const snap = await createBrightDataClient(
       "tok",
       fetchImpl as unknown as typeof fetch

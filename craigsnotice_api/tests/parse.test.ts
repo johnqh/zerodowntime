@@ -43,11 +43,7 @@ describe("parseRows", () => {
   });
 
   it("treats every row as a violation when failure is injected", () => {
-    const r = parseRows(
-      [good("1"), good("2")],
-      searchResultRowSchema,
-      true
-    );
+    const r = parseRows([good("1"), good("2")], searchResultRowSchema, true);
     expect(r.rows).toHaveLength(0);
     expect(r.violationRate).toBe(1);
     expect(r.sampleViolation).toMatch(/injected failure/);
@@ -55,7 +51,10 @@ describe("parseRows", () => {
 });
 
 describe("isDegraded", () => {
-  it("is false below the threshold", () => expect(isDegraded(0.29, 0.3)).toBe(false));
-  it("is false exactly at the threshold", () => expect(isDegraded(0.3, 0.3)).toBe(false));
-  it("is true above the threshold", () => expect(isDegraded(0.31, 0.3)).toBe(true));
+  it("is false below the threshold", () =>
+    expect(isDegraded(0.29, 0.3)).toBe(false));
+  it("is false exactly at the threshold", () =>
+    expect(isDegraded(0.3, 0.3)).toBe(false));
+  it("is true above the threshold", () =>
+    expect(isDegraded(0.31, 0.3)).toBe(true));
 });

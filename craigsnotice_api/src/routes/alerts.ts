@@ -4,7 +4,13 @@ import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { successResponse, errorResponse } from "@craigsnotice/types";
 import type { Db } from "../db";
-import { alertFeedback, dealAlerts, listings, users, watches } from "../db/schema";
+import {
+  alertFeedback,
+  dealAlerts,
+  listings,
+  users,
+  watches,
+} from "../db/schema";
 import type { SseHub } from "../services/notify/dispatcher";
 
 export interface AlertView {

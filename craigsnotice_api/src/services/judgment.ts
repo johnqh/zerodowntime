@@ -4,6 +4,8 @@ import type { Db } from "../db";
 import { alertFeedback, dealAlerts, listings, watches } from "../db/schema";
 import type { PortClient } from "./port/client";
 import { watchBaseline } from "./baseline";
+import { withSpan } from "../telemetry";
+import { metrics } from "../telemetry/metrics";
 
 export interface JudgmentDeps {
   db: Db;
@@ -68,7 +70,12 @@ export const judgeListing = async (
     .from(listings)
     .where(eq(listings.id, listingId));
   if (!listing) {
-    return { listingId, verdict: null, alertId: null, error: "listing not found" };
+    return {
+      listingId,
+      verdict: null,
+      alertId: null,
+      error: "listing not found",
+    };
   }
 
   const [watch] = await deps.db
@@ -76,13 +83,23 @@ export const judgeListing = async (
     .from(watches)
     .where(eq(watches.id, watchId));
   if (!watch) {
-    return { listingId, verdict: null, alertId: null, error: "watch not found" };
+    return {
+      listingId,
+      verdict: null,
+      alertId: null,
+      error: "watch not found",
+    };
   }
 
-  const baseline = await watchBaseline(
-    deps.db,
-    watchId,
-    deps.minBaselineSamples
+  const baseline = await withSpan(
+    "baseline.compute",
+    { "watch.id": watchId },
+    async (span) => {
+      const b = await watchBaseline(deps.db, watchId, deps.minBaselineSamples);
+      span.setAttribute("baseline.cold_start", b === null);
+      if (b) span.setAttribute("baseline.count", b.count);
+      return b;
+    }
   );
 
   const payload = {
@@ -100,20 +117,30 @@ export const judgeListing = async (
     recentFeedback: await recentFeedback(deps.db, watchId),
   };
 
+  const attrs = { "watch.id": watchId, "listing.id": listingId };
+  metrics.agentInvocations.add(1, attrs);
+  const invokedAt = Date.now();
+
   let raw: unknown;
   try {
-    raw = await deps.port.invokeAgent(deps.agentId, payload);
+    raw = await withSpan("agent.invoke", attrs, () =>
+      deps.port.invokeAgent(deps.agentId, payload)
+    );
   } catch (err) {
+    metrics.agentFailures.add(1, { ...attrs, reason: "threw" });
     return {
       listingId,
       verdict: null,
       alertId: null,
       error: (err as Error).message,
     };
+  } finally {
+    metrics.agentLatency.record(Date.now() - invokedAt, attrs);
   }
 
   const parsed = agentVerdictSchema.safeParse(raw);
   if (!parsed.success) {
+    metrics.agentFailures.add(1, { ...attrs, reason: "malformed" });
     return {
       listingId,
       verdict: null,
