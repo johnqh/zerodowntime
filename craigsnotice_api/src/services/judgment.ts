@@ -1,9 +1,14 @@
 import { desc, eq } from "drizzle-orm";
-import { agentVerdictSchema, type AgentVerdict } from "@craigsnotice/types";
+import {
+  agentVerdictSchema,
+  type AgentRequest,
+  type AgentVerdict,
+} from "@craigsnotice/types";
 import type { Db } from "../db";
 import { alertFeedback, dealAlerts, listings, watches } from "../db/schema";
 import type { PortClient } from "./port/client";
 import { watchBaseline } from "./baseline";
+import { extractJsonObject } from "./port/sse";
 import { withSpan } from "../telemetry";
 import { metrics } from "../telemetry/metrics";
 
@@ -20,6 +25,22 @@ export interface FeedbackContext {
   priceVsMedian: number;
   verdict: "good" | "bad";
 }
+
+/**
+ * Port agents take a prompt string, not a JSON body, so the structured payload
+ * is serialised into one. The trailing instruction repeats the output contract
+ * because the agent's system prompt alone is not always enough to suppress
+ * prose around the JSON.
+ */
+export const buildAgentPrompt = (payload: AgentRequest): string =>
+  [
+    "Judge whether this Craigslist listing is a good deal for this buyer.",
+    "",
+    "Input:",
+    JSON.stringify(payload, null, 2),
+    "",
+    'Reply with ONLY this JSON object and no prose: {"isGoodDeal": boolean, "score": 0-100, "reasoning": "one sentence", "priceVsMedian": number}',
+  ].join("\n");
 
 export interface JudgmentOutcome {
   listingId: string;
@@ -102,7 +123,7 @@ export const judgeListing = async (
     }
   );
 
-  const payload = {
+  const payload: AgentRequest = {
     listing: {
       title: listing.title,
       price: listing.price === null ? null : Number(listing.price),
@@ -123,9 +144,10 @@ export const judgeListing = async (
 
   let raw: unknown;
   try {
-    raw = await withSpan("agent.invoke", attrs, () =>
-      deps.port.invokeAgent(deps.agentId, payload)
+    const reply = await withSpan("agent.invoke", attrs, () =>
+      deps.port.invokeAgent(deps.agentId, buildAgentPrompt(payload))
     );
+    raw = extractJsonObject(reply);
   } catch (err) {
     metrics.agentFailures.add(1, { ...attrs, reason: "threw" });
     return {

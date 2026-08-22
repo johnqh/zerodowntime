@@ -1,0 +1,38 @@
+[
+  {
+    "isGoodDeal": true,
+    "score": 91,
+    "reasoning": "At $980 this is 35% below the median for this watch and the listing is well documented with 9 photos.",
+    "priceVsMedian": -0.35
+  },
+  {
+    "isGoodDeal": false,
+    "score": 24,
+    "reasoning": "Priced above the median with no compelling spec advantage.",
+    "priceVsMedian": 0.18
+  },
+  {
+    "isGoodDeal": true,
+    "score": 84,
+    "reasoning": "Below the 25th percentile and in like-new condition with the original box.",
+    "priceVsMedian": -0.24
+  },
+  {
+    "isGoodDeal": false,
+    "score": 12,
+    "reasoning": "Listed as salvage and does not power on; not a deal at any price for a working-machine watch.",
+    "priceVsMedian": -0.6
+  },
+  {
+    "isGoodDeal": false,
+    "score": 38,
+    "reasoning": "Roughly at the median. Fair, but not a deal worth a notification.",
+    "priceVsMedian": 0.03
+  },
+  {
+    "isGoodDeal": true,
+    "score": 77,
+    "reasoning": "Meaningfully under median for a 64GB configuration.",
+    "priceVsMedian": -0.19
+  }
+]

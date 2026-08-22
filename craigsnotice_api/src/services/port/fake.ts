@@ -15,9 +15,13 @@ export interface FakePort extends PortClient {
     identifier: string;
     properties: Record<string, unknown>;
   }>;
-  readonly invocations: Array<{ agentId: string; payload: unknown }>;
+  readonly invocations: Array<{ agentId: string; prompt: string }>;
   readonly blueprints: Blueprint[];
-  /** Set what the next invokeAgent returns; pass an Error to make it throw. */
+  /**
+   * Set what the next invokeAgent returns. An object is serialised the way a
+   * real agent replies (fenced JSON); a string is returned verbatim; an Error
+   * makes the call throw.
+   */
   respondWith(value: unknown): void;
 }
 
@@ -58,10 +62,11 @@ export const createFakePort = (): FakePort => {
       patches.push({ blueprint, identifier, properties });
     },
 
-    async invokeAgent(agentId, payload) {
-      invocations.push({ agentId, payload });
+    async invokeAgent(agentId, prompt) {
+      invocations.push({ agentId, prompt });
       if (next instanceof Error) throw next;
-      return next;
+      if (typeof next === "string") return next;
+      return "```json\n" + JSON.stringify(next) + "\n```";
     },
 
     async upsertBlueprint(blueprint) {

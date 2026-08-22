@@ -91,7 +91,18 @@ export const createWatchesRouter = (
       );
       if (!watch) return c.json(errorResponse("watch not found"), 404);
 
-      return c.json(successResponse(await runWatchCycle(cycleDeps, watch.id)));
+      // A live cycle takes minutes (a Bright Data scrape plus one agent call
+      // per new listing), so it runs detached and alerts arrive over SSE.
+      // Awaiting it here held the HTTP response open past the idle timeout.
+      setTimeout(() => {
+        void runWatchCycle(cycleDeps, watch.id).catch((err) =>
+          console.warn(
+            `[watches] run-now failed for ${watch.id}: ${(err as Error).message}`
+          )
+        );
+      }, 0);
+
+      return c.json(successResponse({ started: true, watchId: watch.id }), 202);
     }
   );
 

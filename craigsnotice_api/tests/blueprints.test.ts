@@ -5,7 +5,7 @@ describe("port blueprints", () => {
   const blueprints = loadBlueprints(BLUEPRINT_DIR);
 
   it("defines all five blueprints", () => {
-    expect(blueprints.map((b) => b.identifier).sort()).toEqual([
+    expect([...blueprints.map((b) => b.identifier)].sort()).toEqual([
       "craigsnotice_deal_alert",
       "craigsnotice_listing",
       "craigsnotice_scrape_run",
@@ -30,6 +30,20 @@ describe("port blueprints", () => {
           `${b.identifier}.${name} targets unknown ${rel.target}`
         ).toBe(true);
       }
+    }
+  });
+
+  it("orders every blueprint after the blueprints its relations target", () => {
+    // Port 404s a blueprint whose relation targets do not exist yet.
+    const seen = new Set<string>();
+    for (const b of blueprints) {
+      for (const [name, rel] of Object.entries(b.relations ?? {})) {
+        expect(
+          seen.has(rel.target),
+          `${b.identifier}.${name} -> ${rel.target} is synced too late`
+        ).toBe(true);
+      }
+      seen.add(b.identifier);
     }
   });
 

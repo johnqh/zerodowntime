@@ -1,4 +1,8 @@
-const BASE = "https://api.port.io/v1";
+// api.port.io and api.getport.io both resolve; getport.io is the documented
+// one. Override with PORT_API_BASE for a non-default region or a mock.
+import { executionText } from "./sse";
+
+const DEFAULT_BASE = "https://api.getport.io/v1";
 const TOKEN_SKEW_MS = 60_000;
 
 export interface Blueprint {
@@ -25,13 +29,15 @@ export interface PortClient {
     identifier: string,
     properties: Record<string, unknown>
   ): Promise<void>;
-  invokeAgent(agentId: string, payload: unknown): Promise<unknown>;
+  /** Sends a prompt and returns the agent's full reply text. */
+  invokeAgent(agentId: string, prompt: string): Promise<string>;
   upsertBlueprint(blueprint: Blueprint): Promise<void>;
 }
 
 export interface PortClientOptions {
   clientId: string;
   clientSecret: string;
+  baseUrl?: string;
   fetchImpl?: typeof fetch;
   now?: () => number;
 }
@@ -39,6 +45,7 @@ export interface PortClientOptions {
 export const createPortClient = (opts: PortClientOptions): PortClient => {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const now = opts.now ?? Date.now;
+  const BASE = opts.baseUrl ?? DEFAULT_BASE;
 
   let token: string | null = null;
   let expiresAt = 0;
@@ -104,8 +111,20 @@ export const createPortClient = (opts: PortClientOptions): PortClient => {
       );
     },
 
-    invokeAgent(agentId, payload) {
-      return request(`/agent/${agentId}/invoke`, "POST", payload);
+    async invokeAgent(agentId, prompt) {
+      const bearer = await getToken();
+      const res = await fetchImpl(`${BASE}/agent/${agentId}/invoke`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${bearer}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
+      if (!res.ok) {
+        throw new Error(`port agent invoke failed: ${res.status}`);
+      }
+      return executionText(await res.text());
     },
 
     async upsertBlueprint(blueprint) {

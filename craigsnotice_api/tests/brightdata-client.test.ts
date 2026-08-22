@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { createBrightDataClient } from "../src/services/brightdata/client";
+import {
+  createBrightDataClient,
+  type HealRunner,
+} from "../src/services/brightdata/client";
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -57,6 +60,42 @@ describe("createBrightDataClient", () => {
 
     expect(snap.status).toBe("building");
     expect(snap.rows).toBeNull();
+  });
+
+  it("heals through the injected runner, not over REST", async () => {
+    // There is no REST heal endpoint — POST /dca/collector/:id/heal 404s.
+    // The real mechanism is `bdata scraper heal <id> <prompt>`.
+    const fetchImpl = vi.fn();
+    const runner = vi.fn<HealRunner>(async () => ({
+      exitCode: 0,
+      output: "healed",
+    }));
+    const client = createBrightDataClient(
+      "tok",
+      fetchImpl as unknown as typeof fetch,
+      runner
+    );
+
+    await client.heal("c_abc", "Re-derive the price selector.");
+
+    expect(runner).toHaveBeenCalledWith("c_abc", "Re-derive the price selector.");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("throws with the CLI output when the heal exits non-zero", async () => {
+    const runner = vi.fn<HealRunner>(async () => ({
+      exitCode: 1,
+      output: "collector not found",
+    }));
+    const client = createBrightDataClient(
+      "tok",
+      vi.fn() as unknown as typeof fetch,
+      runner
+    );
+
+    await expect(client.heal("c_abc", "fix it")).rejects.toThrow(
+      /exit 1.*collector not found/s
+    );
   });
 
   it("reports an array snapshot as ready with its rows", async () => {

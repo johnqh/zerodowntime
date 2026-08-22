@@ -69,6 +69,41 @@ describe("searchResultRowSchema", () => {
     ).toBe(false);
   });
 
+  it("accepts the object price shape Scraper Studio actually returns", () => {
+    // Captured verbatim from a live Bright Data run against sfbay Craigslist.
+    const row = {
+      post_id: "7945526288",
+      title: "Apple Mac Studio M3 Ultra - 32-Core CPU / 512GB 2Tb",
+      price: { value: 22500, currency: "USD", symbol: "$" },
+      url: "https://www.craigslist.org/view/d/san-francisco-apple-mac-studio-m3-ultra/xmV61QUJ2BZqTpeLkaW9vy",
+      posted_at: "2026-07-06 14:32 2026-07-06 14:32 2026-08-04 18:23",
+      location: "marina / cow hollow",
+    };
+    const parsed = searchResultRowSchema.parse(row);
+    expect(parsed.price).toBe(22500);
+  });
+
+  it("keeps only the first timestamp from a concatenated posted_at run", () => {
+    const parsed = searchResultRowSchema.parse({
+      post_id: "1",
+      title: "x",
+      url: "https://a.b/c",
+      posted_at: "2026-07-06 14:32 2026-07-06 14:32 2026-08-04 18:23",
+    });
+    expect(parsed.postedAt).toBe("2026-07-06T14:32");
+    expect(new Date(parsed.postedAt!).getFullYear()).toBe(2026);
+  });
+
+  it("yields a null price when the price object has no value", () => {
+    const parsed = searchResultRowSchema.parse({
+      post_id: "1",
+      title: "x",
+      url: "https://a.b/c",
+      price: { currency: "USD", symbol: "$" },
+    });
+    expect(parsed.price).toBeNull();
+  });
+
   it("rejects a row whose url is not a url", () => {
     expect(
       searchResultRowSchema.safeParse({

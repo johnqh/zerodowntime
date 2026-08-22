@@ -16,9 +16,41 @@ export interface BrightDataClient {
  * snapshot id; GET /dca/dataset?id= returns {status:"building"} until the rows
  * are ready, then a plain JSON array.
  */
+export interface HealResultRaw {
+  exitCode: number;
+  output: string;
+}
+
+/** Injected so tests never shell out. */
+export type HealRunner = (
+  collectorId: string,
+  prompt: string
+) => Promise<HealResultRaw>;
+
+/**
+ * `bdata scraper heal <collector_id> <prompt>` — the AI re-derives selectors
+ * from a plain-language description of what broke.
+ */
+export const cliHealRunner: HealRunner = async (collectorId, prompt) => {
+  const proc = Bun.spawn(["bdata", "scraper", "heal", collectorId, prompt], {
+    stdout: "pipe",
+    stderr: "pipe",
+    env: { ...process.env },
+  });
+
+  const [stdout, stderr] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  const exitCode = await proc.exited;
+
+  return { exitCode, output: `${stdout}\n${stderr}`.trim() };
+};
+
 export const createBrightDataClient = (
   token: string,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  healRunner: HealRunner = cliHealRunner
 ): BrightDataClient => {
   const authHeaders = {
     Authorization: `Bearer ${token}`,
@@ -56,17 +88,17 @@ export const createBrightDataClient = (
     },
 
     /**
-     * Plain-language self-heal. If the REST endpoint proves unavailable, swap
-     * this one method's body for `bdata scraper heal <id> --prompt "..."` via
-     * Bun.$ — callers only ever see the interface.
+     * Self-heal has no REST surface — POST /dca/collector/:id/heal 404s. The
+     * real mechanism is the CLI, so this shells out. Callers only ever see the
+     * interface, so nothing downstream changes.
      */
     async heal(collectorId, prompt) {
-      const res = await fetchImpl(`${BASE}/dca/collector/${collectorId}/heal`, {
-        method: "POST",
-        headers: authHeaders,
-        body: JSON.stringify({ prompt }),
-      });
-      if (!res.ok) throw new Error(`bright data heal failed: ${res.status}`);
+      const result = await healRunner(collectorId, prompt);
+      if (result.exitCode !== 0) {
+        throw new Error(
+          `bright data heal failed (exit ${result.exitCode}): ${result.output.slice(0, 300)}`
+        );
+      }
     },
   };
 };

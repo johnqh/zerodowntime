@@ -59,7 +59,7 @@ describe("createPortClient", () => {
 
     const [url, init] = fetchImpl.mock.calls[1]!;
     expect(url).toBe(
-      "https://api.port.io/v1/blueprints/craigsnotice_listing/entities?upsert=true&merge=true"
+      "https://api.getport.io/v1/blueprints/craigsnotice_listing/entities?upsert=true&merge=true"
     );
     expect(init.headers.Authorization).toBe("Bearer tok-1");
     expect(JSON.parse(init.body)).toEqual({
@@ -87,7 +87,7 @@ describe("createPortClient", () => {
 
     const [url, init] = fetchImpl.mock.calls[1]!;
     expect(url).toBe(
-      "https://api.port.io/v1/blueprints/craigsnotice_deal_alert/entities/a1"
+      "https://api.getport.io/v1/blueprints/craigsnotice_deal_alert/entities/a1"
     );
     expect(init.method).toBe("PATCH");
     expect(JSON.parse(init.body)).toEqual({
@@ -95,31 +95,40 @@ describe("createPortClient", () => {
     });
   });
 
-  it("invokes an agent and returns the parsed body", async () => {
-    const verdict = {
-      isGoodDeal: true,
-      score: 88,
-      reasoning: "well under median",
-      priceVsMedian: -0.34,
-    };
+  it("sends a prompt and concatenates the streamed execution chunks", async () => {
+    // Shaped exactly like a captured live response.
+    const stream =
+      "event: conversationIdentifier\ndata: c1\n\n" +
+      "event: thinkingDone\ndata: {}\n\n" +
+      'event: execution\ndata: ```json\\n{"isGoodD\n\n' +
+      'event: execution\ndata: eal": false, "score": 40}\\n```\n\n' +
+      "event: done\ndata: {}\n\n";
+
     const fetchImpl = vi
       .fn()
       .mockResolvedValueOnce(tokenResponse())
-      .mockImplementation(() => json(verdict, 202));
+      .mockImplementation(
+        () =>
+          new Response(stream, {
+            status: 200,
+            headers: { "Content-Type": "text/event-stream" },
+          })
+      );
     const client = createPortClient({
       clientId: "id",
       clientSecret: "s",
       fetchImpl: fetchImpl as unknown as typeof fetch,
     });
 
-    const out = await client.invokeAgent("deal-agent", {
-      listing: { title: "x" },
-    });
+    const out = await client.invokeAgent("deal-agent", "Judge this listing.");
 
-    expect(out).toEqual(verdict);
+    expect(out).toContain('"isGoodDeal": false');
     expect(fetchImpl.mock.calls[1]![0]).toBe(
-      "https://api.port.io/v1/agent/deal-agent/invoke"
+      "https://api.getport.io/v1/agent/deal-agent/invoke"
     );
+    expect(JSON.parse(fetchImpl.mock.calls[1]![1].body)).toEqual({
+      prompt: "Judge this listing.",
+    });
   });
 
   it("re-fetches the token once it has expired", async () => {
@@ -146,6 +155,28 @@ describe("createPortClient", () => {
     ).toHaveLength(2);
     expect(fetchImpl.mock.calls[3]![1].headers.Authorization).toBe(
       "Bearer tok-2"
+    );
+  });
+
+  it("honours an overridden base URL", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(tokenResponse())
+      .mockImplementation(() => json({ ok: true }));
+    const client = createPortClient({
+      clientId: "id",
+      clientSecret: "s",
+      baseUrl: "https://api.port.io/v1",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    await client.patchEntity("b", "e", {});
+
+    expect(fetchImpl.mock.calls[0]![0]).toBe(
+      "https://api.port.io/v1/auth/access_token"
+    );
+    expect(fetchImpl.mock.calls[1]![0]).toBe(
+      "https://api.port.io/v1/blueprints/b/entities/e"
     );
   });
 

@@ -114,12 +114,9 @@ describe("judgeListing", () => {
 
     await judgeListing(deps(port), watch.id, listing.id);
 
-    const payload = port.invocations[0]!.payload as {
-      baseline: unknown;
-      targetPrice: number | null;
-    };
-    expect(payload.baseline).toBeNull();
-    expect(payload.targetPrice).toBe(1500);
+    const prompt = port.invocations[0]!.prompt;
+    expect(prompt).toContain('"baseline": null');
+    expect(prompt).toContain('"targetPrice": 1500');
   });
 
   it("sends a computed baseline once enough priced history exists", async () => {
@@ -135,11 +132,9 @@ describe("judgeListing", () => {
 
     await judgeListing(deps(port), watch.id, listing.id);
 
-    const payload = port.invocations[0]!.payload as {
-      baseline: { count: number; median: number };
-    };
-    expect(payload.baseline.count).toBe(6);
-    expect(payload.baseline.median).toBeGreaterThan(0);
+    const prompt = port.invocations[0]!.prompt;
+    expect(prompt).toContain('"count": 6');
+    expect(prompt).toMatch(/"median":\s*\d/);
   });
 
   it("includes recent user feedback in the agent payload", async () => {
@@ -165,11 +160,8 @@ describe("judgeListing", () => {
 
     await judgeListing(deps(port), watch.id, second!.id);
 
-    const payload = port.invocations[1]!.payload as {
-      recentFeedback: Array<{ verdict: string }>;
-    };
-    expect(payload.recentFeedback).toHaveLength(1);
-    expect(payload.recentFeedback[0]!.verdict).toBe("bad");
+    const prompt = port.invocations[1]!.prompt;
+    expect(prompt).toContain('"verdict": "bad"');
   });
 
   it("degrades gracefully when the agent returns a malformed verdict", async () => {
