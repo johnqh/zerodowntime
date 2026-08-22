@@ -158,3 +158,99 @@ describe("runWatchCycle", () => {
     expect(await db.select().from(listings)).toHaveLength(1);
   });
 });
+
+describe("relevance pre-filter in the cycle", () => {
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  const macMini = (id: string, title: string) => ({
+    post_id: id,
+    title,
+    price: "$500",
+    url: `https://sfbay.craigslist.org/x/${id}.html`,
+  });
+
+  it("never asks the agent about listings that cannot be the wanted item", async () => {
+    const [u] = await db
+      .insert(users)
+      .values({ firebaseUid: "u1", email: "a@b.c" })
+      .returning();
+    const [w] = await db
+      .insert(watches)
+      .values({
+        userId: u!.id,
+        siteCode: "sfbay",
+        categoryCode: "sya",
+        query: "Mac mini",
+        searchUrl: "https://sfbay.craigslist.org/search/sya?query=Mac+mini",
+      })
+      .returning();
+    await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "search-collector" });
+
+    const bd = createFakeBrightData();
+    bd.queue("x", [
+      macMini("1", "Apple Mac Mini M1 Desktop Bundle"),
+      macMini("2", "Dell XPS 15.6 9570 Laptop"),
+      macMini("3", "HP Spectre X360 Convertible Laptop"),
+      macMini("4", "Christie LW502 3LCD Projector"),
+    ]);
+
+    const port = createFakePort();
+    port.respondWith(GOOD);
+    const result = await runWatchCycle(makeDeps(bd, port), w!.id);
+
+    // Only the Mac mini reached the agent.
+    expect(port.invocations).toHaveLength(1);
+    expect(port.invocations[0]!.prompt).toContain("Mac Mini M1");
+    expect(result.judged).toBe(1);
+    expect(result.scrapedCount).toBe(4);
+
+    const rows = await db.select().from(listings);
+    const irrelevant = rows.filter((r) => r.matchesQuery === false);
+    expect(irrelevant).toHaveLength(3);
+  });
+
+  it("caps agent calls per cycle so one huge search cannot drain the quota", async () => {
+    const [u] = await db
+      .insert(users)
+      .values({ firebaseUid: "u2", email: "b@b.c" })
+      .returning();
+    const [w] = await db
+      .insert(watches)
+      .values({
+        userId: u!.id,
+        siteCode: "sfbay",
+        categoryCode: "sya",
+        query: "Mac mini",
+        searchUrl: "https://sfbay.craigslist.org/search/sya?query=Mac+mini",
+      })
+      .returning();
+    await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "search-collector" });
+
+    const bd = createFakeBrightData();
+    bd.queue(
+      "x",
+      Array.from({ length: 12 }, (_, i) =>
+        macMini(String(i + 100), `Apple Mac Mini #${i}`)
+      )
+    );
+
+    const port = createFakePort();
+    port.respondWith(GOOD);
+    const result = await runWatchCycle(
+      makeDeps(bd, port, { maxJudgementsPerCycle: 5 }),
+      w!.id
+    );
+
+    expect(port.invocations).toHaveLength(5);
+    expect(result.judged).toBe(5);
+    // All 12 are still marked relevant, so the baseline sees them all.
+    const rows = await db.select().from(listings);
+    expect(rows.filter((r) => r.matchesQuery === true)).toHaveLength(12);
+  });
+});

@@ -24,6 +24,13 @@ export const agentRequestSchema = z.object({
       p25: z.number(),
       min: z.number(),
       max: z.number(),
+      comparables: z.array(
+        z.object({
+          title: z.string(),
+          price: z.number(),
+          condition: z.string().nullable(),
+        })
+      ),
     })
     .nullable(),
   targetPrice: z.number().nullable(),

@@ -1,5 +1,5 @@
 import { and, eq, gte, isNotNull } from "drizzle-orm";
-import type { Baseline } from "@craigsnotice/types";
+import type { Baseline, Comparable } from "@craigsnotice/types";
 import type { Db } from "../db";
 import { listings } from "../db/schema";
 
@@ -24,7 +24,8 @@ export const percentile = (sorted: number[], p: number): number => {
  */
 export const computeBaseline = (
   prices: number[],
-  minSamples: number
+  minSamples: number,
+  comparables: Comparable[] = []
 ): Baseline | null => {
   const usable = prices.filter((p) => Number.isFinite(p));
   if (usable.length < minSamples || usable.length === 0) return null;
@@ -36,6 +37,7 @@ export const computeBaseline = (
     p25: percentile(sorted, 0.25),
     min: sorted[0]!,
     max: sorted[sorted.length - 1]!,
+    comparables,
   };
 };
 
@@ -51,7 +53,11 @@ export const watchBaseline = async (
   // search is loose, and mixing an $80 trackpad with a $22,500 Mac Pro makes
   // the median meaningless — which made irrelevant items look like steals.
   const rows = await db
-    .select({ price: listings.price })
+    .select({
+      price: listings.price,
+      title: listings.title,
+      condition: listings.condition,
+    })
     .from(listings)
     .where(
       and(
@@ -62,8 +68,17 @@ export const watchBaseline = async (
       )
     );
 
+  // Cap the sample: the agent needs enough to see the spread of generations
+  // and configurations, not the entire market.
+  const comparables: Comparable[] = rows.slice(0, 15).map((r) => ({
+    title: r.title,
+    price: Number(r.price),
+    condition: r.condition,
+  }));
+
   return computeBaseline(
     rows.map((r) => Number(r.price)),
-    minSamples
+    minSamples,
+    comparables
   );
 };

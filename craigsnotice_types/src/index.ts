@@ -3,6 +3,7 @@ export * from "./domain";
 export * from "./craigslist/reference";
 export * from "./craigslist/url";
 export * from "./craigslist/geo";
+export * from "./craigslist/relevance";
 export * from "./schemas/requests";
 export * from "./schemas/brightdata";
 export * from "./schemas/agent";

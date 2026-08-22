@@ -70,11 +70,23 @@ export interface ScraperConfig {
   healPrompt: string | null;
 }
 
-/** Null when fewer than MIN_BASELINE_SAMPLES priced listings exist for the watch. */
+export interface Comparable {
+  title: string;
+  price: number;
+  condition: string | null;
+}
+
+/**
+ * Null when fewer than MIN_BASELINE_SAMPLES priced listings exist for the
+ * watch. `comparables` matters as much as the summary statistics: a median
+ * across a 2012 Mac mini and an M4 is not a like-for-like comparison, so the
+ * agent needs the individual listings to reason about generation and spec.
+ */
 export interface Baseline {
   count: number;
   median: number;
   p25: number;
   min: number;
   max: number;
+  comparables: Comparable[];
 }

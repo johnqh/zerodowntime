@@ -111,7 +111,10 @@ describe("fixtures mode", () => {
 
     expect(result.degraded).toBe(false);
     expect(result.scrapedCount).toBe(20);
-    expect(result.judged).toBe(20);
+    // The fixtures are a real "Mac Studio" search, so they include MacBooks,
+    // displays and accessories. Those never reach the agent.
+    expect(result.judged).toBeGreaterThan(0);
+    expect(result.judged).toBeLessThan(result.scrapedCount);
     // The verdict list cycles, so some listings alert and some do not —
     // the demo shows both outcomes.
     expect(result.alerted).toBeGreaterThan(0);

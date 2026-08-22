@@ -1,10 +1,11 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { Db } from "../db";
 import { listings, scraperConfigs, watches } from "../db/schema";
 import { ingestWatch, type IngestDeps } from "./ingest";
 import { judgeListing } from "./judgment";
 import { isDegraded } from "./parse";
 import type { PortClient } from "./port/client";
+import { titleCouldMatchQuery } from "@craigsnotice/types";
 import type { AlertPayload } from "./notify/dispatcher";
 import type { DegradedInfo } from "./selfheal";
 import { withSpan } from "../telemetry";
@@ -16,6 +17,9 @@ export interface CycleDeps extends IngestDeps {
   violationRateThreshold: number;
   dispatcher: { dispatch(userId: string, alert: AlertPayload): Promise<void> };
   onDegraded?: (info: DegradedInfo) => Promise<void>;
+  /** Agent calls are metered, so one huge search cannot drain the quota. */
+  maxJudgementsPerCycle?: number;
+  judgementConcurrency?: number;
 }
 
 export interface CycleResult {
@@ -65,8 +69,61 @@ export const runWatchCycle = (
       };
     }
 
-    let alerted = 0;
+    /**
+     * Craigslist category search is loose: a "Mac mini" search returns Dell
+     * laptops, projectors and monitors. Asking the agent about each one is
+     * slow and burns a metered quota to be told the obvious, so a local title
+     * check settles the clear rejections first. Anything plausible still goes
+     * to the agent, which makes the real call.
+     */
+    const candidates: string[] = [];
+    const prefiltered: string[] = [];
+
     for (const listingId of ingest.newListingIds) {
+      const [listing] = await deps.db
+        .select()
+        .from(listings)
+        .where(eq(listings.id, listingId));
+      if (!listing) continue;
+
+      if (titleCouldMatchQuery(watch.query, listing.title)) {
+        candidates.push(listingId);
+      } else {
+        prefiltered.push(listingId);
+      }
+    }
+
+    if (prefiltered.length > 0) {
+      // Irrelevant at no cost, and kept out of the price baseline.
+      await deps.db
+        .update(listings)
+        .set({ matchesQuery: false })
+        .where(inArray(listings.id, prefiltered));
+    }
+
+    if (candidates.length > 0) {
+      // Marked relevant before judging so the very first run already has a
+      // real baseline to compare against. The agent can still downgrade them.
+      await deps.db
+        .update(listings)
+        .set({ matchesQuery: true })
+        .where(inArray(listings.id, candidates));
+    }
+
+    const budget = deps.maxJudgementsPerCycle ?? 25;
+    const toJudge = candidates.slice(0, budget);
+    const deferred = candidates.length - toJudge.length;
+    if (deferred > 0) {
+      console.warn(
+        `[cycle] ${watchId}: judging ${toJudge.length} of ${candidates.length} candidates, ${deferred} deferred to the next run`
+      );
+    }
+
+    span.setAttribute("cycle.scraped", ingest.newListingIds.length);
+    span.setAttribute("cycle.prefiltered_out", prefiltered.length);
+    span.setAttribute("cycle.candidates", candidates.length);
+
+    const judgeOne = async (listingId: string): Promise<boolean> => {
       const outcome = await judgeListing(
         {
           db: deps.db,
@@ -77,7 +134,7 @@ export const runWatchCycle = (
         watchId,
         listingId
       );
-      if (!outcome.alertId || !outcome.verdict) continue;
+      if (!outcome.alertId || !outcome.verdict) return false;
 
       const [listing] = await deps.db
         .select()
@@ -94,16 +151,39 @@ export const runWatchCycle = (
         reasoning: outcome.verdict.reasoning,
         priceVsMedian: outcome.verdict.priceVsMedian,
       });
-      alerted += 1;
-    }
+      return true;
+    };
 
-    span.setAttribute("cycle.judged", ingest.newListingIds.length);
+    // A bounded pool. Serial judging took ~30s per listing, so a large search
+    // never finished; the cap keeps us inside the agent's rate limit.
+    const concurrency = deps.judgementConcurrency ?? 4;
+    let alerted = 0;
+    let cursor = 0;
+
+    const worker = async (): Promise<void> => {
+      while (cursor < toJudge.length) {
+        const listingId = toJudge[cursor++]!;
+        try {
+          if (await judgeOne(listingId)) alerted += 1;
+        } catch (err) {
+          console.warn(
+            `[cycle] judging ${listingId} failed: ${(err as Error).message}`
+          );
+        }
+      }
+    };
+
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, toJudge.length) }, worker)
+    );
+
+    span.setAttribute("cycle.judged", toJudge.length);
     span.setAttribute("cycle.alerted", alerted);
 
     return {
       runId: ingest.runId,
       scrapedCount: ingest.scrapedCount,
-      judged: ingest.newListingIds.length,
+      judged: toJudge.length,
       alerted,
       degraded: false,
     };

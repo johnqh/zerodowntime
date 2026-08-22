@@ -255,6 +255,59 @@ describe("judgeListing", () => {
     expect(prompt).toContain('"min": 2000');
   });
 
+  it("gives the agent the individual comparables, not just a median", async () => {
+    const { watch, listing } = await seed([
+      "1000",
+      "1400",
+      "1600",
+      "1800",
+      "2000",
+    ]);
+    const port = createFakePort();
+    port.respondWith(GOOD);
+
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const prompt = port.invocations[0]!.prompt;
+    expect(prompt).toContain("comparables");
+    // Individual listings, so like-for-like comparison is possible.
+    expect(prompt).toContain("hist 0");
+    expect(prompt).toMatch(/"price":\s*1000/);
+  });
+
+  it("instructs the agent to weigh condition, generation and configuration", async () => {
+    const { watch, listing } = await seed();
+    const port = createFakePort();
+    port.respondWith(GOOD);
+
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const prompt = port.invocations[0]!.prompt;
+    for (const factor of [
+      "Generation",
+      "Configuration",
+      "Condition",
+      "Age",
+      "included",
+    ]) {
+      expect(prompt, `prompt never mentions ${factor}`).toContain(factor);
+    }
+    // And it must say the median alone is weak.
+    expect(prompt).toMatch(/mixes generations/i);
+  });
+
+  it("sends the listing's own condition and description to the agent", async () => {
+    const { watch, listing } = await seed();
+    const port = createFakePort();
+    port.respondWith(GOOD);
+
+    await judgeListing(deps(port), watch.id, listing.id);
+
+    const prompt = port.invocations[0]!.prompt;
+    expect(prompt).toContain('"condition": "like new"');
+    expect(prompt).toContain('"imageCount": 3');
+  });
+
   it("degrades gracefully when the agent returns a malformed verdict", async () => {
     const { watch, listing } = await seed();
     const port = createFakePort();
