@@ -217,7 +217,9 @@ export const ingestWatch = async (
         imageUrl,
         detailFetchedAt: detail ? new Date() : null,
       })
-      .onConflictDoNothing({ target: listings.clPostId })
+      .onConflictDoNothing({
+        target: [listings.watchId, listings.clPostId],
+      })
       .returning();
 
     if (inserted) {

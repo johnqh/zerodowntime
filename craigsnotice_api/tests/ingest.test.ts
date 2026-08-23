@@ -244,3 +244,78 @@ describe("ingestWatch", () => {
     expect(runs[0]!.error).not.toBeNull();
   });
 });
+
+describe("dedup is per watch, not global", () => {
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  it("stores the same Craigslist post for two different watches", async () => {
+    // Regression: a global UNIQUE(cl_post_id) meant a post could belong to one
+    // watch only. "Mac Studio" and "Mac mini" both live in the computers
+    // category and their searches overlap, so the second watch silently
+    // stored nothing and showed "no deals yet" forever.
+    const [u] = await db
+      .insert(users)
+      .values({ firebaseUid: "u1", email: "a@b.c" })
+      .returning();
+
+    const mkWatch = async (query: string) => {
+      const [w] = await db
+        .insert(watches)
+        .values({
+          userId: u!.id,
+          siteCode: "sfbay",
+          categoryCode: "sya",
+          query,
+          searchUrl: `https://sfbay.craigslist.org/search/sya?query=${query}`,
+        })
+        .returning();
+      return w!;
+    };
+
+    const [cfg] = await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "search-collector" })
+      .returning();
+
+    const studio = await mkWatch("Mac+Studio");
+    const mini = await mkWatch("Mac+mini");
+
+    const shared = searchRow("7952521094");
+
+    const bd1 = createFakeBrightData();
+    bd1.queue("x", [shared]);
+    const first = await ingestWatch(depsWith(bd1), studio, cfg!.id);
+
+    const bd2 = createFakeBrightData();
+    bd2.queue("x", [shared]);
+    const second = await ingestWatch(depsWith(bd2), mini, cfg!.id);
+
+    expect(first.newListingIds).toHaveLength(1);
+    expect(second.newListingIds).toHaveLength(1);
+
+    expect(
+      await db.select().from(listings).where(eq(listings.watchId, studio.id))
+    ).toHaveLength(1);
+    expect(
+      await db.select().from(listings).where(eq(listings.watchId, mini.id))
+    ).toHaveLength(1);
+  });
+
+  it("still dedups within a single watch", async () => {
+    const { watch, scraperConfigId } = await seed();
+    const bd = createFakeBrightData();
+
+    bd.queue("x", [searchRow("1")]);
+    await ingestWatch(depsWith(bd), watch, scraperConfigId);
+
+    bd.queue("x", [searchRow("1")]);
+    const second = await ingestWatch(depsWith(bd), watch, scraperConfigId);
+
+    expect(second.newListingIds).toHaveLength(0);
+    expect(
+      await db.select().from(listings).where(eq(listings.watchId, watch.id))
+    ).toHaveLength(1);
+  });
+});

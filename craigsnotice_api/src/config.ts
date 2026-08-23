@@ -8,6 +8,10 @@ export interface Config {
   minBaselineSamples: number;
   violationRateThreshold: number;
   debugToken: string | null;
+  /** How long to wait for a Bright Data snapshot before giving up. */
+  brightDataTimeoutMs: number;
+  /** How many watch cycles may run at once. */
+  maxConcurrentCycles: number;
 }
 
 type Env = Record<string, string | undefined>;
@@ -40,6 +44,12 @@ export const loadConfig = (env: Env = process.env): Config => {
     watchDefaultIntervalSec: num(env, "WATCH_DEFAULT_INTERVAL_SEC", 300),
     minBaselineSamples: num(env, "MIN_BASELINE_SAMPLES", 5),
     violationRateThreshold: num(env, "VIOLATION_RATE_THRESHOLD", 0.3),
+    // Bright Data queues collections, so a job can sit well past the 30-90s
+    // typical case when other runs are ahead of it. Five minutes was too
+    // aggressive: snapshots were timing out and then completing moments later.
+    brightDataTimeoutMs:
+      num(env, "BRIGHTDATA_TIMEOUT_SEC", 900) * 1000,
+    maxConcurrentCycles: num(env, "MAX_CONCURRENT_CYCLES", 1),
     debugToken: env.DEBUG_TOKEN ?? null,
   });
 };

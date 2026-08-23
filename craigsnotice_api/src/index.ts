@@ -23,7 +23,11 @@ import {
   handleDegraded,
   type DegradedInfo,
 } from "./services/selfheal";
-import { createScheduler, type CycleDeps } from "./services/scheduler";
+import {
+  createScheduler,
+  reconcileStaleRuns,
+  type CycleDeps,
+} from "./services/scheduler";
 import { createOgImageFetcher } from "./services/ogImage";
 import { preflight } from "./services/preflight";
 import {
@@ -193,6 +197,13 @@ await seedScraperEntities();
 // Warn loudly at boot rather than discovering it mid-heal.
 for (const warning of (await preflight({ fixtures })).warnings) {
   console.warn(`[craigsnotice] ${warning}`);
+}
+
+const swept = await reconcileStaleRuns(db);
+if (swept > 0) {
+  console.warn(
+    `[craigsnotice] marked ${swept} abandoned scrape run(s) as failed`
+  );
 }
 
 const scheduler = createScheduler(cycleDeps, db);

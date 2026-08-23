@@ -1,11 +1,21 @@
+import { eq } from "drizzle-orm";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { db, resetDb } from "./setup";
 import { createFakeBrightData } from "../src/services/brightdata/fake";
 import { createFakePort } from "../src/services/port/fake";
 import { createPollingDelivery } from "../src/services/brightdata/delivery";
-import { runWatchCycle } from "../src/services/scheduler";
+import {
+  runWatchCycle,
+  reconcileStaleRuns,
+} from "../src/services/scheduler";
 import type { DegradedInfo } from "../src/services/selfheal";
-import { listings, scraperConfigs, users, watches } from "../src/db/schema";
+import {
+  listings,
+  scrapeRuns,
+  scraperConfigs,
+  users,
+  watches,
+} from "../src/db/schema";
 
 const noSleep = async (): Promise<void> => {};
 const GOOD = {
@@ -252,5 +262,84 @@ describe("relevance pre-filter in the cycle", () => {
     // All 12 are still marked relevant, so the baseline sees them all.
     const rows = await db.select().from(listings);
     expect(rows.filter((r) => r.matchesQuery === true)).toHaveLength(12);
+  });
+});
+
+describe("reconcileStaleRuns", () => {
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  const seedRun = async (startedAt: Date, status = "collecting") => {
+    const [u] = await db
+      .insert(users)
+      .values({ firebaseUid: `u-${startedAt.getTime()}`, email: "a@b.c" })
+      .returning();
+    const [w] = await db
+      .insert(watches)
+      .values({
+        userId: u!.id,
+        siteCode: "sfbay",
+        categoryCode: "sya",
+        query: "Mac Studio",
+        searchUrl: "https://sfbay.craigslist.org/search/sya?query=x",
+      })
+      .returning();
+    const [cfg] = await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "c1" })
+      .returning();
+    const [r] = await db
+      .insert(scrapeRuns)
+      .values({
+        watchId: w!.id,
+        scraperConfigId: cfg!.id,
+        snapshotId: "snap_1",
+        status,
+        startedAt,
+      })
+      .returning();
+    return r!;
+  };
+
+  const NOW = new Date("2026-08-22T20:00:00Z");
+  const ago = (ms: number) => new Date(NOW.getTime() - ms);
+
+  it("fails a run abandoned when the process died", async () => {
+    const run = await seedRun(ago(30 * 60 * 1000));
+
+    expect(await reconcileStaleRuns(db, 15 * 60 * 1000, NOW)).toBe(1);
+
+    const [after] = await db
+      .select()
+      .from(scrapeRuns)
+      .where(eq(scrapeRuns.id, run.id));
+    expect(after!.status).toBe("failed");
+    expect(after!.error).toMatch(/abandoned/);
+    expect(after!.finishedAt).not.toBeNull();
+  });
+
+  it("leaves a run that is still legitimately in flight", async () => {
+    const run = await seedRun(ago(60 * 1000));
+
+    expect(await reconcileStaleRuns(db, 15 * 60 * 1000, NOW)).toBe(0);
+
+    const [after] = await db
+      .select()
+      .from(scrapeRuns)
+      .where(eq(scrapeRuns.id, run.id));
+    expect(after!.status).toBe("collecting");
+  });
+
+  it("does not touch runs that already finished", async () => {
+    const run = await seedRun(ago(30 * 60 * 1000), "ready");
+
+    expect(await reconcileStaleRuns(db, 15 * 60 * 1000, NOW)).toBe(0);
+
+    const [after] = await db
+      .select()
+      .from(scrapeRuns)
+      .where(eq(scrapeRuns.id, run.id));
+    expect(after!.status).toBe("ready");
   });
 });

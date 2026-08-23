@@ -6,6 +6,7 @@ import {
   numeric,
   boolean,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -68,7 +69,7 @@ export const listings = pgTable("listings", {
   watchId: uuid("watch_id")
     .notNull()
     .references(() => watches.id),
-  clPostId: text("cl_post_id").notNull().unique(),
+  clPostId: text("cl_post_id").notNull(),
   title: text("title").notNull(),
   price: numeric("price"),
   url: text("url").notNull(),
@@ -85,7 +86,13 @@ export const listings = pgTable("listings", {
   firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-});
+}, (t) => ({
+  // Dedup is PER WATCH. A global unique on cl_post_id meant a Craigslist post
+  // could belong to only one watch ever: two watches whose searches overlap —
+  // "Mac Studio" and "Mac mini" both live in the computers category — and the
+  // second silently stored nothing.
+  watchPost: unique("listings_watch_post_key").on(t.watchId, t.clPostId),
+}));
 
 export const dealAlerts = pgTable("deal_alerts", {
   id: uuid("id").primaryKey().defaultRandom(),

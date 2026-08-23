@@ -57,7 +57,7 @@ const STATEMENTS: string[] = [
   `CREATE TABLE IF NOT EXISTS listings (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     watch_id uuid NOT NULL REFERENCES watches(id),
-    cl_post_id text NOT NULL UNIQUE,
+    cl_post_id text NOT NULL,
     title text NOT NULL,
     price numeric,
     url text NOT NULL,
@@ -92,6 +92,19 @@ const STATEMENTS: string[] = [
 
   `ALTER TABLE listings ADD COLUMN IF NOT EXISTS matches_query boolean`,
   `ALTER TABLE listings ADD COLUMN IF NOT EXISTS image_url text`,
+
+  // Dedup is per watch, not global. The original UNIQUE(cl_post_id) meant a
+  // post could belong to only one watch ever, so a second watch whose search
+  // overlapped silently stored nothing.
+  `ALTER TABLE listings DROP CONSTRAINT IF EXISTS listings_cl_post_id_key`,
+  `DO $$ BEGIN
+     IF NOT EXISTS (
+       SELECT 1 FROM pg_constraint WHERE conname = 'listings_watch_post_key'
+     ) THEN
+       ALTER TABLE listings
+         ADD CONSTRAINT listings_watch_post_key UNIQUE (watch_id, cl_post_id);
+     END IF;
+   END $$`,
 
   `CREATE INDEX IF NOT EXISTS listings_watch_idx ON listings(watch_id)`,
   `CREATE INDEX IF NOT EXISTS listings_first_seen_idx ON listings(first_seen_at)`,

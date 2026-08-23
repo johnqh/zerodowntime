@@ -16,10 +16,14 @@ const row = (id: string) => ({
   url: `https://sfbay.craigslist.org/x/${id}.html`,
 });
 
+let seedCounter = 0;
+
 const seedWatch = async (intervalSec: number, status = "active") => {
+  // Unique per call: several watches per test now.
+  seedCounter += 1;
   const [u] = await db
     .insert(users)
-    .values({ firebaseUid: `u-${intervalSec}-${status}`, email: "a@b.c" })
+    .values({ firebaseUid: `u-${seedCounter}`, email: "a@b.c" })
     .returning();
   const [w] = await db
     .insert(watches)
@@ -218,5 +222,107 @@ describe("createScheduler", () => {
       warn.mock.calls.some(([m]) => String(m).includes("bright data is down"))
     ).toBe(true);
     warn.mockRestore();
+  });
+});
+
+describe("cycle concurrency", () => {
+  beforeEach(async () => {
+    await resetDb();
+    await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "search-collector" });
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("runs one watch at a time by default, rather than stampeding", async () => {
+    // Bright Data queues collections per account. Firing every due watch at
+    // once made them wait behind each other until every one timed out.
+    const watches = [];
+    for (let i = 0; i < 4; i += 1) {
+      watches.push(await seedWatch(60));
+    }
+
+    const bd = createFakeBrightData();
+    // Several polls of latency, so a cycle spans multiple ticks.
+    bd.queue("x", [row("1")], 4);
+    const scheduler = createScheduler(makeDeps(bd), db, { tickMs: 50 });
+
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(200);
+    await tick(150);
+
+    const started = await Promise.all(watches.map((w) => runsFor(w.id)));
+    const running = started.filter((n) => n > 0).length;
+    scheduler.stop();
+
+    expect(running).toBe(1);
+  });
+
+  it("honours a raised concurrency cap", async () => {
+    const watches = [];
+    for (let i = 0; i < 4; i += 1) {
+      watches.push(await seedWatch(60));
+    }
+
+    const bd = createFakeBrightData();
+    bd.queue("x", [row("1")], 4);
+    const scheduler = createScheduler(makeDeps(bd), db, {
+      tickMs: 50,
+      maxConcurrent: 3,
+    });
+
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(200);
+    await tick(200);
+
+    const started = await Promise.all(watches.map((w) => runsFor(w.id)));
+    const running = started.filter((n) => n > 0).length;
+    scheduler.stop();
+
+    expect(running).toBeGreaterThan(1);
+    expect(running).toBeLessThanOrEqual(3);
+  });
+});
+
+describe("scheduling fairness", () => {
+  beforeEach(async () => {
+    await resetDb();
+    await db
+      .insert(scraperConfigs)
+      .values({ kind: "search", bdCollectorId: "search-collector" });
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("does not starve a newly created watch behind older ones", async () => {
+    // With a concurrency cap of 1, iterating the list in a fixed order let the
+    // same watch win every tick while a new one never ran.
+    const older = await seedWatch(60);
+    const newer = await seedWatch(60);
+
+    const bd = createFakeBrightData();
+    bd.queue("x", [row("1")]);
+    const scheduler = createScheduler(makeDeps(bd), db, { tickMs: 50 });
+
+    scheduler.start();
+
+    // Each cycle finishes on real time, so give every tick room to complete
+    // before the next one fires.
+    for (let i = 0; i < 6; i += 1) {
+      await vi.advanceTimersByTimeAsync(50);
+      await tick(150);
+    }
+    scheduler.stop();
+    await tick(200);
+
+    expect(await runsFor(older.id)).toBeGreaterThan(0);
+    expect(await runsFor(newer.id)).toBeGreaterThan(0);
   });
 });

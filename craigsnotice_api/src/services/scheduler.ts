@@ -1,6 +1,11 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, lt } from "drizzle-orm";
 import type { Db } from "../db";
-import { listings, scraperConfigs, watches } from "../db/schema";
+import {
+  listings,
+  scrapeRuns,
+  scraperConfigs,
+  watches,
+} from "../db/schema";
 import { ingestWatch, type IngestDeps } from "./ingest";
 import { judgeListing } from "./judgment";
 import { isDegraded } from "./parse";
@@ -189,6 +194,33 @@ export const runWatchCycle = (
     };
   });
 
+/**
+ * A cycle polls Bright Data in-process, so if the process dies mid-run the
+ * scrape_run row is left "collecting" forever with nothing to recover it —
+ * and the watch looks like it is working when it is not. Sweep them at boot.
+ */
+export const reconcileStaleRuns = async (
+  db: Db,
+  staleAfterMs = 15 * 60 * 1000,
+  now: Date = new Date()
+): Promise<number> => {
+  const cutoff = new Date(now.getTime() - staleAfterMs);
+
+  const swept = await db
+    .update(scrapeRuns)
+    .set({
+      status: "failed",
+      finishedAt: now,
+      error: "abandoned: the process died before this run completed",
+    })
+    .where(
+      and(eq(scrapeRuns.status, "collecting"), lt(scrapeRuns.startedAt, cutoff))
+    )
+    .returning({ id: scrapeRuns.id });
+
+  return swept.length;
+};
+
 export interface Scheduler {
   start(): void;
   stop(): void;
@@ -202,9 +234,16 @@ export interface Scheduler {
 export const createScheduler = (
   deps: CycleDeps,
   db: Db,
-  opts: { tickMs?: number } = {}
+  opts: { tickMs?: number; maxConcurrent?: number } = {}
 ): Scheduler => {
   const tickMs = opts.tickMs ?? 15_000;
+  /**
+   * Bright Data queues collections per account, so firing every watch at once
+   * makes them all wait behind one another until they time out. Run a small
+   * number of cycles at a time instead. On restart, when every watch is due at
+   * once, this is the difference between working and a pile-up.
+   */
+  const maxConcurrent = opts.maxConcurrent ?? 1;
   const inFlight = new Set<string>();
   const lastRunAt = new Map<string, number>();
   let timer: ReturnType<typeof setInterval> | null = null;
@@ -216,7 +255,18 @@ export const createScheduler = (
       .where(eq(watches.status, "active"));
 
     const now = Date.now();
-    for (const watch of active) {
+
+    /**
+     * Least-recently-run first. With a small concurrency cap the list order
+     * would otherwise favour the same watches every tick, and a newly created
+     * watch could sit behind older ones indefinitely.
+     */
+    const byStaleness = [...active].sort(
+      (a, b) => (lastRunAt.get(a.id) ?? 0) - (lastRunAt.get(b.id) ?? 0)
+    );
+
+    for (const watch of byStaleness) {
+      if (inFlight.size >= maxConcurrent) break;
       if (inFlight.has(watch.id)) continue;
 
       const last = lastRunAt.get(watch.id) ?? 0;
