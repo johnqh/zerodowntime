@@ -1,5 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import {
+  titleCouldMatchQuery,
   searchResultRowSchema,
   listingDetailRowSchema,
   type SearchResultRow,
@@ -31,6 +32,8 @@ export interface IngestDeps {
   fetchImage?: ImageFetcher;
   /** When set, Bright Data POSTs finished runs here instead of us polling. */
   deliverTo?: string;
+  /** The watch's search term, used to skip detail fetches for obvious misses. */
+  watchQuery?: string;
 }
 
 export interface IngestResult {
@@ -162,7 +165,25 @@ export const ingestWatch = async (
     : [];
 
   const seen = new Set(existing.map((e) => e.clPostId));
-  const fresh = parsed.rows.filter((r) => !seen.has(r.postId));
+  const unseen = parsed.rows.filter((r) => !seen.has(r.postId));
+
+  /**
+   * Filter by title BEFORE fetching detail pages. A Craigslist "Mac Studio"
+   * search returns ~85 results of which ~25 are actually Mac Studios, and
+   * fetching detail for all 85 made the detail collection several times
+   * larger and slower than it needed to be — the run sat in "collecting" for
+   * minutes fetching pages that were about to be discarded anyway.
+   */
+  const fresh = deps.watchQuery
+    ? unseen.filter((r) => titleCouldMatchQuery(deps.watchQuery!, r.title))
+    : unseen;
+
+  const skipped = unseen.length - fresh.length;
+  if (skipped > 0) {
+    console.log(
+      `[ingest] ${watch.id}: ${fresh.length} of ${unseen.length} new listings look relevant; skipping detail for ${skipped}`
+    );
+  }
 
   const details = new Map<string, ListingDetailRow>();
   if (fresh.length > 0) {

@@ -57,7 +57,11 @@ export const runWatchCycle = (
       );
     if (!config) throw new Error("search scraper config not registered");
 
-    const ingest = await ingestWatch(deps, watch, config.id);
+  const ingest = await ingestWatch(
+    { ...deps, watchQuery: watch.query },
+    watch,
+    config.id
+  );
 
     if (isDegraded(ingest.violationRate, deps.violationRateThreshold)) {
       await deps.onDegraded?.({

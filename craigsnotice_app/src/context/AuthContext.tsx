@@ -8,7 +8,7 @@ import {
 } from "react";
 import {
   GoogleAuthProvider,
-  onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   signOut,
   type User,
@@ -40,7 +40,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const auth = firebaseAuth();
-    return onAuthStateChanged(auth, async (next) => {
+    /**
+     * onIdTokenChanged, not onAuthStateChanged. Firebase ID tokens expire
+     * after an hour and the SDK refreshes them in the background, but
+     * onAuthStateChanged only fires on sign-in and sign-out — so the app held
+     * a dead token and every API call 401'd, showing an empty page with no
+     * error. onIdTokenChanged fires on refresh too.
+     */
+    return onIdTokenChanged(auth, async (next) => {
       if (next) {
         setUser({ uid: next.uid, email: next.email });
         setToken(await next.getIdToken());

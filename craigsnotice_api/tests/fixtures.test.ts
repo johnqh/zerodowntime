@@ -121,7 +121,9 @@ describe("fixtures mode", () => {
     expect(result.alerted).toBeLessThan(20);
     expect(dispatch).toHaveBeenCalled();
 
-    expect(await db.select().from(listings)).toHaveLength(20);
+    // Only the listings that look like the wanted item are stored; the rest
+    // never get a detail fetch.
+    expect((await db.select().from(listings)).length).toBe(result.judged);
   });
 
   it("builds a real baseline on the second cycle", async () => {

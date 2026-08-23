@@ -33,6 +33,24 @@ export const createWatchesRouter = (
         port,
         c.get("userEmail")
       );
+
+      /**
+       * Check immediately rather than waiting for the scheduler's turn.
+       * Cycles run one at a time to avoid queuing behind each other on Bright
+       * Data's side, which means a new watch could otherwise sit for minutes
+       * behind existing ones — exactly when someone is watching the screen.
+       * Detached, so the response is not held open for the scrape.
+       */
+      if (cycleDeps) {
+        setTimeout(() => {
+          void runWatchCycle(cycleDeps, watch.id).catch((err) =>
+            console.warn(
+              `[watches] first run failed for ${watch.id}: ${(err as Error).message}`
+            )
+          );
+        }, 0);
+      }
+
       return c.json(successResponse(watch), 201);
     } catch (err) {
       if (err instanceof InvalidWatchTargetError) {

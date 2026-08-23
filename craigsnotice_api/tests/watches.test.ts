@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { eq } from "drizzle-orm";
 import { db, resetDb } from "./setup";
+import { createFakeBrightData } from "../src/services/brightdata/fake";
+import { createFakePort } from "../src/services/port/fake";
+import { createPollingDelivery } from "../src/services/brightdata/delivery";
 import {
   alertFeedback,
   dealAlerts,

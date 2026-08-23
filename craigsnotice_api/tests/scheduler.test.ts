@@ -218,9 +218,12 @@ describe("relevance pre-filter in the cycle", () => {
     expect(result.judged).toBe(1);
     expect(result.scrapedCount).toBe(4);
 
+    // The other three never get a detail fetch and are never stored: keeping
+    // rows for every Dell laptop a Craigslist search returns is pure noise,
+    // and fetching their detail pages was what made runs time out.
     const rows = await db.select().from(listings);
-    const irrelevant = rows.filter((r) => r.matchesQuery === false);
-    expect(irrelevant).toHaveLength(3);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.title).toContain("Mac Mini M1");
   });
 
   it("caps agent calls per cycle so one huge search cannot drain the quota", async () => {
