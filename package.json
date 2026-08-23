@@ -11,9 +11,11 @@
   ],
   "scripts": {
     "typecheck": "bun run --filter '*' typecheck",
-    "test": "bun run --filter '*' test:run",
+    "test": "bun run ci:db && bun run db:init && bun run --filter '*' test:run",
     "lint": "bun run --filter '*' lint",
-    "format": "prettier --write \"*/src/**/*.{ts,tsx,json}\""
+    "format": "prettier --write \"*/src/**/*.{ts,tsx,json}\"",
+    "db:init": "cd craigsnotice_api && bun run db:init",
+    "ci:db": "bash scripts/ensure-test-db.sh"
   },
   "devDependencies": {
     "prettier": "^3.3.0",
@@ -21,5 +23,6 @@
     "eslint": "^9.0.0",
     "typescript-eslint": "^8.0.0",
     "vitest": "^2.0.0"
-  }
+  },
+  "version": "0.1.0"
 }

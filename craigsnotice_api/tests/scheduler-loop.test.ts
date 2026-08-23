@@ -51,12 +51,32 @@ const makeDeps = (bd: ReturnType<typeof createFakeBrightData>): CycleDeps => ({
 
 /**
  * A tick fires synchronously but its cycle finishes on real time, so advancing
- * the fake clock is not enough — yield to the real event loop before asserting.
- * setTimeout is deliberately not faked, so this really waits.
+ * the fake clock is not enough. A fixed sleep made these tests flaky: on a slow
+ * database the cycle had not recorded its run before the assertion ran.
+ *
+ * setTimeout is deliberately not faked, so these really wait.
  */
-const settle = async (ms = 60): Promise<void> => {
-  await new Promise((r) => globalThis.setTimeout(r, ms));
+const tick = (ms: number): Promise<void> =>
+  new Promise((r) => globalThis.setTimeout(r, ms));
+
+/** Waits until the watch has at least `expected` runs, or gives up. */
+const waitForRuns = async (
+  watchId: string,
+  expected: number,
+  timeoutMs = 4000
+): Promise<number> => {
+  const deadline = Date.now() + timeoutMs;
+  let count = await runsFor(watchId);
+
+  while (count < expected && Date.now() < deadline) {
+    await tick(25);
+    count = await runsFor(watchId);
+  }
+  return count;
 };
+
+/** Lets any in-flight work land, for assertions that nothing more happened. */
+const quiet = (ms = 400): Promise<void> => tick(ms);
 
 const runsFor = async (watchId: string): Promise<number> =>
   (await db.select().from(scrapeRuns).where(eq(scrapeRuns.watchId, watchId)))
@@ -84,7 +104,7 @@ describe("createScheduler", () => {
     createScheduler(makeDeps(bd), db, { tickMs: 1000 });
 
     await vi.advanceTimersByTimeAsync(5000);
-    await settle();
+    await quiet();
     expect(await runsFor(watch.id)).toBe(0);
   });
 
@@ -96,10 +116,8 @@ describe("createScheduler", () => {
 
     scheduler.start();
     await vi.advanceTimersByTimeAsync(1000);
-    await settle();
+    expect(await waitForRuns(watch.id, 1)).toBe(1);
     scheduler.stop();
-
-    expect(await runsFor(watch.id)).toBe(1);
   });
 
   it("does not re-run a watch before its interval has elapsed", async () => {
@@ -111,7 +129,8 @@ describe("createScheduler", () => {
     scheduler.start();
     // ten ticks, but the watch's interval is 60s
     await vi.advanceTimersByTimeAsync(10_000);
-    await settle();
+    await waitForRuns(watch.id, 1);
+    await quiet();
     scheduler.stop();
 
     expect(await runsFor(watch.id)).toBe(1);
@@ -125,12 +144,11 @@ describe("createScheduler", () => {
 
     scheduler.start();
     await vi.advanceTimersByTimeAsync(1000);
-    await settle();
-    await vi.advanceTimersByTimeAsync(61_000);
-    await settle();
-    scheduler.stop();
+    await waitForRuns(watch.id, 1);
 
-    expect(await runsFor(watch.id)).toBe(2);
+    await vi.advanceTimersByTimeAsync(61_000);
+    expect(await waitForRuns(watch.id, 2)).toBe(2);
+    scheduler.stop();
   });
 
   it("never runs two cycles for the same watch concurrently", async () => {
@@ -142,10 +160,9 @@ describe("createScheduler", () => {
 
     scheduler.start();
     await vi.advanceTimersByTimeAsync(500);
-    await settle();
     scheduler.stop();
     await vi.advanceTimersByTimeAsync(2000);
-    await settle();
+    await quiet(600);
 
     // Many ticks fired while one cycle was still in flight.
     expect(await runsFor(watch.id)).toBe(1);
@@ -159,7 +176,7 @@ describe("createScheduler", () => {
 
     scheduler.start();
     await vi.advanceTimersByTimeAsync(5000);
-    await settle();
+    await quiet();
     scheduler.stop();
 
     expect(await runsFor(paused.id)).toBe(0);
@@ -173,12 +190,11 @@ describe("createScheduler", () => {
 
     scheduler.start();
     await vi.advanceTimersByTimeAsync(500);
-    await settle();
-    const after = await runsFor(watch.id);
+    const after = await waitForRuns(watch.id, 1);
     scheduler.stop();
 
     await vi.advanceTimersByTimeAsync(20_000);
-    await settle();
+    await quiet(600);
     expect(await runsFor(watch.id)).toBe(after);
   });
 
@@ -193,7 +209,7 @@ describe("createScheduler", () => {
 
     scheduler.start();
     await vi.advanceTimersByTimeAsync(3000);
-    await settle();
+    await quiet();
     scheduler.stop();
 
     // It logged rather than throwing, and kept ticking.

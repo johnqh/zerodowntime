@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.github
+docs
+craigsnotice_app
+craigsnotice_client
+craigsnotice_lib
+**/.env
+**/.env.*
+!**/.env.example
+**/*.log
+.DS_Store
+**/.playwright-mcp
