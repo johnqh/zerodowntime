@@ -59,6 +59,74 @@ the trace that caught it. And the loop closes — a SigNoz alert on the
 doesn't just watch the pipeline, it fixes it.
 
 
+## Where the integration code lives
+
+Every integration is behind an interface with a fake, so the whole pipeline
+runs offline and each boundary is tested independently.
+
+### Bright Data
+
+| File | What it does |
+|---|---|
+| `craigsnotice_api/src/services/brightdata/client.ts` | `POST /dca/trigger`, `GET /dca/dataset`, and `heal()`. `fetch` is injected so tests never hit the network. Heal shells out to the CLI, because there is no REST heal endpoint. |
+| `craigsnotice_api/src/services/brightdata/delivery.ts` | `ResultDelivery` — polling by default, or a webhook store when Bright Data pushes results back. Callers never know which. |
+| `craigsnotice_api/src/services/brightdata/fake.ts` | Records triggers and heals; lets a test queue rows and simulate polling latency. |
+| `craigsnotice_api/src/services/parse.ts` | Zod-validates every scraped row and computes the violation rate that drives self-healing. |
+| `craigsnotice_api/src/services/ingest.ts` | The scrape cycle: trigger → await delivery → validate → diff on `cl_post_id` → fetch details → upsert. |
+| `craigsnotice_api/src/services/ogImage.ts` | Backfills the listing photo when the collector returns none. |
+| `craigsnotice_types/src/schemas/brightdata.ts` | The row schemas — including the object-shaped `price` that Scraper Studio actually returns. |
+| `craigsnotice_types/src/craigslist/url.ts` | Derives the Craigslist search URL that gets scraped. |
+
+Tests: `brightdata-client`, `delivery`, `parse`, `ingest`, `og-image`,
+`webhook-delivery` (44 tests).
+
+### Port
+
+| File | What it does |
+|---|---|
+| `craigsnotice_api/src/services/port/client.ts` | Token exchange with caching, entity upsert/patch, blueprint upsert, and agent invoke. |
+| `craigsnotice_api/src/services/port/sse.ts` | Agent invoke replies with `text/event-stream`, not JSON — this reassembles the chunked `execution` frames and extracts the fenced JSON. |
+| `craigsnotice_api/src/services/port/mirror.ts` | Mirrors watches, runs, listings and scrapers into the catalog. Wrapped in `safeMirror`: a Port outage logs and the pipeline continues. |
+| `craigsnotice_api/src/services/judgment.ts` | Builds the agent prompt, invokes it, validates the verdict, writes the alert. Includes `buildAgentPrompt`, where the relevance-then-value rules live. |
+| `craigsnotice_api/src/services/feedback.ts` | Records a thumbs-up/down and patches it onto the Port entity. |
+| `craigsnotice_api/scripts/sync-blueprints.ts` | `bun run port:sync`. Orders blueprints by dependency, because Port rejects one whose relation targets do not exist yet. |
+| `port/blueprints/*.yaml` | The five blueprints, version-controlled. |
+| `port/agents/deal-agent.md` | The agent's system prompt, kept in the repo so the configuration is reproducible. |
+| `craigsnotice_types/src/schemas/agent.ts` | The request and verdict contracts. |
+| `craigsnotice_types/src/craigslist/relevance.ts` | The local pre-filter that keeps obvious non-matches from spending agent quota. |
+
+Tests: `port-client`, `port-sse`, `blueprints`, `judgment`, `mirror`,
+`feedback` (48 tests).
+
+### SigNoz
+
+| File | What it does |
+|---|---|
+| `craigsnotice_api/src/otel.ts` | The SDK bootstrap, loaded via `--preload` so instrumentation is up before the app. |
+| `craigsnotice_api/src/telemetry/index.ts` | `withSpan` — records the exception and marks the span errored before rethrowing. |
+| `craigsnotice_api/src/telemetry/metrics.ts` | The counters, histograms, and the `scraper.health` gauge the alert rule fires on. |
+| `craigsnotice_api/src/telemetry/events.ts` | Emits each self-heal event three ways at once: span event, severity-tagged log, counter. |
+| `craigsnotice_api/src/routes/hooks.ts` | `/api/v1/hooks/signoz/heal` — the alert webhook that closes the loop, and Bright Data's delivery callback. |
+| `signoz/alerts/scraper-degraded.json` | The alert rule. |
+| `signoz/dashboards/craigsnotice.json` | Seven-panel dashboard. |
+
+Spans are emitted from `services/ingest.ts`, `services/judgment.ts`,
+`services/scheduler.ts` and `services/notify/dispatcher.ts`, all under `craigsnotice_api/src/` —
+search for `withSpan(`.
+
+Tests: `telemetry`, `metrics`, `events`, `trace-tree` (15 tests). `trace-tree`
+runs a real cycle through an in-memory exporter and asserts the tree shape
+rather than trusting it.
+
+### Shared by all three
+
+| File | What it does |
+|---|---|
+| `craigsnotice_api/src/services/scheduler.ts` | `runWatchCycle` — the orchestration that ties scraping, judging and notifying together, and the interval loop that runs watches unattended. |
+| `craigsnotice_api/src/services/selfheal.ts` | The detection → degrade → heal → recover chain, touching all three: Zod violation rate (Bright Data), entity patch (Port), event emission (SigNoz). |
+| `craigsnotice_api/src/services/fixtures.ts` | Fake Bright Data and Port for `DEMO_MODE=fixtures`, backed by a verbatim capture of a live run. |
+| `craigsnotice_api/src/index.ts` | The composition root: where every real or fake client is chosen and wired. |
+
 ## About the staged break
 
 The self-heal **detection, event emission, Bright Data heal call, and
